@@ -1,0 +1,12 @@
+
+//kode batasan akses user
+session_start();
+
+// Ambil level user dari session setelah login
+if ($_SESSION['user_level'] == 3) {
+    // Ini admin, tampilkan halaman admin
+} elseif ($_SESSION['user_level'] == 2) {
+    // Ini petugas, tampilkan halaman petugas
+} else {
+    // Ini pengguna biasa
+}

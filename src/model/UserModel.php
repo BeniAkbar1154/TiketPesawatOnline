@@ -9,11 +9,18 @@ class User {
         $this->pdo = $pdo;
     }
 
-    public function register($username, $email, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-        return $stmt->execute([$username, $email, $hashedPassword]);
+    public function getUserByEmail($email) {
+        $stmt = $this->pdo->prepare('SELECT * FROM users WHERE email = ?');
+        $stmt->execute([$email]);
+        return $stmt->fetch();
     }
+
+    public function register($username, $email, $password, $level = 1) {
+        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password, level) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$username, $email, $hashedPassword, $level]);
+    }
+    
 
     public function getAllUsers() {
         $stmt = $this->pdo->query("SELECT * FROM users");
@@ -31,10 +38,22 @@ class User {
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function updateUser($id, $username, $email, $password) {
+    public function updateUser($id, $username, $email, $password, $level) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->pdo->prepare("UPDATE users SET username = ?, email = ?, password = ? WHERE id = ?");
-        return $stmt->execute([$username, $email, $hashedPassword, $id]);
+        $stmt = $this->pdo->prepare("UPDATE users SET username = ?, email = ?, password = ?, level = ? WHERE id = ?");
+        return $stmt->execute([$username, $email, $hashedPassword, $level, $id]);
     }
+    
+    public function login($email, $password) {
+        $stmt = $this->pdo->prepare("SELECT * FROM users WHERE email = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+    
+        if ($user && password_verify($password, $user['password'])) {
+            return $user;
+        }
+        return false;
+    }
+    
 }
 ?>
