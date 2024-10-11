@@ -10,3 +10,13 @@ if ($_SESSION['user_level'] == 3) {
 } else {
     // Ini pengguna biasa
 }
+
+//kode link login
+ <a href="public/register/login.php">
+        <button class="button">Login</button>
+    </a>
+
+    <!-- Tombol ke halaman Register -->
+    <a href="public/register/register.php">
+        <button class="button">Register</button>
+    </a>
