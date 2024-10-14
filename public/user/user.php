@@ -269,6 +269,7 @@ $result = $conn->query($sql);
     <!-- /.card-header -->
     <div class="card">
         <div class="card-header">
+        <a href="create.php" class="btn btn-success btn-sm mb-3">Create User</a>
         <div class="card-body">
                 <table class="table table-bordered">
                   <thead>
