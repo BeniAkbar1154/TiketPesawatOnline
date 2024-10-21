@@ -1,17 +1,14 @@
 <?php
-// public/routing.php
-require_once '../src/controller/UserController.php';
-require_once '../database/db_connection.php';
+require_once __DIR__ . '/../database/db_connection.php';
+require_once __DIR__ . '/../src/controller/UserController.php';
+require_once __DIR__ . '/../src/model/UserModel.php';
 
 $action = $_GET['action'] ?? '';
 
-$userController = new UserController($pdo);
+$userModel = new User($pdo);
+$userController = new UserController($userModel);
+$controller = new UserController();
 
-if ($action === 'login') {
-    $userController->login();
-} elseif ($action === 'register') {
-    $userController->register();
-} else {
-    echo "Page not found";
+if ($_GET['action'] == 'register') {
+    $controller->register();
 }
-?>

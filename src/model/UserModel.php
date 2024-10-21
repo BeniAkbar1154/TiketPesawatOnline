@@ -15,11 +15,19 @@ class User {
         return $stmt->fetch();
     }
 
-    public function register($username, $email, $password, $level = 1) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = $this->pdo->prepare("INSERT INTO users (username, email, password, level) VALUES (?, ?, ?, ?)");
-        return $stmt->execute([$username, $email, $hashedPassword, $level]);
+    public function register($username, $email, $password) {
+        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+        $level = 1;  // Level otomatis diatur sebagai customer
+        $sql = "INSERT INTO users (username, email, password, level) VALUES (:username, :email, :password, :level)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([
+            'username' => $username,
+            'email' => $email,
+            'password' => $hashed_password,
+            'level' => $level  // Level user customer otomatis
+        ]);
     }
+    
     
 
     public function getAllUsers() {

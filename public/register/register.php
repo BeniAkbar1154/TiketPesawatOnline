@@ -29,14 +29,6 @@
                     <label for="password">Password</label>
                     <input type="password" name="password" class="form-control" id="password" placeholder="Enter password" required>
                 </div>
-                <div class="form-group">
-                    <label for="level">Level</label>
-                    <select name="level" class="form-control" id="level" required>
-                        <option value="1">Pengguna</option>
-                        <option value="2">Petugas</option>
-                        <option value="3">Admin</option>
-                    </select>
-                </div>
             </div>
             <!-- Submit button -->
             <div class="card-footer">

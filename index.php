@@ -9,8 +9,8 @@
   <meta name="keywords" content="">
 
   <!-- Favicons -->
-  <link href="public/landing/assets/img/favicon.png" rel="icon">
-  <link href="public/landing/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <!-- <link href="public/landing/assets/img/favicon.png" rel="icon">
+  <link href="public/landing/assets/img/apple-touch-icon.png" rel="apple-touch-icon"> -->
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -47,8 +47,8 @@
           <li><a href="#services">Services</a></li>
           <li><a href="#pricing">Penerbangan</a></li>
           <li><a href="#contact">Contact</a></li>
-          <li><a href="#contact">Masuk</a></li>
-          <li><a href="#contact">Daftar</a></li> 
+          <li><a href="public/register/login.php">Masuk</a></li>
+          <li><a href="public/register/register.php">Daftar</a></li> 
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
       </nav>

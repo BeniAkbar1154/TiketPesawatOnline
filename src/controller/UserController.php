@@ -5,23 +5,22 @@ require_once __DIR__ . '/../model/UserModel.php';
 class UserController {
     private $userModel;
 
-    public function __construct($pdo) {
+    public function __construct() {
+        global $pdo;
         $this->userModel = new User($pdo);
     }
 
     public function register() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $username = $_POST['username'];
-            $email = $_POST['email'];
-            $password = $_POST['password'];
-            $level = $_POST['level'];
-    
-            if ($this->userModel->register($username, $email, $password, $level)) {
-                header('Location: /success.php');
-            } else {
-                echo "Registrasi Gagal.";
-            }
-        }
+        $username = $_POST['username'];
+        $email = $_POST['email'];
+        $password = $_POST['password'];
+        
+        // Daftarkan user baru
+        $this->userModel->register($username, $email, $password);
+        
+        // Setelah berhasil, redirect ke halaman lain (misalnya login)
+        header('Location: login.php');
+        exit();
     }
     
     public function login() {
