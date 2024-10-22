@@ -1,15 +1,16 @@
 <?php
-require_once __DIR__ . '/   ../db_connection.php';
+require_once __DIR__ . '/../../database/db_connection.php';
+require_once 'create_users_table.php';
+require_once 'create_airlines_table.php';
+require_once 'create_flights_table.php';
 
-$sql = "CREATE TABLE IF NOT EXISTS tickets (
-    id INT(11) AUTO_INCREMENT PRIMARY KEY,
-    flight_number VARCHAR(50) NOT NULL,
-    destination VARCHAR(100) NOT NULL,
-    departure_time DATETIME NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-)";
+try {
+    createUsersTable($pdo);
+    createAirlinesTable($pdo);
+    createFlightsTable($pdo);
 
-// Eksekusi query
-$pdo->exec($sql);
-echo "Tabel 'tickets' berhasil dibuat atau sudah ada.";
+    echo "All tables created successfully!";
+} catch (PDOException $e) {
+    echo "Migration failed: " . $e->getMessage();
+}
+?>
