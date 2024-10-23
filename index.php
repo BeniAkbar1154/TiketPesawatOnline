@@ -9,8 +9,8 @@
   <meta name="keywords" content="">
 
   <!-- Favicons -->
-  <!-- <link href="public/landing/assets/img/favicon.png" rel="icon">
-  <link href="public/landing/assets/img/apple-touch-icon.png" rel="apple-touch-icon"> -->
+  <!-- <link href="public/landing1/assets/img/favicon.png" rel="icon">
+  <link href="public/landing1/assets/img/apple-touch-icon.png" rel="apple-touch-icon"> -->
 
   <!-- Fonts -->
   <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -18,13 +18,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
-  <link href="public/landing/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-  <link href="public/landing/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-  <link href="public/landing/assets/vendor/aos/aos.css" rel="stylesheet">
-  <link href="public/landing/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="public/landing1/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="public/landing1/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="public/landing1/assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="public/landing1/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
 
   <!-- Main CSS File -->
-  <link href="public/landing/assets/css/main.css" rel="stylesheet">
+  <link href="public/landing1/assets/css/main.css" rel="stylesheet">
 
 
 </head>
@@ -36,7 +36,7 @@
 
       <a href="index.html" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <!-- <img src="public/landing/assets/img/logo.png" alt=""> -->
+        <!-- <img src="public/landing1/assets/img/logo.png" alt=""> -->
         <h1 class="sitename"><span>Omega</span>Express</h1>
       </a>
 
@@ -73,7 +73,7 @@
             </div>
           </div>
           <div class="col-lg-6 order-1 order-lg-2">
-            <img src="public/landing/assets/img/hero-img.png" class="img-fluid" alt="">
+            <img src="public/landing1/assets/img/hero-img.png" class="img-fluid" alt="">
           </div>
         </div>
       </div>
@@ -121,7 +121,7 @@
               <br>
               <h3 style="color: #20c997;">Jakarta -> Denpasar</h3>
               <br>
-              <img src="public/landing/assets\img\denpasar1.jpg"alt="Image" height="320" width="256">
+              <img src="public/landing1/assets\img\denpasar1.jpg"alt="Image" height="320" width="256">
               <div class="price"><sup>Rp</sup>1.500.000</div>
               <div class="icon">
               </div>
@@ -134,7 +134,7 @@
               <br>
               <h3 style="color: #0dcaf0;">Jakarta -> Lombok</h3>
               <br>
-              <img src="public/landing/assets\img\Lombok.jpeg"alt="Image" height="320" width="256">
+              <img src="public/landing1/assets\img\Lombok.jpeg"alt="Image" height="320" width="256">
               <div class="price"><sup>Rp</sup>900.000</div>
               <div class="icon">
               </div>
@@ -147,7 +147,7 @@
               <br>
               <h3 style="color: #fd7e14;">Jakarta -> London</h3>
               <br>
-              <img src="public/landing/assets\img\London.webp"alt="Image" height="320" width="256">
+              <img src="public/landing1/assets\img\London.webp"alt="Image" height="320" width="256">
               <div class="price"><sup>Rp</sup>4.500.000</div>
               <div class="icon">
               </div>
@@ -160,7 +160,7 @@
               <br>
               <h3 style="color: #0d6efd;">Jakarta -> Tokyo</h3>
               <br>
-              <img src="public/landing/assets\img\Tokyo.jpg"alt="Image" height="320" width="256">
+              <img src="public/landing1/assets\img\Tokyo.jpg"alt="Image" height="320" width="256">
               <div class="price"><sup>Rp</sup>3.145.000</div>
               <div class="icon">
               </div>
@@ -197,15 +197,15 @@
           <div class="col-lg-6 about-images" data-aos="fade-up" data-aos-delay="200">
             <div class="row gy-4">
               <div class="col-lg-6">
-                <img src="public/landing/assets/img/about-company-1.jpg" class="img-fluid" alt="">
+                <img src="public/landing1/assets/img/about-company-1.jpg" class="img-fluid" alt="">
               </div>
               <div class="col-lg-6">
                 <div class="row gy-4">
                   <div class="col-lg-12">
-                    <img src="public/landing/assets/img/about-company-2.jpg" class="img-fluid" alt="">
+                    <img src="public/landing1/assets/img/about-company-2.jpg" class="img-fluid" alt="">
                   </div>
                   <div class="col-lg-12">
-                    <img src="public/landing/assets/img/about-company-3.jpg" class="img-fluid" alt="">
+                    <img src="public/landing1/assets/img/about-company-3.jpg" class="img-fluid" alt="">
                   </div>
                 </div>
               </div>
@@ -385,13 +385,13 @@
   <div id="preloader"></div>
 
   <!-- Vendor JS Files -->
-  <script src="public/landing/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-  <script src="public/landing/assets/vendor/php-email-form/validate.js"></script>
-  <script src="public/landing/assets/vendor/aos/aos.js"></script>
-  <script src="public/landing/assets/vendor/glightbox/js/glightbox.min.js"></script>
+  <script src="public/landing1/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="public/landing1/assets/vendor/php-email-form/validate.js"></script>
+  <script src="public/landing1/assets/vendor/aos/aos.js"></script>
+  <script src="public/landing1/assets/vendor/glightbox/js/glightbox.min.js"></script>
 
   <!-- Main JS File -->
-  <script src="public/landing/assets/js/main.js"></script>
+  <script src="public/landing1/assets/js/main.js"></script>
 
 </body>
 
