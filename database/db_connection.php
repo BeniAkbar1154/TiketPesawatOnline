@@ -1,7 +1,7 @@
 <?php
 $servername = "localhost";
 $username = "root";
-$password = "";
+$password = "root";
 $dbname = "tiketpesawat";
 
 // koneksi user
@@ -10,7 +10,7 @@ $conn = new mysqli($servername, $username, $password, $dbname);
 try {
     $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo "Connected successfully"; 
+    // echo "Connected successfully";
 } catch (PDOException $e) {
     die("Could not connect to the database: " . $e->getMessage());
 }
