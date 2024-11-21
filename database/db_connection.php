@@ -1,22 +1,21 @@
 <?php
-$servername = "mysql_db";
+$servername = "localhost";
 $username = "root";
-$password = "root";
-$dbname = "tiketpesawat";
+$password = "";
+$dbname = "tiket_transportasi";
 
 // koneksi user
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 try {
+    // Membuat koneksi ke database menggunakan PDO
     $pdo = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
+    // Mengatur mode error PDO ke Exception
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // echo "Connected successfully";
+    echo "Database connected successfully!";
 } catch (PDOException $e) {
-    die("Could not connect to the database: " . $e->getMessage());
+    // Menampilkan pesan error jika koneksi gagal
+    echo "Database connection failed: " . $e->getMessage();
 }
 
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
 ?>
