@@ -1,82 +1,73 @@
 <?php
-// Koneksi ke database
-include_once('../../database/db_connection.php');
+require_once __DIR__ . '/../../src/controller/UserController.php';
 
-// Ambil ID dari parameter URL
-$id = $_GET['id'];
+$userController = new UserController($pdo);
 
-// Ambil data user berdasarkan ID
-$sql = "SELECT * FROM users WHERE id = $id";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $user = $result->fetch_assoc();
-} else {
-    echo "User tidak ditemukan!";
-    exit();
+if (!isset($_GET['id'])) {
+    header('Location: user.php');
+    exit;
 }
 
-// Update data user jika form disubmit
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $username = $_POST['username'];
-    $email = $_POST['email'];
-    $level = $_POST['level'];
+$id = $_GET['id'];
+$user = $userController->getUserById($id);
 
-    $sql = "UPDATE users SET username='$username', email='$email', level='$level' WHERE id=$id";
-    
-    if ($conn->query($sql) === TRUE) {
-        header("Location: user.php");
-        exit();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'nama' => $_POST['nama'],
+        'email' => $_POST['email'],
+        'no_telepon' => $_POST['no_telepon'],
+        'role' => $_POST['role'],
+    ];
+
+    if ($userController->updateUser($id, $data)) {
+        header('Location: user.php');
+        exit;
     } else {
-        echo "Error updating record: " . $conn->error;
+        $error = "Gagal mengupdate user!";
     }
 }
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit User</title>
-    <!-- Link CSS AdminLTE -->
-    <link rel="stylesheet" href="/FinalProject/public/adminlte/css/adminlte.min.css">
+    <link rel="stylesheet" href="../adminlte/css/adminlte.min.css">
 </head>
+
 <body>
     <div class="container mt-5">
-        <!-- general form elements -->
-        <div class="card card-primary">
-            <div class="card-header">
-                <h3 class="card-title">Edit User</h3>
+        <h2>Edit User</h2>
+        <?php if (isset($error)): ?>
+            <div class="alert alert-danger"><?= $error ?></div>
+        <?php endif; ?>
+        <form method="POST">
+            <div class="form-group">
+                <label>Nama</label>
+                <input type="text" name="nama" class="form-control" value="<?= $user['nama'] ?>" required>
             </div>
-            <!-- /.card-header -->
-            <!-- form start -->
-            <form method="POST">
-                <div class="card-body">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" value="<?= $user['username'] ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email address</label>
-                        <input type="email" class="form-control" id="email" name="email" value="<?= $user['email'] ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="level">Level</label>
-                        <input type="number" class="form-control" id="level" name="level" value="<?= $user['level'] ?>" required>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary">Update</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.card -->
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" name="email" class="form-control" value="<?= $user['email'] ?>" required>
+            </div>
+            <div class="form-group">
+                <label>No. Telepon</label>
+                <input type="text" name="no_telepon" class="form-control" value="<?= $user['no_telepon'] ?>" required>
+            </div>
+            <div class="form-group">
+                <label>Role</label>
+                <select name="role" class="form-control">
+                    <option value="customer" <?= $user['role'] === 'customer' ? 'selected' : '' ?>>Customer</option>
+                    <option value="petugas" <?= $user['role'] === 'petugas' ? 'selected' : '' ?>>Petugas</option>
+                    <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Update</button>
+            <a href="user.php" class="btn btn-secondary">Kembali</a>
+        </form>
     </div>
-    
-    <!-- Script AdminLTE -->
-    <script src="/FinalProject/public/adminlte/js/adminlte.min.js"></script>
 </body>
+
 </html>

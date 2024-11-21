@@ -1,36 +1,11 @@
-tes
-//kode batasan akses user
-session_start();
-
-// Ambil level user dari session setelah login
-if ($_SESSION['user_level'] == 3) {
-    // Ini admin, tampilkan halaman admin
-} elseif ($_SESSION['user_level'] == 2) {
-    // Ini petugas, tampilkan halaman petugas
-} else {
-    // Ini pengguna biasa
-}
-
-//kode link login
- <a href="public/register/login.php">
-        <button class="button">Login</button>
-    </a>
-
-    <!-- Tombol ke halaman Register -->
-    <a href="public/register/register.php">
-        <button class="button">Register</button>
-    </a>
-
-<-----------------------------------STRUKTUR TAMPILAN KOSONGAN DENGAN ADMINLTE------------------------------------->
 <?php
-session_start();
+require_once __DIR__ . '/../../database/db_connection.php';
+require_once __DIR__ . '/../../src/controller/UserController.php';
 
-// Auth
-// if (!isset($_SESSION['user_level']) || $_SESSION['user_level'] != 3) {
-//     header("Location: ../register/login.php");
-//     exit();
-// }
-// ?>
+$userController = new UserController($pdo);
+
+$users = $userController->getAllUsers();
+?>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -320,6 +295,7 @@ session_start();
         </aside>
 
         <!-- Content Wrapper. Contains page content -->
+
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
             <div class="content-header">
@@ -340,10 +316,49 @@ session_start();
             <!-- /.content-header -->
 
             <!-- Main content -->
-
+            <div class="container mt-5">
+                <a href="create.php" class="btn btn-primary mb-3">Tambah User</a>
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Nama</th>
+                            <th>Email</th>
+                            <th>No. Telepon</th>
+                            <th>Role</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php if (!empty($users)): ?>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td><?= htmlspecialchars($user['nama']) ?></td>
+                                    <td><?= htmlspecialchars($user['email']) ?></td>
+                                    <td><?= htmlspecialchars($user['no_telepon']) ?></td>
+                                    <td><?= htmlspecialchars($user['role']) ?></td>
+                                    <td>
+                                        <a href="edit.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <a href="delete.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Yakin ingin menghapus user ini?')">
+                                            <i class="fas fa-trash-alt"></i> Hapus
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center">Tidak ada data pengguna</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            </div>
 
             <!-- /.content -->
         </div>
+
         <!-- /.content-wrapper -->
 
         <!-- Control Sidebar -->
@@ -373,8 +388,3 @@ session_start();
 </body>
 
 </html>
-
-
-
-JANGAN LUPA "../adminlte/"
-<------------------------------------------------------------------------------------------------------------------>
