@@ -1,10 +1,38 @@
 <?php
-require_once __DIR__ . '/../../src/controller/BusController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
+require_once __DIR__ . '/../../src/controller/BusController.php';
 
-// Inisialisasi BusController
 $busController = new BusController($pdo);
-$buses = $busController->getAllBuses();
+
+// Ambil data bus berdasarkan ID
+if (isset($_GET['id'])) {
+    $bus = $busController->getBusById($_GET['id']);
+    if (!$bus) {
+        echo "Bus tidak ditemukan.";
+        exit;
+    }
+} else {
+    header('Location: bus.php');
+    exit();
+}
+
+// Update data bus
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $busData = [
+        'gambar' => $_POST['gambar'],
+        'nama' => $_POST['nama'],
+        'tipe' => $_POST['tipe'],
+        'deskripsi' => $_POST['deskripsi'],
+        'kapasitas' => $_POST['kapasitas']
+    ];
+
+    if ($busController->updateBus($_GET['id'], $busData)) {
+        header('Location: bus.php');
+        exit();
+    } else {
+        echo "Gagal mengupdate data bus.";
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -19,11 +47,11 @@ $buses = $busController->getAllBuses();
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="public/adminlte/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../adminlte/plugins/fontawesome-free/css/all.min.css">
     <!-- IonIcons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="public/adminlte/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../adminlte/dist/css/adminlte.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -215,7 +243,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>User</p>
                                     </a>
@@ -238,7 +266,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
@@ -273,7 +301,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>
@@ -288,7 +316,7 @@ $buses = $busController->getAllBuses();
                         </li>
                     </ul>
                 </nav>
-                <a href="public/register/logout.php" class="btn btn-danger">Logout</a>
+                <a href="../register/logout.php" class="btn btn-danger">Logout</a>
                 <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->
@@ -317,55 +345,39 @@ $buses = $busController->getAllBuses();
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h1 class="text-center">Daftar Bus</h1>
-                <div class="text-end mb-3">
-                    <a href="create.php" class="btn btn-primary">Tambah Bus</a>
-                </div>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Gambar</th>
-                            <th>Nama</th>
-                            <th>Tipe</th>
-                            <th>Deskripsi</th>
-                            <th>Kapasitas</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (!empty($buses)): ?>
-                            <?php foreach ($buses as $index => $bus): ?>
-                                <tr>
-                                    <td><?= $index + 1; ?></td>
-                                    <td>
-                                        <?php if (!empty($bus['gambar'])): ?>
-                                            <img src="/TiketTransportasiOnline/<?= $bus['gambar']; ?>" alt="Gambar Bus"
-                                                style="width: 100px; height: 100px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <span class="text-muted">Tidak ada gambar</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($bus['nama']); ?></td>
-                                    <td><?= htmlspecialchars($bus['tipe']); ?></td>
-                                    <td><?= htmlspecialchars($bus['deskripsi']); ?></td>
-                                    <td><?= htmlspecialchars($bus['kapasitas']); ?></td>
-                                    <td>
-                                        <a href="edit.php?id=<?= $bus['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                        <a href="delete.php?id=<?= $bus['id']; ?>" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus bus ini?');">Hapus</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <tr>
-                                <td colspan="7" class="text-center">Tidak ada data bus</td>
-                            </tr>
-                        <?php endif; ?>
-                    </tbody>
-                </table>
+                <h2>Edit Bus</h2>
+                <form method="POST">
+                    <div class="form-group">
+                        <label for="gambar">Gambar URL</label>
+                        <input type="text" class="form-control" id="gambar" name="gambar" value="<?= $bus['gambar'] ?>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="nama">Nama</label>
+                        <input type="text" class="form-control" id="nama" name="nama" value="<?= $bus['nama'] ?>"
+                            required>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipe">Tipe</label>
+                        <select class="form-control" id="tipe" name="tipe">
+                            <option value="Ekonomi" <?= $bus['tipe'] == 'Ekonomi' ? 'selected' : '' ?>>Ekonomi</option>
+                            <option value="VIP" <?= $bus['tipe'] == 'VIP' ? 'selected' : '' ?>>VIP/Eksekutif</option>
+                            <option value="VVIP" <?= $bus['tipe'] == 'VVIP' ? 'selected' : '' ?>>VVIP/Sleeper</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="deskripsi">Deskripsi</label>
+                        <textarea class="form-control" id="deskripsi" name="deskripsi"
+                            required><?= $bus['deskripsi'] ?></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="kapasitas">Kapasitas</label>
+                        <input type="number" class="form-control" id="kapasitas" name="kapasitas"
+                            value="<?= $bus['kapasitas'] ?>" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">Update</button>
+                </form>
             </div>
-
 
             <!-- /.content -->
         </div>
@@ -384,18 +396,18 @@ $buses = $busController->getAllBuses();
     </div>
 
     <!-- jQuery -->
-    <script src="public/adminlte/plugins/jquery/jquery.min.js"></script>
+    <script src="../adminlte/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap -->
-    <script src="public/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE -->
-    <script src="public/adminlte/dist/js/adminlte.js"></script>
+    <script src="../adminlte/dist/js/adminlte.js"></script>
 
     <!-- OPTIONAL SCRIPTS -->
-    <script src="public/adminlte/plugins/chart.js/Chart.min.js"></script>
+    <script src="../adminlte/plugins/chart.js/Chart.min.js"></script>
     <!-- AdminLTE for demo purposes -->
-    <!-- <script src="public/adminlte/dist/js/demo.js"></script> -->
+    <!-- <script src="../adminlte/dist/js/demo.js"></script> -->
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="public/adminlte/dist/js/pages/dashboard3.js"></script>
+    <script src="../adminlte/dist/js/pages/dashboard3.js"></script>
 </body>
 
 </html>

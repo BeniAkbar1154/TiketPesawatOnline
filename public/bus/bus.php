@@ -19,11 +19,11 @@ $buses = $busController->getAllBuses();
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
     <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="public/adminlte/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../adminlte/plugins/fontawesome-free/css/all.min.css">
     <!-- IonIcons -->
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
-    <link rel="stylesheet" href="public/adminlte/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../adminlte/dist/css/adminlte.min.css">
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -215,7 +215,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>User</p>
                                     </a>
@@ -238,7 +238,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
@@ -273,7 +273,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="public/crud/user.php" class="nav-link">
+                                    <a href="../crud/user.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>
@@ -288,7 +288,7 @@ $buses = $busController->getAllBuses();
                         </li>
                     </ul>
                 </nav>
-                <a href="public/register/logout.php" class="btn btn-danger">Logout</a>
+                <a href="../register/logout.php" class="btn btn-danger">Logout</a>
                 <!-- /.sidebar-menu -->
             </div>
             <!-- /.sidebar -->
@@ -384,18 +384,18 @@ $buses = $busController->getAllBuses();
     </div>
 
     <!-- jQuery -->
-    <script src="public/adminlte/plugins/jquery/jquery.min.js"></script>
+    <script src="../adminlte/plugins/jquery/jquery.min.js"></script>
     <!-- Bootstrap -->
-    <script src="public/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE -->
-    <script src="public/adminlte/dist/js/adminlte.js"></script>
+    <script src="../adminlte/dist/js/adminlte.js"></script>
 
     <!-- OPTIONAL SCRIPTS -->
-    <script src="public/adminlte/plugins/chart.js/Chart.min.js"></script>
+    <script src="../adminlte/plugins/chart.js/Chart.min.js"></script>
     <!-- AdminLTE for demo purposes -->
-    <!-- <script src="public/adminlte/dist/js/demo.js"></script> -->
+    <!-- <script src="../adminlte/dist/js/demo.js"></script> -->
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="public/adminlte/dist/js/pages/dashboard3.js"></script>
+    <script src="../adminlte/dist/js/pages/dashboard3.js"></script>
 </body>
 
 </html>

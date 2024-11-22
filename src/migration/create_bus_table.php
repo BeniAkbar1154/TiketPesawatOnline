@@ -5,10 +5,10 @@ function createBusTable($pdo)
     CREATE TABLE IF NOT EXISTS bus (
         id INT AUTO_INCREMENT PRIMARY KEY,
         nama VARCHAR(100) NOT NULL,
-        tipe ENUM('ekonomi', 'eksekutif', 'VIP') NOT NULL,
-        deskripsi TEXT,
+        tipe VARCHAR(50) NOT NULL,
+        deskripsi TEXT NOT NULL,
         kapasitas INT NOT NULL,
-        tanggal_dibuat TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        gambar VARCHAR(255) NOT NULL
     );
     ";
     $pdo->exec($sql);
