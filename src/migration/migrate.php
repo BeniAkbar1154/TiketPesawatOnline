@@ -1,22 +1,18 @@
 <?php
 require_once __DIR__ . '/../../database/db_connection.php';
-require_once 'create_users_table.php';
-require_once 'create_destinasi_table.php';
-require_once 'create_halte_table.php';
-require_once 'create_bus_table.php';
-require_once 'create_rute_table.php';
-require_once 'create_tiket_table.php';
-require_once 'create_pemesanan_table.php';
+require_once 'create_table.php';
 
 try {
-    // Menjalankan migrasi untuk setiap tabel
-    createUsersTable($pdo);
-    createDestinasiTable($pdo);
-    createHalteTable($pdo);
+    // Memanggil fungsi untuk membuat semua tabel
+    createUserTable($pdo);
     createBusTable($pdo);
-    createRuteTable($pdo);
-    createTiketTable($pdo);
+    createTerminalTable($pdo);
+    createPemberhentianTable($pdo);
+    createJadwalBusTable($pdo);
     createPemesananTable($pdo);
+    createTiketTable($pdo);
+    createLaporanHarianTable($pdo);
+    createLaporanKhususTable($pdo);
 
     echo "All tables created successfully!";
 } catch (PDOException $e) {

@@ -4,27 +4,16 @@ require_once __DIR__ . '/../../database/db_connection.php';
 
 $busController = new BusController($pdo);
 
-$error = null;
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        $data = [
-            'nama' => $_POST['nama'],
-            'tipe' => $_POST['tipe'],
-            'deskripsi' => $_POST['deskripsi'],
-            'kapasitas' => $_POST['kapasitas'],
-        ];
-
-        // Kirim data dan file ke controller
-        $busController->createBus($data, $_FILES);
-        header('Location: bus.php'); // Redirect ke halaman utama setelah berhasil
-        exit();
+        $busController->createBus($_POST, $_FILES);
+        header('Location: bus.php');
+        exit;
     } catch (Exception $e) {
         $error = $e->getMessage();
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -335,41 +324,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h2 class="mb-4">Tambah Bus Baru</h2>
-                <?php if ($error): ?>
-                    <div class="alert alert-danger">
-                        <?= htmlspecialchars($error) ?>
-                    </div>
+                <h1>Tambah Bus</h1>
+                <?php if (isset($error)): ?>
+                    <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                 <?php endif; ?>
                 <form action="create.php" method="POST" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label for="nama">Nama Bus</label>
-                        <input type="text" name="nama" id="nama" class="form-control" required>
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama</label>
+                        <input type="text" class="form-control" name="nama" id="nama" required>
                     </div>
-                    <div class="form-group">
-                        <label for="tipe">Tipe</label>
-                        <select name="tipe" id="tipe" class="form-control" required>
+                    <div class="mb-3">
+                        <label for="tipe" class="form-label">Tipe</label>
+                        <select class="form-control" name="tipe" id="tipe" required>
                             <option value="Ekonomi">Ekonomi</option>
                             <option value="VIP">VIP</option>
                             <option value="VVIP">VVIP</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea name="deskripsi" id="deskripsi" class="form-control" rows="3" required></textarea>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" name="deskripsi" id="deskripsi" required></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="kapasitas">Kapasitas</label>
-                        <input type="number" name="kapasitas" id="kapasitas" class="form-control" required>
+                    <div class="mb-3">
+                        <label for="kapasitas" class="form-label">Kapasitas</label>
+                        <input type="number" class="form-control" name="kapasitas" id="kapasitas" required>
                     </div>
-                    <div class="form-group">
-                        <label for="gambar">Upload Gambar</label>
-                        <input type="file" name="gambar" id="gambar" class="form-control" accept="image/*" required>
+                    <div class="mb-3">
+                        <label for="gambar" class="form-label">Gambar</label>
+                        <input type="file" class="form-control" name="gambar" id="gambar" accept="image/*" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <button type="submit" class="btn btn-primary">Tambah</button>
                     <a href="bus.php" class="btn btn-secondary">Kembali</a>
                 </form>
             </div>
+
 
             <!-- /.content -->
         </div>

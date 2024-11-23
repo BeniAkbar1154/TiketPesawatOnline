@@ -1,9 +1,7 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
 
-$userController = new UserController($pdo);
-
+$userController = new UserController();
 $users = $userController->getAllUsers();
 ?>
 
@@ -317,44 +315,36 @@ $users = $userController->getAllUsers();
 
             <!-- Main content -->
             <div class="container mt-5">
-                <a href="create.php" class="btn btn-primary mb-3">Tambah User</a>
+                <h1>User Management</h1>
+                <a href="create.php" class="btn btn-primary mb-3">Add New User</a>
                 <table class="table table-bordered">
-                    <thead class="thead-dark">
+                    <thead>
                         <tr>
-                            <th>Nama</th>
+                            <th>ID</th>
+                            <th>Username</th>
                             <th>Email</th>
-                            <th>No. Telepon</th>
-                            <th>Role</th>
-                            <th>Aksi</th>
+                            <th>Level</th>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($users)): ?>
-                            <?php foreach ($users as $user): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($user['nama']) ?></td>
-                                    <td><?= htmlspecialchars($user['email']) ?></td>
-                                    <td><?= htmlspecialchars($user['no_telepon']) ?></td>
-                                    <td><?= htmlspecialchars($user['role']) ?></td>
-                                    <td>
-                                        <a href="edit.php?id=<?= $user['id'] ?>" class="btn btn-warning btn-sm">
-                                            <i class="fas fa-edit"></i> Edit
-                                        </a>
-                                        <a href="delete.php?id=<?= $user['id'] ?>" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Yakin ingin menghapus user ini?')">
-                                            <i class="fas fa-trash-alt"></i> Hapus
-                                        </a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php foreach ($users as $user): ?>
                             <tr>
-                                <td colspan="5" class="text-center">Tidak ada data pengguna</td>
+                                <td><?= htmlspecialchars($user['id_user']) ?></td>
+                                <td><?= htmlspecialchars($user['username']) ?></td>
+                                <td><?= htmlspecialchars($user['email']) ?></td>
+                                <td><?= htmlspecialchars($user['level']) ?></td>
+                                <td>
+                                    <a href="edit.php?id=<?= $user['id_user'] ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="delete.php?id=<?= $user['id_user'] ?>" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure?')">Delete</a>
+                                </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+
 
             <!-- /.content -->
         </div>
@@ -382,7 +372,7 @@ $users = $userController->getAllUsers();
     <!-- OPTIONAL SCRIPTS -->
     <script src="../adminlte/plugins/chart.js/Chart.min.js"></script>
     <!-- AdminLTE for demo purposes -->
-    <!-- <script src="../adminlte/dist/js/demo.js"></script> -->
+    <!-- <script src="..   /adminlte/dist/js/demo.js"></script> -->
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="../adminlte/dist/js/pages/dashboard3.js"></script>
 </body>

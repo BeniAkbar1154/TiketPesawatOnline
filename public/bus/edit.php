@@ -1,36 +1,29 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/BusController.php';
+require_once __DIR__ . '/../../database/db_connection.php';
 
 $busController = new BusController($pdo);
 
-// Ambil data bus berdasarkan ID
-if (isset($_GET['id'])) {
-    $bus = $busController->getBusById($_GET['id']);
-    if (!$bus) {
-        echo "Bus tidak ditemukan.";
-        exit;
-    }
-} else {
+if (!isset($_GET['id'])) {
     header('Location: bus.php');
-    exit();
+    exit;
 }
 
-// Update data bus
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $busData = [
-        'gambar' => $_POST['gambar'],
-        'nama' => $_POST['nama'],
-        'tipe' => $_POST['tipe'],
-        'deskripsi' => $_POST['deskripsi'],
-        'kapasitas' => $_POST['kapasitas']
-    ];
+$id = $_GET['id'];
+$bus = $busController->getBusById($id);
 
-    if ($busController->updateBus($_GET['id'], $busData)) {
+if (!$bus) {
+    echo "Bus tidak ditemukan.";
+    exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $busController->updateBus($id, $_POST, $_FILES);
         header('Location: bus.php');
-        exit();
-    } else {
-        echo "Gagal mengupdate data bus.";
+        exit;
+    } catch (Exception $e) {
+        $error = $e->getMessage();
     }
 }
 ?>
@@ -345,37 +338,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h2>Edit Bus</h2>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="gambar">Gambar URL</label>
-                        <input type="text" class="form-control" id="gambar" name="gambar" value="<?= $bus['gambar'] ?>"
-                            required>
+                <h1>Edit Bus</h1>
+                <?php if (isset($error)): ?>
+                        <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                <?php endif; ?>
+                <form action="edit.php?id=<?= $id ?>" method="POST" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label for="nama" class="form-label">Nama</label>
+                        <input type="text" class="form-control" name="nama" id="nama"
+                            value="<?= htmlspecialchars($bus['nama']) ?>" required>
                     </div>
-                    <div class="form-group">
-                        <label for="nama">Nama</label>
-                        <input type="text" class="form-control" id="nama" name="nama" value="<?= $bus['nama'] ?>"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label for="tipe">Tipe</label>
-                        <select class="form-control" id="tipe" name="tipe">
-                            <option value="Ekonomi" <?= $bus['tipe'] == 'Ekonomi' ? 'selected' : '' ?>>Ekonomi</option>
-                            <option value="VIP" <?= $bus['tipe'] == 'VIP' ? 'selected' : '' ?>>VIP/Eksekutif</option>
-                            <option value="VVIP" <?= $bus['tipe'] == 'VVIP' ? 'selected' : '' ?>>VVIP/Sleeper</option>
+                    <div class="mb-3">
+                        <label for="tipe" class="form-label">Tipe</label>
+                        <select class="form-control" name="tipe" id="tipe" required>
+                            <option value="Ekonomi" <?= $bus['tipe'] === 'Ekonomi' ? 'selected' : '' ?>>Ekonomi</option>
+                            <option value="VIP" <?= $bus['tipe'] === 'VIP' ? 'selected' : '' ?>>VIP</option>
+                            <option value="VVIP" <?= $bus['tipe'] === 'VVIP' ? 'selected' : '' ?>>VVIP</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label for="deskripsi">Deskripsi</label>
-                        <textarea class="form-control" id="deskripsi" name="deskripsi"
-                            required><?= $bus['deskripsi'] ?></textarea>
+                    <div class="mb-3">
+                        <label for="deskripsi" class="form-label">Deskripsi</label>
+                        <textarea class="form-control" name="deskripsi" id="deskripsi"
+                            required><?= htmlspecialchars($bus['deskripsi']) ?></textarea>
                     </div>
-                    <div class="form-group">
-                        <label for="kapasitas">Kapasitas</label>
-                        <input type="number" class="form-control" id="kapasitas" name="kapasitas"
-                            value="<?= $bus['kapasitas'] ?>" required>
+                    <div class="mb-3">
+                        <label for="kapasitas" class="form-label">Kapasitas</label>
+                        <input type="number" class="form-control" name="kapasitas" id="kapasitas"
+                            value="<?= htmlspecialchars($bus['kapasitas']) ?>" required>
                     </div>
-                    <button type="submit" class="btn btn-success">Update</button>
+                    <div class="mb-3">
+                        <label for="gambar" class="form-label">Gambar Baru (Opsional)</label>
+                        <input type="file" class="form-control" name="gambar" id="gambar" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Simpan</button>
+                    <a href="bus.php" class="btn btn-secondary">Kembali</a>
                 </form>
             </div>
 

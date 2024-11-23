@@ -23,23 +23,18 @@ class BusController
 
     public function createBus($data, $file)
     {
-        // Path folder tempat menyimpan gambar
-        $uploadDir = __DIR__ . '/../../public/gambar/';
+        $uploadDir = __DIR__ . '/../../public/gambar/bus/';
         if (!is_dir($uploadDir)) {
             mkdir($uploadDir, 0755, true);
         }
 
-        // Proses upload gambar
-        $uploadedFile = $file['gambar'];
-        if ($uploadedFile['error'] === UPLOAD_ERR_OK) {
-            $tempPath = $uploadedFile['tmp_name'];
-            $fileName = uniqid() . '.jpg'; // Nama file unik
+        if (isset($file['gambar']) && $file['gambar']['error'] === UPLOAD_ERR_OK) {
+            $tempPath = $file['gambar']['tmp_name'];
+            $fileName = uniqid() . '.jpg';
             $destination = $uploadDir . $fileName;
 
-            // Resize gambar ke ukuran 400x400
             if ($this->resizeImage($tempPath, $destination, 400, 400)) {
-                // Update data gambar
-                $data['gambar'] = 'public/gambar/' . $fileName;
+                $data['gambar'] = 'public/gambar/bus/' . $fileName;
             } else {
                 throw new Exception("Gagal memproses gambar.");
             }
@@ -47,10 +42,8 @@ class BusController
             throw new Exception("Gagal mengunggah gambar.");
         }
 
-        // Simpan data ke database
-        return $this->busModel->createBus($data);
+        $this->busModel->createBus($data);
     }
-
 
     private function resizeImage($sourcePath, $destinationPath, $width, $height)
     {
@@ -58,7 +51,6 @@ class BusController
         $image = imagecreatefromstring(file_get_contents($sourcePath));
         $resizedImage = imagecreatetruecolor($width, $height);
 
-        // Resize gambar
         imagecopyresampled(
             $resizedImage,
             $image,
@@ -72,22 +64,33 @@ class BusController
             $originalHeight
         );
 
-        // Simpan gambar ke path tujuan
-        $result = imagejpeg($resizedImage, $destinationPath, 90); // 90 adalah kualitas JPEG
+        $result = imagejpeg($resizedImage, $destinationPath, 90);
         imagedestroy($image);
         imagedestroy($resizedImage);
 
         return $result;
     }
 
-    public function updateBus($id, $data)
+    public function updateBus($id, $data, $file)
     {
-        return $this->busModel->updateBus($id, $data);
+        if (isset($file['gambar']) && $file['gambar']['error'] === UPLOAD_ERR_OK) {
+            $uploadDir = __DIR__ . '/../../public/gambar/bus/';
+            $tempPath = $file['gambar']['tmp_name'];
+            $fileName = uniqid() . '.jpg';
+            $destination = $uploadDir . $fileName;
+
+            if ($this->resizeImage($tempPath, $destination, 400, 400)) {
+                $data['gambar'] = 'public/gambar/bus/' . $fileName;
+            } else {
+                throw new Exception("Gagal memproses gambar baru.");
+            }
+        }
+
+        $this->busModel->updateBus($id, $data);
     }
 
     public function deleteBus($id)
     {
-        return $this->busModel->deleteBus($id);
+        $this->busModel->deleteBus($id);
     }
 }
-?>

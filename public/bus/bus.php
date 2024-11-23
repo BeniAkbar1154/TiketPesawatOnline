@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../../src/controller/BusController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
-// Inisialisasi BusController
 $busController = new BusController($pdo);
 $buses = $busController->getAllBuses();
 ?>
@@ -317,51 +316,34 @@ $buses = $busController->getAllBuses();
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h1 class="text-center">Daftar Bus</h1>
-                <div class="text-end mb-3">
-                    <a href="create.php" class="btn btn-primary">Tambah Bus</a>
-                </div>
-                <table class="table table-bordered table-striped">
+                <h1>Daftar Bus</h1>
+                <a href="create.php" class="btn btn-primary mb-3">Tambah Bus</a>
+                <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>Gambar</th>
                             <th>Nama</th>
                             <th>Tipe</th>
                             <th>Deskripsi</th>
                             <th>Kapasitas</th>
+                            <th>Gambar</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <?php if (!empty($buses)): ?>
-                            <?php foreach ($buses as $index => $bus): ?>
-                                <tr>
-                                    <td><?= $index + 1; ?></td>
-                                    <td>
-                                        <?php if (!empty($bus['gambar'])): ?>
-                                            <img src="/TiketTransportasiOnline/<?= $bus['gambar']; ?>" alt="Gambar Bus"
-                                                style="width: 100px; height: 100px; object-fit: cover;">
-                                        <?php else: ?>
-                                            <span class="text-muted">Tidak ada gambar</span>
-                                        <?php endif; ?>
-                                    </td>
-                                    <td><?= htmlspecialchars($bus['nama']); ?></td>
-                                    <td><?= htmlspecialchars($bus['tipe']); ?></td>
-                                    <td><?= htmlspecialchars($bus['deskripsi']); ?></td>
-                                    <td><?= htmlspecialchars($bus['kapasitas']); ?></td>
-                                    <td>
-                                        <a href="edit.php?id=<?= $bus['id']; ?>" class="btn btn-warning btn-sm">Edit</a>
-                                        <a href="delete.php?id=<?= $bus['id']; ?>" class="btn btn-danger btn-sm"
-                                            onclick="return confirm('Apakah Anda yakin ingin menghapus bus ini?');">Hapus</a>
-                                    </td>
-                                </tr>
-                            <?php endforeach; ?>
-                        <?php else: ?>
+                        <?php foreach ($buses as $bus): ?>
                             <tr>
-                                <td colspan="7" class="text-center">Tidak ada data bus</td>
+                                <td><?= htmlspecialchars($bus['nama']) ?></td>
+                                <td><?= htmlspecialchars($bus['tipe']) ?></td>
+                                <td><?= htmlspecialchars($bus['deskripsi']) ?></td>
+                                <td><?= htmlspecialchars($bus['kapasitas']) ?></td>
+                                <td><img src="../../<?= htmlspecialchars($bus['gambar']) ?>" width="100"></td>
+                                <td>
+                                    <a href="edit.php?id=<?= $bus['id_bus'] ?>" class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="delete.php?id=<?= $bus['id_bus'] ?>" class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Are you sure?')">Delete</a>
+                                </td>
                             </tr>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>

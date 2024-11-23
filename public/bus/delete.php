@@ -1,20 +1,17 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/BusController.php';
+require_once __DIR__ . '/../../database/db_connection.php';
 
 $busController = new BusController($pdo);
 
 if (isset($_GET['id'])) {
-    $busId = $_GET['id'];
-
-    if ($busController->deleteBus($busId)) {
+    $id = $_GET['id'];
+    try {
+        $busController->deleteBus($id);
         header('Location: bus.php');
-        exit();
-    } else {
-        echo "Gagal menghapus data bus.";
+        exit;
+    } catch (Exception $e) {
+        echo "Gagal menghapus bus: " . $e->getMessage();
     }
-} else {
-    header('Location: bus.php');
-    exit();
 }
 ?>

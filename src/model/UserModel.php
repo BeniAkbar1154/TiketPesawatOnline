@@ -1,68 +1,63 @@
 <?php
+require_once __DIR__ . '/../../database/db_connection.php';
 
 class UserModel
 {
     private $pdo;
 
-    public function __construct($pdo)
+    public function __construct()
     {
+        global $pdo;
         $this->pdo = $pdo;
     }
 
-    // Fungsi untuk mengambil semua user
-    public function getAllUsers()
+    public function fetchAllUsers()
     {
-        $sql = "SELECT * FROM user";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->query("SELECT * FROM user");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // Fungsi untuk mengambil user berdasarkan ID
-    public function getUserById($id)
+    public function insertUser($data)
     {
-        $sql = "SELECT * FROM user WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
-    }
-
-    // Fungsi untuk menambahkan user baru
-    public function createUser($data)
-    {
-        $sql = "INSERT INTO user (nama, email, password, no_telepon, role) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        $passwordHash = password_hash($data['password'], PASSWORD_DEFAULT);
-
-        return $stmt->execute([
-            $data['nama'],
-            $data['email'],
-            $passwordHash,
-            $data['no_telepon'],
-            $data['role']
+        $stmt = $this->pdo->prepare("
+            INSERT INTO user (username, email, password, level) 
+            VALUES (:username, :email, :password, :level)
+        ");
+        $stmt->execute([
+            ':username' => $data['username'],
+            ':email' => $data['email'],
+            ':password' => password_hash($data['password'], PASSWORD_DEFAULT),
+            ':level' => $data['level']
         ]);
+        return $this->pdo->lastInsertId();
     }
 
-    // Fungsi untuk memperbarui user
+    public function fetchUserById($id)
+    {
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE id_user = :id");
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
     public function updateUser($id, $data)
     {
-        $sql = "UPDATE user SET nama = ?, email = ?, no_telepon = ?, role = ? WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-
+        $stmt = $this->pdo->prepare("
+            UPDATE user 
+            SET username = :username, email = :email, level = :level 
+            WHERE id_user = :id
+        ");
         return $stmt->execute([
-            $data['nama'],
-            $data['email'],
-            $data['no_telepon'],
-            $data['role'],
-            $id
+            ':username' => $data['username'],
+            ':email' => $data['email'],
+            ':level' => $data['level'],
+            ':id' => $id
         ]);
     }
 
-    // Fungsi untuk menghapus user
     public function deleteUser($id)
     {
-        $sql = "DELETE FROM user WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-
-        return $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("DELETE FROM user WHERE id_user = :id");
+        return $stmt->execute([':id' => $id]);
     }
 }
+?>

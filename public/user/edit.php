@@ -1,30 +1,21 @@
 <?php
 require_once __DIR__ . '/../../src/controller/UserController.php';
 
-$userController = new UserController($pdo);
+$userController = new UserController();
 
-if (!isset($_GET['id'])) {
-    header('Location: user.php');
+// Ambil data user berdasarkan ID
+$user = $userController->getUserById($_GET['id']);
+
+if (!$user) {
+    echo "User not found!";
     exit;
 }
 
-$id = $_GET['id'];
-$user = $userController->getUserById($id);
-
+// Jika form di-submit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
-        'nama' => $_POST['nama'],
-        'email' => $_POST['email'],
-        'no_telepon' => $_POST['no_telepon'],
-        'role' => $_POST['role'],
-    ];
-
-    if ($userController->updateUser($id, $data)) {
-        header('Location: user.php');
-        exit;
-    } else {
-        $error = "Gagal mengupdate user!";
-    }
+    $userController->updateUser($_GET['id'], $_POST);
+    header('Location: user.php');
+    exit;
 }
 ?>
 
@@ -338,37 +329,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h2>Edit User</h2>
-                <?php if (isset($error)): ?>
-                    <div class="alert alert-danger"><?= $error ?></div>
-                <?php endif; ?>
+                <h1>Edit User</h1>
                 <form method="POST">
                     <div class="form-group">
-                        <label>Nama</label>
-                        <input type="text" name="nama" class="form-control" value="<?= $user['nama'] ?>" required>
+                        <label for="username">Username</label>
+                        <input type="text" name="username" class="form-control"
+                            value="<?= htmlspecialchars($user['username']) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>Email</label>
-                        <input type="email" name="email" class="form-control" value="<?= $user['email'] ?>" required>
+                        <label for="email">Email</label>
+                        <input type="email" name="email" class="form-control"
+                            value="<?= htmlspecialchars($user['email']) ?>" required>
                     </div>
                     <div class="form-group">
-                        <label>No. Telepon</label>
-                        <input type="text" name="no_telepon" class="form-control" value="<?= $user['no_telepon'] ?>"
-                            required>
-                    </div>
-                    <div class="form-group">
-                        <label>Role</label>
-                        <select name="role" class="form-control">
-                            <option value="customer" <?= $user['role'] === 'customer' ? 'selected' : '' ?>>Customer
+                        <label for="level">Level</label>
+                        <select name="level" class="form-control" required>
+                            <option value="customer" <?= $user['level'] === 'customer' ? 'selected' : '' ?>>Customer
                             </option>
-                            <option value="petugas" <?= $user['role'] === 'petugas' ? 'selected' : '' ?>>Petugas</option>
-                            <option value="admin" <?= $user['role'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                            <option value="petugas" <?= $user['level'] === 'petugas' ? 'selected' : '' ?>>Petugas</option>
+                            <option value="admin" <?= $user['level'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                            <option value="superadmin" <?= $user['level'] === 'superadmin' ? 'selected' : '' ?>>SuperAdmin
+                            </option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">Update</button>
-                    <a href="user.php" class="btn btn-secondary">Kembali</a>
+                    <a href="user.php" class="btn btn-secondary">Cancel</a>
                 </form>
             </div>
+
 
             <!-- /.content -->
         </div>

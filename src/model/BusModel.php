@@ -11,51 +11,56 @@ class BusModel
 
     public function getAllBuses()
     {
-        $sql = "SELECT * FROM bus";
-        $stmt = $this->pdo->query($sql);
-        return $stmt->fetchAll();
+        $stmt = $this->pdo->query("SELECT * FROM bus");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getBusById($id)
     {
-        $sql = "SELECT * FROM bus WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute([$id]);
-        return $stmt->fetch();
+        $stmt = $this->pdo->prepare("SELECT * FROM bus WHERE id_bus = :id");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public function createBus($data)
     {
-        $sql = "INSERT INTO bus (gambar, nama, tipe, deskripsi, kapasitas) VALUES (?, ?, ?, ?, ?)";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            $data['gambar'],
-            $data['nama'],
-            $data['tipe'],
-            $data['deskripsi'],
-            $data['kapasitas']
+        $stmt = $this->pdo->prepare("
+            INSERT INTO bus (nama, tipe, deskripsi, kapasitas, gambar)
+            VALUES (:nama, :tipe, :deskripsi, :kapasitas, :gambar)
+        ");
+        $stmt->execute([
+            'nama' => $data['nama'],
+            'tipe' => $data['tipe'],
+            'deskripsi' => $data['deskripsi'],
+            'kapasitas' => $data['kapasitas'],
+            'gambar' => $data['gambar']
         ]);
     }
 
     public function updateBus($id, $data)
     {
-        $sql = "UPDATE bus SET gambar = ?, nama = ?, tipe = ?, deskripsi = ?, kapasitas = ? WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([
-            $data['gambar'],
-            $data['nama'],
-            $data['tipe'],
-            $data['deskripsi'],
-            $data['kapasitas'],
-            $id
+        $stmt = $this->pdo->prepare("
+            UPDATE bus SET 
+                nama = :nama, 
+                tipe = :tipe, 
+                deskripsi = :deskripsi, 
+                kapasitas = :kapasitas, 
+                gambar = :gambar 
+            WHERE id_bus = :id
+        ");
+        $stmt->execute([
+            'id' => $id,
+            'nama' => $data['nama'],
+            'tipe' => $data['tipe'],
+            'deskripsi' => $data['deskripsi'],
+            'kapasitas' => $data['kapasitas'],
+            'gambar' => $data['gambar']
         ]);
     }
 
     public function deleteBus($id)
     {
-        $sql = "DELETE FROM bus WHERE id = ?";
-        $stmt = $this->pdo->prepare($sql);
-        return $stmt->execute([$id]);
+        $stmt = $this->pdo->prepare("DELETE FROM bus WHERE id_bus = :id");
+        $stmt->execute(['id' => $id]);
     }
 }
-?>
