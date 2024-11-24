@@ -1,34 +1,17 @@
 <?php
 require_once '../../database/db_connection.php';
 
-// Ambil data jadwal berdasarkan ID
-$id = $_GET['id'] ?? null;
-if (!$id) {
-    die('ID jadwal tidak ditemukan!');
-}
+// Ambil data bus
+$query_bus = "SELECT id_bus, nama FROM bus";
+$result_bus = mysqli_query($conn, $query_bus);
 
-$query = "
-    SELECT * FROM jadwal_bus 
-    WHERE id_jadwal_bus = '$id'
-";
-$result = mysqli_query($conn, $query);
-$jadwal = mysqli_fetch_assoc($result);
+// Ambil data terminal (keberangkatan & tujuan)
+$query_terminal = "SELECT id_terminal, nama_terminal FROM terminal";
+$result_terminal = mysqli_query($conn, $query_terminal);
 
-if (!$jadwal) {
-    die('Jadwal tidak ditemukan!');
-}
-
-// Ambil data bus untuk dropdown
-$busQuery = "SELECT * FROM bus";
-$busResult = mysqli_query($conn, $busQuery);
-
-// Ambil data terminal untuk dropdown keberangkatan & tujuan
-$terminalQuery = "SELECT * FROM terminal";
-$terminalResult = mysqli_query($conn, $terminalQuery);
-
-// Ambil data pemberhentian untuk dropdown transit
-$pemberhentianQuery = "SELECT * FROM pemberhentian";
-$pemberhentianResult = mysqli_query($conn, $pemberhentianQuery);
+// Ambil data pemberhentian (transit)
+$query_pemberhentian = "SELECT id_pemberhentian, nama_pemberhentian FROM pemberhentian";
+$result_pemberhentian = mysqli_query($conn, $query_pemberhentian);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_bus = $_POST['id_bus'];
@@ -39,28 +22,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $jam_sampai = $_POST['jam_sampai'];
     $harga = $_POST['harga'];
 
-    $updateQuery = "
-        UPDATE jadwal_bus
-        SET 
-            id_bus = '$id_bus',
-            rute_keberangkatan = '$rute_keberangkatan',
-            rute_transit = " . ($rute_transit ? "'$rute_transit'" : "NULL") . ",
-            rute_tujuan = '$rute_tujuan',
-            jam_keberangkatan = '$jam_keberangkatan',
-            jam_sampai = '$jam_sampai',
-            harga = '$harga'
-        WHERE id_jadwal_bus = '$id'
-    ";
+    $query = "INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, jam_keberangkatan, jam_sampai, harga) 
+              VALUES ('$id_bus', '$rute_keberangkatan', " .
+        ($rute_transit ? "'$rute_transit'" : "NULL") . ", '$rute_tujuan', '$jam_keberangkatan', '$jam_sampai', '$harga')";
 
-    if (mysqli_query($conn, $updateQuery)) {
+    if (mysqli_query($conn, $query)) {
         header('Location: jadwalBus.php');
         exit();
     } else {
-        $error = "Gagal memperbarui jadwal bus: " . mysqli_error($conn);
+        $error = "Gagal menambahkan jadwal bus: " . mysqli_error($conn);
     }
 }
-?>
 
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -371,76 +345,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h1>Edit Jadwal Bus</h1>
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger"><?= $error; ?></div>
-                <?php endif; ?>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="id_bus">Bus</label>
-                        <select name="id_bus" id="id_bus" class="form-control" required>
-                            <?php while ($bus = mysqli_fetch_assoc($busResult)): ?>
-                                <option value="<?= $bus['id_bus']; ?>" <?= $jadwal['id_bus'] == $bus['id_bus'] ? 'selected' : ''; ?>>
-                                    <?= $bus['nama']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Tambah Jadwal Bus</h3>
                     </div>
-                    <div class="form-group">
-                        <label for="rute_keberangkatan">Keberangkatan</label>
-                        <select name="rute_keberangkatan" id="rute_keberangkatan" class="form-control" required>
-                            <?php while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                <option value="<?= $terminal['id_terminal']; ?>"
-                                    <?= $jadwal['rute_keberangkatan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                    <?= $terminal['nama_terminal']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
+                    <div class="card-body">
+                        <?php if (isset($error)): ?>
+                                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                        <?php endif; ?>
+                        <form method="POST">
+                            <div class="form-group">
+                                <label>Bus</label>
+                                <select name="id_bus" class="form-control" required>
+                                    <option value="">Pilih Bus</option>
+                                    <?php while ($row = mysqli_fetch_assoc($result_bus)): ?>
+                                            <option value="<?= $row['id_bus'] ?>"><?= htmlspecialchars($row['nama']) ?></option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Keberangkatan</label>
+                                <select name="rute_keberangkatan" class="form-control" required>
+                                    <option value="">Pilih Terminal Keberangkatan</option>
+                                    <?php while ($row = mysqli_fetch_assoc($result_terminal)): ?>
+                                            <option value="<?= $row['id_terminal'] ?>">
+                                                <?= htmlspecialchars($row['nama_terminal']) ?>
+                                            </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Transit (Opsional)</label>
+                                <select name="rute_transit" class="form-control">
+                                    <option value="">Tidak Ada Transit</option>
+                                    <?php while ($row = mysqli_fetch_assoc($result_pemberhentian)): ?>
+                                            <option value="<?= $row['id_pemberhentian'] ?>">
+                                                <?= htmlspecialchars($row['nama_pemberhentian']) ?>
+                                            </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tujuan</label>
+                                <select name="rute_tujuan" class="form-control" required>
+                                    <option value="">Pilih Terminal Tujuan</option>
+                                    <?php
+                                    mysqli_data_seek($result_terminal, 0); // Reset pointer untuk hasil terminal
+                                    while ($row = mysqli_fetch_assoc($result_terminal)): ?>
+                                            <option value="<?= $row['id_terminal'] ?>">
+                                                <?= htmlspecialchars($row['nama_terminal']) ?>
+                                            </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Jam Keberangkatan</label>
+                                <input type="time" name="jam_keberangkatan" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Jam Sampai</label>
+                                <input type="time" name="jam_sampai" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Harga</label>
+                                <input type="number" name="harga" class="form-control" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
+                            <a href="jadwalBus.php" class="btn btn-secondary">Kembali</a>
+                        </form>
                     </div>
-                    <div class="form-group">
-                        <label for="rute_transit">Transit (Opsional)</label>
-                        <select name="rute_transit" id="rute_transit" class="form-control">
-                            <option value="">Tidak Ada Transit</option>
-                            <?php while ($pemberhentian = mysqli_fetch_assoc($pemberhentianResult)): ?>
-                                <option value="<?= $pemberhentian['id_pemberhentian']; ?>"
-                                    <?= $jadwal['rute_transit'] == $pemberhentian['id_pemberhentian'] ? 'selected' : ''; ?>>
-                                    <?= $pemberhentian['nama_pemberhentian']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rute_tujuan">Tujuan</label>
-                        <select name="rute_tujuan" id="rute_tujuan" class="form-control" required>
-                            <?php
-                            // Reset terminal result untuk tujuan
-                            mysqli_data_seek($terminalResult, 0);
-                            while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                <option value="<?= $terminal['id_terminal']; ?>"
-                                    <?= $jadwal['rute_tujuan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                    <?= $terminal['nama_terminal']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="jam_keberangkatan">Jam Keberangkatan</label>
-                        <input type="time" name="jam_keberangkatan" id="jam_keberangkatan" class="form-control"
-                            value="<?= $jadwal['jam_keberangkatan']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="jam_sampai">Jam Sampai</label>
-                        <input type="time" name="jam_sampai" id="jam_sampai" class="form-control"
-                            value="<?= $jadwal['jam_sampai']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="harga">Harga</label>
-                        <input type="number" name="harga" id="harga" class="form-control"
-                            value="<?= $jadwal['harga']; ?>" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Jadwal</button>
-                    <a href="jadwalBus.php" class="btn btn-secondary">Kembali</a>
-                </form>
+                </div>
             </div>
 
             <!-- /.content -->

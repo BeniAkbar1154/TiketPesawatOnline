@@ -3,7 +3,6 @@ require_once __DIR__ . '/../../database/db_connection.php';
 require_once 'create_table.php';
 
 try {
-    // Memanggil fungsi untuk membuat semua tabel
     createUserTable($pdo);
     createBusTable($pdo);
     createTerminalTable($pdo);
@@ -13,9 +12,8 @@ try {
     createTiketTable($pdo);
     createLaporanHarianTable($pdo);
     createLaporanKhususTable($pdo);
-
-    echo "All tables created successfully!";
+    echo "Semua tabel berhasil dibuat.";
 } catch (PDOException $e) {
-    echo "Migration failed: " . $e->getMessage();
+    echo "Error: " . $e->getMessage();
 }
 ?>

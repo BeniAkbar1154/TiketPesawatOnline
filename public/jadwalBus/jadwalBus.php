@@ -1,66 +1,9 @@
 <?php
-require_once '../../database/db_connection.php';
+require_once '../../src/controller/JadwalBusController.php';
 
-// Ambil data jadwal berdasarkan ID
-$id = $_GET['id'] ?? null;
-if (!$id) {
-    die('ID jadwal tidak ditemukan!');
-}
-
-$query = "
-    SELECT * FROM jadwal_bus 
-    WHERE id_jadwal_bus = '$id'
-";
-$result = mysqli_query($conn, $query);
-$jadwal = mysqli_fetch_assoc($result);
-
-if (!$jadwal) {
-    die('Jadwal tidak ditemukan!');
-}
-
-// Ambil data bus untuk dropdown
-$busQuery = "SELECT * FROM bus";
-$busResult = mysqli_query($conn, $busQuery);
-
-// Ambil data terminal untuk dropdown keberangkatan & tujuan
-$terminalQuery = "SELECT * FROM terminal";
-$terminalResult = mysqli_query($conn, $terminalQuery);
-
-// Ambil data pemberhentian untuk dropdown transit
-$pemberhentianQuery = "SELECT * FROM pemberhentian";
-$pemberhentianResult = mysqli_query($conn, $pemberhentianQuery);
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id_bus = $_POST['id_bus'];
-    $rute_keberangkatan = $_POST['rute_keberangkatan'];
-    $rute_transit = !empty($_POST['rute_transit']) ? $_POST['rute_transit'] : null; // Set NULL jika kosong
-    $rute_tujuan = $_POST['rute_tujuan'];
-    $jam_keberangkatan = $_POST['jam_keberangkatan'];
-    $jam_sampai = $_POST['jam_sampai'];
-    $harga = $_POST['harga'];
-
-    $updateQuery = "
-        UPDATE jadwal_bus
-        SET 
-            id_bus = '$id_bus',
-            rute_keberangkatan = '$rute_keberangkatan',
-            rute_transit = " . ($rute_transit ? "'$rute_transit'" : "NULL") . ",
-            rute_tujuan = '$rute_tujuan',
-            jam_keberangkatan = '$jam_keberangkatan',
-            jam_sampai = '$jam_sampai',
-            harga = '$harga'
-        WHERE id_jadwal_bus = '$id'
-    ";
-
-    if (mysqli_query($conn, $updateQuery)) {
-        header('Location: jadwalBus.php');
-        exit();
-    } else {
-        $error = "Gagal memperbarui jadwal bus: " . mysqli_error($conn);
-    }
-}
+$controller = new JadwalBusController();
+$schedules = $controller->getAllSchedules();
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -370,77 +313,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- /.content-header -->
 
             <!-- Main content -->
-            <div class="container mt-5">
-                <h1>Edit Jadwal Bus</h1>
-                <?php if (!empty($error)): ?>
-                    <div class="alert alert-danger"><?= $error; ?></div>
-                <?php endif; ?>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="id_bus">Bus</label>
-                        <select name="id_bus" id="id_bus" class="form-control" required>
-                            <?php while ($bus = mysqli_fetch_assoc($busResult)): ?>
-                                <option value="<?= $bus['id_bus']; ?>" <?= $jadwal['id_bus'] == $bus['id_bus'] ? 'selected' : ''; ?>>
-                                    <?= $bus['nama']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rute_keberangkatan">Keberangkatan</label>
-                        <select name="rute_keberangkatan" id="rute_keberangkatan" class="form-control" required>
-                            <?php while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                <option value="<?= $terminal['id_terminal']; ?>"
-                                    <?= $jadwal['rute_keberangkatan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                    <?= $terminal['nama_terminal']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rute_transit">Transit (Opsional)</label>
-                        <select name="rute_transit" id="rute_transit" class="form-control">
-                            <option value="">Tidak Ada Transit</option>
-                            <?php while ($pemberhentian = mysqli_fetch_assoc($pemberhentianResult)): ?>
-                                <option value="<?= $pemberhentian['id_pemberhentian']; ?>"
-                                    <?= $jadwal['rute_transit'] == $pemberhentian['id_pemberhentian'] ? 'selected' : ''; ?>>
-                                    <?= $pemberhentian['nama_pemberhentian']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="rute_tujuan">Tujuan</label>
-                        <select name="rute_tujuan" id="rute_tujuan" class="form-control" required>
-                            <?php
-                            // Reset terminal result untuk tujuan
-                            mysqli_data_seek($terminalResult, 0);
-                            while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                <option value="<?= $terminal['id_terminal']; ?>"
-                                    <?= $jadwal['rute_tujuan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                    <?= $terminal['nama_terminal']; ?>
-                                </option>
-                            <?php endwhile; ?>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="jam_keberangkatan">Jam Keberangkatan</label>
-                        <input type="time" name="jam_keberangkatan" id="jam_keberangkatan" class="form-control"
-                            value="<?= $jadwal['jam_keberangkatan']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="jam_sampai">Jam Sampai</label>
-                        <input type="time" name="jam_sampai" id="jam_sampai" class="form-control"
-                            value="<?= $jadwal['jam_sampai']; ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="harga">Harga</label>
-                        <input type="number" name="harga" id="harga" class="form-control"
-                            value="<?= $jadwal['harga']; ?>" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update Jadwal</button>
-                    <a href="jadwalBus.php" class="btn btn-secondary">Kembali</a>
-                </form>
+            <div>
+
+                <!-- Content Wrapper -->
+                <div class="container mt-5">
+                    <!-- Main content -->
+                    <section class="content">
+                        <div class="container-fluid">
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Daftar Jadwal Bus</h3>
+                                            <div class="card-tools">
+                                                <a href="create.php" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-plus"></i> Tambah Jadwal
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- /.card-header -->
+                                        <div class="card-body">
+                                            <table class="table table-bordered table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Bus</th>
+                                                        <th>Keberangkatan</th>
+                                                        <th>Transit</th>
+                                                        <th>Tujuan</th>
+                                                        <th>Jam Keberangkatan</th>
+                                                        <th>Jam Sampai</th>
+                                                        <th>Harga</th>
+                                                        <th>Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if (!empty($schedules)): ?>
+                                                        <?php foreach ($schedules as $index => $schedule): ?>
+                                                            <tr>
+                                                                <td><?= $index + 1 ?></td>
+                                                                <td><?= htmlspecialchars($schedule['bus_name']) ?></td>
+                                                                <td><?= htmlspecialchars($schedule['keberangkatan']) ?></td>
+                                                                <td><?= htmlspecialchars($schedule['transit'] ?? '-') ?></td>
+                                                                <td><?= htmlspecialchars($schedule['tujuan']) ?></td>
+                                                                <td><?= htmlspecialchars($schedule['jam_keberangkatan']) ?></td>
+                                                                <td><?= htmlspecialchars($schedule['jam_sampai']) ?></td>
+                                                                <td><?= htmlspecialchars(number_format($schedule['harga'], 0, ',', '.')) ?>
+                                                                </td>
+                                                                <td>
+                                                                    <a href="edit.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                                        class="btn btn-warning btn-sm">
+                                                                        <i class="fas fa-edit"></i> Edit
+                                                                    </a>
+                                                                    <a href="delete.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
+                                                                        <i class="fas fa-trash"></i> Hapus
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="9" class="text-center">Tidak ada data jadwal bus.
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- /.card-body -->
+                                    </div>
+                                    <!-- /.card -->
+                                </div>
+                            </div>
+                        </div><!-- /.container-fluid -->
+                    </section>
+                    <!-- /.content -->
+                </div>
+                <!-- /.content-wrapper -->
+
             </div>
 
             <!-- /.content -->
