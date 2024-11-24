@@ -2,27 +2,34 @@
 require_once __DIR__ . '/../../src/controller/LaporanHarianController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
-// Membuat objek controller dengan PDO yang sudah ada
 $controller = new LaporanHarianController($pdo);
 
-// Mendapatkan data bus untuk dropdown
-$buses = $controller->getBuses();
+// Mendapatkan ID laporan yang akan diedit
+$id = $_GET['id'];
 
+// Mendapatkan data laporan berdasarkan ID
+$laporan = $controller->getLaporanHarianById($id);
+
+// Mendapatkan data semua bus untuk dropdown
+$buses = $controller->getAllBuses();
+
+// Memproses form ketika disubmit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $data = [
         'id_bus' => $_POST['id_bus'],
         'tanggal' => $_POST['tanggal'],
         'waktu' => $_POST['waktu'],
-        'kondisi_teknis' => $_POST['kondisi_teknis'],
-        'kondisi_kebersihan' => $_POST['kondisi_kebersihan'],
-        'bahan_bakar' => $_POST['bahan_bakar'],
-        'kondisi_jalan' => $_POST['kondisi_jalan'],
-        'ketepatan_jadwal' => $_POST['ketepatan_jadwal'],
-        'keselamatan' => $_POST['keselamatan']
+        'kondisi_teknis' => empty($_POST['kondisi_teknis']) ? 'Tidak ada masalah' : $_POST['kondisi_teknis'],
+        'kondisi_kebersihan' => empty($_POST['kondisi_kebersihan']) ? 'Tidak ada masalah' : $_POST['kondisi_kebersihan'],
+        'bahan_bakar' => empty($_POST['bahan_bakar']) ? 'Tidak ada masalah' : $_POST['bahan_bakar'],
+        'kondisi_jalan' => empty($_POST['kondisi_jalan']) ? 'Tidak ada masalah' : $_POST['kondisi_jalan'],
+        'ketepatan_jadwal' => empty($_POST['ketepatan_jadwal']) ? 'Tidak ada masalah' : $_POST['ketepatan_jadwal'],
+        'keselamatan' => empty($_POST['keselamatan']) ? 'Tidak ada masalah' : $_POST['keselamatan']
     ];
 
-    $controller->createLaporanHarian($data);
-    header("Location: laporanHarian.php");
+    // Mengupdate data laporan harian
+    $controller->editLaporanHarian($id, $data);
+    header("Location: laporanHarian.php"); // Redirect setelah update berhasil
     exit();
 }
 ?>
@@ -337,44 +344,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
+                <h1>Edit Laporan Harian</h1>
                 <form method="POST">
+                    <input type="hidden" name="id_laporan_harian"
+                        value="<?= htmlspecialchars($laporan['id_laporan_harian']) ?>">
+
                     <label for="id_bus">ID Bus:</label>
                     <select name="id_bus" required>
                         <option value="">Pilih Bus</option>
-                        <?php if (!empty($buses)): ?>
-                            <?php foreach ($buses as $bus): ?>
-                                <option value="<?= $bus['id_bus'] ?>"><?= htmlspecialchars($bus['nama']) ?></option>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <option disabled>Tidak ada data bus</option>
-                        <?php endif; ?>
+                        <?php foreach ($buses as $bus): ?>
+                            <option value="<?= htmlspecialchars($bus['id_bus']) ?>" <?= $bus['id_bus'] == $laporan['id_bus'] ? 'selected' : '' ?>>
+                                <?= htmlspecialchars($bus['nama']) ?>
+                            </option>
+                        <?php endforeach; ?>
                     </select>
                     <br>
+
                     <label for="tanggal">Tanggal:</label>
-                    <input type="date" name="tanggal" required>
+                    <input type="date" name="tanggal" value="<?= htmlspecialchars($laporan['tanggal']) ?>" required>
                     <br>
+
                     <label for="waktu">Waktu:</label>
-                    <input type="time" name="waktu" required>
+                    <input type="time" name="waktu" value="<?= htmlspecialchars($laporan['waktu']) ?>" required>
                     <br>
+
                     <label for="kondisi_teknis">Kondisi Teknis:</label>
-                    <textarea name="kondisi_teknis"></textarea>
+                    <textarea name="kondisi_teknis"><?= htmlspecialchars($laporan['kondisi_teknis']) ?></textarea>
                     <br>
+
                     <label for="kondisi_kebersihan">Kondisi Kebersihan:</label>
-                    <textarea name="kondisi_kebersihan"></textarea>
+                    <textarea
+                        name="kondisi_kebersihan"><?= htmlspecialchars($laporan['kondisi_kebersihan']) ?></textarea>
                     <br>
+
                     <label for="bahan_bakar">Bahan Bakar:</label>
-                    <textarea name="bahan_bakar"></textarea>
+                    <textarea name="bahan_bakar"><?= htmlspecialchars($laporan['bahan_bakar']) ?></textarea>
                     <br>
+
                     <label for="kondisi_jalan">Kondisi Jalan:</label>
-                    <textarea name="kondisi_jalan"></textarea>
+                    <textarea name="kondisi_jalan"><?= htmlspecialchars($laporan['kondisi_jalan']) ?></textarea>
                     <br>
+
                     <label for="ketepatan_jadwal">Ketepatan Jadwal:</label>
-                    <textarea name="ketepatan_jadwal"></textarea>
+                    <textarea name="ketepatan_jadwal"><?= htmlspecialchars($laporan['ketepatan_jadwal']) ?></textarea>
                     <br>
+
                     <label for="keselamatan">Keselamatan:</label>
-                    <textarea name="keselamatan"></textarea>
+                    <textarea name="keselamatan"><?= htmlspecialchars($laporan['keselamatan']) ?></textarea>
                     <br>
-                    <button type="submit">Create</button>
+
+                    <button type="submit">Update</button>
                 </form>
             </div>
             <!-- /.content -->

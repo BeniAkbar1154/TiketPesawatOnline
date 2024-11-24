@@ -15,6 +15,13 @@ class BusModel
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function getAll()
+    {
+        $stmt = $this->pdo->prepare("SELECT id_bus, nama FROM bus");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getBusById($id)
     {
         $stmt = $this->pdo->prepare("SELECT * FROM bus WHERE id_bus = :id");

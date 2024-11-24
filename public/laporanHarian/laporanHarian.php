@@ -2,29 +2,9 @@
 require_once __DIR__ . '/../../src/controller/LaporanHarianController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
-// Membuat objek controller dengan PDO yang sudah ada
 $controller = new LaporanHarianController($pdo);
 
-// Mendapatkan data bus untuk dropdown
-$buses = $controller->getBuses();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
-        'id_bus' => $_POST['id_bus'],
-        'tanggal' => $_POST['tanggal'],
-        'waktu' => $_POST['waktu'],
-        'kondisi_teknis' => $_POST['kondisi_teknis'],
-        'kondisi_kebersihan' => $_POST['kondisi_kebersihan'],
-        'bahan_bakar' => $_POST['bahan_bakar'],
-        'kondisi_jalan' => $_POST['kondisi_jalan'],
-        'ketepatan_jadwal' => $_POST['ketepatan_jadwal'],
-        'keselamatan' => $_POST['keselamatan']
-    ];
-
-    $controller->createLaporanHarian($data);
-    header("Location: laporanHarian.php");
-    exit();
-}
+$laporanHarianList = $controller->getAllLaporanHarian();
 ?>
 
 <!DOCTYPE html>
@@ -336,46 +316,87 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- /.content-header -->
 
             <!-- Main content -->
-            <div class="container mt-5">
-                <form method="POST">
-                    <label for="id_bus">ID Bus:</label>
-                    <select name="id_bus" required>
-                        <option value="">Pilih Bus</option>
-                        <?php if (!empty($buses)): ?>
-                            <?php foreach ($buses as $bus): ?>
-                                <option value="<?= $bus['id_bus'] ?>"><?= htmlspecialchars($bus['nama']) ?></option>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <option disabled>Tidak ada data bus</option>
-                        <?php endif; ?>
-                    </select>
-                    <br>
-                    <label for="tanggal">Tanggal:</label>
-                    <input type="date" name="tanggal" required>
-                    <br>
-                    <label for="waktu">Waktu:</label>
-                    <input type="time" name="waktu" required>
-                    <br>
-                    <label for="kondisi_teknis">Kondisi Teknis:</label>
-                    <textarea name="kondisi_teknis"></textarea>
-                    <br>
-                    <label for="kondisi_kebersihan">Kondisi Kebersihan:</label>
-                    <textarea name="kondisi_kebersihan"></textarea>
-                    <br>
-                    <label for="bahan_bakar">Bahan Bakar:</label>
-                    <textarea name="bahan_bakar"></textarea>
-                    <br>
-                    <label for="kondisi_jalan">Kondisi Jalan:</label>
-                    <textarea name="kondisi_jalan"></textarea>
-                    <br>
-                    <label for="ketepatan_jadwal">Ketepatan Jadwal:</label>
-                    <textarea name="ketepatan_jadwal"></textarea>
-                    <br>
-                    <label for="keselamatan">Keselamatan:</label>
-                    <textarea name="keselamatan"></textarea>
-                    <br>
-                    <button type="submit">Create</button>
-                </form>
+            <div>
+                <!-- Content Wrapper -->
+                <div class="container mt-5">
+                    <!-- Main content -->
+                    <section class="content">
+                        <div class="container-fluid">
+                            <div class="row mt-3">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Daftar Laporan Harian</h3>
+                                            <div class="card-tools">
+                                                <a href="create.php" class="btn btn-success btn-sm">
+                                                    <i class="fas fa-plus"></i> Tambah Laporan
+                                                </a>
+                                            </div>
+                                        </div>
+                                        <!-- /.card-header -->
+                                        <div class="card-body">
+                                            <table class="table table-bordered table-hover">
+                                                <thead>
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Bus</th>
+                                                        <th>Tanggal</th>
+                                                        <th>Waktu</th>
+                                                        <th>Kondisi Teknis</th>
+                                                        <th>Kondisi Kebersihan</th>
+                                                        <th>Bahan Bakar</th>
+                                                        <th>Kondisi Jalan</th>
+                                                        <th>Ketepatan Jadwal</th>
+                                                        <th>Keselamatan</th>
+                                                        <th>Aksi</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if (!empty($laporanHarianList)): ?>
+                                                        <?php foreach ($laporanHarianList as $index => $laporan): ?>
+                                                            <tr>
+                                                                <td><?= $index + 1 ?></td>
+                                                                <td><?= htmlspecialchars($laporan['bus_name']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['tanggal']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['waktu']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['kondisi_teknis']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['kondisi_kebersihan']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['bahan_bakar']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['kondisi_jalan']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['ketepatan_jadwal']) ?></td>
+                                                                <td><?= htmlspecialchars($laporan['keselamatan']) ?></td>
+                                                                <td>
+                                                                    <a href="edit.php?id=<?= $laporan['id_laporan_harian'] ?>"
+                                                                        class="btn btn-warning btn-sm">
+                                                                        <i class="fas fa-edit"></i> Edit
+                                                                    </a>
+                                                                    <a href="delete.php?id=<?= $laporan['id_laporan_harian'] ?>"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus laporan ini?');">
+                                                                        <i class="fas fa-trash"></i> Hapus
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="11" class="text-center">Tidak ada data laporan
+                                                                harian.</td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <!-- /.card-body -->
+                                    </div>
+                                    <!-- /.card -->
+                                </div>
+                            </div>
+                        </div><!-- /.container-fluid -->
+                    </section>
+                    <!-- /.content -->
+                </div>
+                <!-- /.content-wrapper -->
             </div>
             <!-- /.content -->
         </div>
