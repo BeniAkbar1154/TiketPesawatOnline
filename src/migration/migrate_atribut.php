@@ -31,11 +31,12 @@ try {
 
     // Insert default data ke tabel pemberhentian
     $pdo->exec("
-        INSERT INTO pemberhentian (nama_pemberhentian) VALUES
-        ('Pemberhentian 1'),
-        ('Pemberhentian 2'),
-        ('Pemberhentian 3')
-    ");
+    INSERT INTO pemberhentian (nama_pemberhentian, lokasi_pemberhentian) VALUES
+    ('Pemberhentian 1', 'Lokasi 1'),
+    ('Pemberhentian 2', 'Lokasi 2'),
+    ('Pemberhentian 3', 'Lokasi 3')
+");
+
 
     // Insert default data ke tabel jadwal_bus
     $pdo->exec("
@@ -68,9 +69,13 @@ try {
 
     // Insert default data ke tabel laporan_khusus
     $pdo->exec("
-        INSERT INTO laporan_khusus (id_bus, id_user, tanggal, jadwal, masalah) VALUES
-        (1, 4, '2024-11-01', '08:00:00', 'Kerusakan Mesin'),
-        (2, 4, '2024-11-02', '09:00:00', 'Ban Pecah')
+        INSERT INTO laporan_khusus (id_bus, id_user, tanggal, masalah) VALUES
+(NULL, NULL, CURRENT_DATE, 'Tidak ada masalah pada sistem.'),
+(NULL, 1, CURRENT_DATE, 'Masalah dengan pengguna: Tidak hadir pada waktu keberangkatan.'),
+(2, NULL, CURRENT_DATE, 'Masalah dengan bus: Kerusakan mesin saat perjalanan.'),
+(1, 3, CURRENT_DATE, 'Masalah pada pengguna: Laporan kehilangan barang.'),
+(NULL, NULL, CURRENT_DATE, 'Laporan rutin tanpa masalah yang tercatat.');
+
     ");
 
     echo "Data default berhasil dimasukkan.";
