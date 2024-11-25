@@ -3,22 +3,7 @@ require_once __DIR__ . '/../../src/controller/LaporanKhususController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
 $controller = new LaporanKhususController($pdo);
-$id = $_GET['id'];
-$laporan = $controller->getLaporanKhususById($id);
-$buses = $controller->getAllBuses();
-$users = $controller->getAllUsers();
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
-        'id_bus' => $_POST['id_bus'],
-        'id_user' => $_POST['id_user'],
-        'tanggal' => $_POST['tanggal'],
-        'masalah' => $_POST['masalah']
-    ];
-    $controller->updateLaporanKhusus($id, $data);
-    header("Location: laporanKhusus.php");
-    exit();
-}
+$laporanKhususList = $controller->getAllLaporanKhusus();
 ?>
 
 <!DOCTYPE html>
@@ -336,38 +321,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="card">
-                                <form method="POST">
-                                    <label>Bus:</label>
-                                    <select name="id_bus">
-                                        <option value="">Tidak Ada</option>
-                                        <?php foreach ($buses as $bus): ?>
-                                            <option value="<?= $bus['id_bus'] ?>" <?= $bus['id_bus'] == $laporan['id_bus'] ? 'selected' : '' ?>>
-                                                <?= $bus['nama'] ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <br>
-                                    <label>User:</label>
-                                    <select name="id_user">
-                                        <option value="">Tidak Ada</option>
-                                        <?php foreach ($users as $user): ?>
-                                            <option value="<?= $user['id_user'] ?>" <?= $user['id_user'] == $laporan['id_user'] ? 'selected' : '' ?>>
-                                                <?= $user['username'] ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
+                                <h1>Daftar Laporan Khusus</h1>
+                                <a href="create.php"> <i class="fas fa-plus"></i>Tambah Laporan Khusus</a>
+                                <table class="table table-bordered table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Bus</th>
+                                            <th>User</th>
+                                            <th>Tanggal</th>
+                                            <th>Masalah</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($laporanKhususList as $index => $laporan): ?>
+                                            <tr>
+                                                <td><?= $index + 1 ?></td>
+                                                <td><?= htmlspecialchars($laporan['bus_name'] ?? 'Tidak Ada') ?></td>
+                                                <td><?= htmlspecialchars($laporan['user_name'] ?? 'Tidak Ada') ?></td>
+                                                <td><?= htmlspecialchars($laporan['tanggal'] ?? '') ?></td>
+                                                <td><?= htmlspecialchars($laporan['masalah'] ?? 'Tidak Ada') ?></td>
 
-                                    <br>
-                                    <label>Tanggal:</label>
-                                    <input type="date" name="tanggal"
-                                        value="<?= htmlspecialchars($laporan['tanggal']) ?>" required>
-                                    <br>
-                                    <label>Masalah:</label>
-                                    <textarea name="masalah"
-                                        required><?= htmlspecialchars($laporan['masalah']) ?></textarea>
-                                    <br>
-                                    <button type="submit">Simpan</button>
-                                </form>
+                                                <td>
+                                                    <a href="edit.php?id=<?= $laporan['id_laporan_khusus'] ?>">Edit</a>
+                                                    <a href="delete.php?id=<?= $laporan['id_laporan_khusus'] ?>"
+                                                        onclick="return confirm('Yakin ingin menghapus?');">Hapus</a>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

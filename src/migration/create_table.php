@@ -137,7 +137,6 @@ function createLaporanKhususTable($pdo)
         id_bus INT DEFAULT NULL,
         id_user INT DEFAULT NULL,
         tanggal DATE NOT NULL,
-        jadwal VARCHAR(255) NOT NULL,
         masalah TEXT DEFAULT NULL,
         FOREIGN KEY (id_bus) REFERENCES bus(id_bus),
         FOREIGN KEY (id_user) REFERENCES user(id_user)

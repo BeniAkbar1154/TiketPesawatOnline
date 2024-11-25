@@ -3,8 +3,6 @@ require_once __DIR__ . '/../../src/controller/LaporanKhususController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
 $controller = new LaporanKhususController($pdo);
-$id = $_GET['id'];
-$laporan = $controller->getLaporanKhususById($id);
 $buses = $controller->getAllBuses();
 $users = $controller->getAllUsers();
 
@@ -15,7 +13,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'tanggal' => $_POST['tanggal'],
         'masalah' => $_POST['masalah']
     ];
-    $controller->updateLaporanKhusus($id, $data);
+    $controller->createLaporanKhusus($data);
     header("Location: laporanKhusus.php");
     exit();
 }
@@ -330,50 +328,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <!-- /.content-header -->
 
             <!-- Main content -->
-
             <div class="container mt-5">
                 <div class="container-fluid">
                     <div class="row mt-3">
                         <div class="col-12">
                             <div class="card">
                                 <form method="POST">
-                                    <label>Bus:</label>
+                                    <label for="id_bus">Bus (Opsional):</label>
                                     <select name="id_bus">
-                                        <option value="">Tidak Ada</option>
+                                        <option value="">Pilih Bus (Opsional)</option>
                                         <?php foreach ($buses as $bus): ?>
-                                            <option value="<?= $bus['id_bus'] ?>" <?= $bus['id_bus'] == $laporan['id_bus'] ? 'selected' : '' ?>>
-                                                <?= $bus['nama'] ?>
+                                            <option value="<?= $bus['id_bus'] ?>"><?= htmlspecialchars($bus['nama']) ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
                                     <br>
-                                    <label>User:</label>
-                                    <select name="id_user">
-                                        <option value="">Tidak Ada</option>
-                                        <?php foreach ($users as $user): ?>
-                                            <option value="<?= $user['id_user'] ?>" <?= $user['id_user'] == $laporan['id_user'] ? 'selected' : '' ?>>
-                                                <?= $user['username'] ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
 
+                                    <label for="id_user">User (Opsional):</label>
+                                    <select name="id_user">
+                                        <option value="">Pilih User (Opsional)</option>
+                                        <?php foreach ($users as $user): ?>
+                                            <option value="<?= $user['id_user'] ?>">
+                                                <?= htmlspecialchars($user['username']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
                                     <br>
-                                    <label>Tanggal:</label>
-                                    <input type="date" name="tanggal"
-                                        value="<?= htmlspecialchars($laporan['tanggal']) ?>" required>
+
+                                    <label for="tanggal">Tanggal:</label>
+                                    <input type="date" name="tanggal" required>
                                     <br>
-                                    <label>Masalah:</label>
-                                    <textarea name="masalah"
-                                        required><?= htmlspecialchars($laporan['masalah']) ?></textarea>
+
+                                    <label for="masalah">Masalah:</label>
+                                    <textarea name="masalah" required></textarea>
                                     <br>
-                                    <button type="submit">Simpan</button>
+
+                                    <button type="submit">Create</button>
                                 </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
             <!-- /.content -->
         </div>
 
