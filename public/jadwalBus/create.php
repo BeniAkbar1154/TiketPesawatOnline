@@ -18,13 +18,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rute_keberangkatan = $_POST['rute_keberangkatan'];
     $rute_transit = !empty($_POST['rute_transit']) ? $_POST['rute_transit'] : null; // Set NULL jika kosong
     $rute_tujuan = $_POST['rute_tujuan'];
-    $jam_keberangkatan = $_POST['jam_keberangkatan'];
-    $jam_sampai = $_POST['jam_sampai'];
+    $datetime_keberangkatan = $_POST['datetime_keberangkatan'];
+    $datetime_sampai = $_POST['datetime_sampai'];
     $harga = $_POST['harga'];
 
-    $query = "INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, jam_keberangkatan, jam_sampai, harga) 
+    $query = "INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, datetime_keberangkatan, datetime_sampai, harga) 
               VALUES ('$id_bus', '$rute_keberangkatan', " .
-        ($rute_transit ? "'$rute_transit'" : "NULL") . ", '$rute_tujuan', '$jam_keberangkatan', '$jam_sampai', '$harga')";
+        ($rute_transit ? "'$rute_transit'" : "NULL") . ", '$rute_tujuan', '$datetime_keberangkatan', '$datetime_sampai', '$harga')";
 
     if (mysqli_query($conn, $query)) {
         header('Location: jadwalBus.php');
@@ -351,7 +351,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     </div>
                     <div class="card-body">
                         <?php if (isset($error)): ?>
-                                <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
+                            <div class="alert alert-danger"><?= htmlspecialchars($error) ?></div>
                         <?php endif; ?>
                         <form method="POST">
                             <div class="form-group">
@@ -359,7 +359,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <select name="id_bus" class="form-control" required>
                                     <option value="">Pilih Bus</option>
                                     <?php while ($row = mysqli_fetch_assoc($result_bus)): ?>
-                                            <option value="<?= $row['id_bus'] ?>"><?= htmlspecialchars($row['nama']) ?></option>
+                                        <option value="<?= $row['id_bus'] ?>"><?= htmlspecialchars($row['nama']) ?></option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
@@ -368,9 +368,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <select name="rute_keberangkatan" class="form-control" required>
                                     <option value="">Pilih Terminal Keberangkatan</option>
                                     <?php while ($row = mysqli_fetch_assoc($result_terminal)): ?>
-                                            <option value="<?= $row['id_terminal'] ?>">
-                                                <?= htmlspecialchars($row['nama_terminal']) ?>
-                                            </option>
+                                        <option value="<?= $row['id_terminal'] ?>">
+                                            <?= htmlspecialchars($row['nama_terminal']) ?>
+                                        </option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
@@ -379,9 +379,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <select name="rute_transit" class="form-control">
                                     <option value="">Tidak Ada Transit</option>
                                     <?php while ($row = mysqli_fetch_assoc($result_pemberhentian)): ?>
-                                            <option value="<?= $row['id_pemberhentian'] ?>">
-                                                <?= htmlspecialchars($row['nama_pemberhentian']) ?>
-                                            </option>
+                                        <option value="<?= $row['id_pemberhentian'] ?>">
+                                            <?= htmlspecialchars($row['nama_pemberhentian']) ?>
+                                        </option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
@@ -392,19 +392,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                     <?php
                                     mysqli_data_seek($result_terminal, 0); // Reset pointer untuk hasil terminal
                                     while ($row = mysqli_fetch_assoc($result_terminal)): ?>
-                                            <option value="<?= $row['id_terminal'] ?>">
-                                                <?= htmlspecialchars($row['nama_terminal']) ?>
-                                            </option>
+                                        <option value="<?= $row['id_terminal'] ?>">
+                                            <?= htmlspecialchars($row['nama_terminal']) ?>
+                                        </option>
                                     <?php endwhile; ?>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Jam Keberangkatan</label>
-                                <input type="time" name="jam_keberangkatan" class="form-control" required>
+                                <input type="datetime-local" name="datetime_keberangkatan" class="form-control"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label>Jam Sampai</label>
-                                <input type="time" name="jam_sampai" class="form-control" required>
+                                <input type="datetime-local" name="datetime_sampai" class="form-control" required>
                             </div>
                             <div class="form-group">
                                 <label>Harga</label>

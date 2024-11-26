@@ -3,7 +3,6 @@ try {
     // Koneksi ke database
     require_once __DIR__ . '/../../database/db_connection.php';
 
-
     // Insert default data ke tabel user
     $pdo->exec("
         INSERT INTO user (username, email, password, level) VALUES
@@ -31,26 +30,26 @@ try {
 
     // Insert default data ke tabel pemberhentian
     $pdo->exec("
-    INSERT INTO pemberhentian (nama_pemberhentian, lokasi_pemberhentian) VALUES
-    ('Pemberhentian 1', 'Lokasi 1'),
-    ('Pemberhentian 2', 'Lokasi 2'),
-    ('Pemberhentian 3', 'Lokasi 3')
-");
-
+        INSERT INTO pemberhentian (nama_pemberhentian, lokasi_pemberhentian) VALUES
+        ('Pemberhentian 1', 'Lokasi 1'),
+        ('Pemberhentian 2', 'Lokasi 2'),
+        ('Pemberhentian 3', 'Lokasi 3')
+    ");
 
     // Insert default data ke tabel jadwal_bus
     $pdo->exec("
-        INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, jam_keberangkatan, jam_sampai, harga) VALUES
-        (1, 1, NULL, 2, '08:00:00', '12:00:00', 100000),
-        (2, 2, 1, 3, '09:00:00', '13:00:00', 150000),
-        (3, 3, NULL, 1, '10:00:00', '14:00:00', 200000)
-    ");
+    INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, datetime_keberangkatan, datetime_sampai, harga) VALUES
+    (1, 1, NULL, 2, '2024-11-26 08:00:00', '2024-11-26 12:00:00', 100000),
+    (2, 2, 1, 3, '2024-11-27 09:00:00', '2024-11-27 13:00:00', 150000),
+    (3, 3, NULL, 1, '2024-11-28 10:00:00', '2024-11-28 14:00:00', 200000)
+");
+
 
     // Insert default data ke tabel pemesanan
     $pdo->exec("
-        INSERT INTO pemesanan (id_user, id_jadwal_bus, tanggal_pemesanan, nomor_kursi, status, tenggat_waktu) VALUES
-        (4, 1, '2024-11-01 08:00:00', 'A1', 'pending', '2024-11-01 12:00:00'),
-        (4, 2, '2024-11-02 09:00:00', 'B2', 'confirmed', '2024-11-02 13:00:00')
+        INSERT INTO pemesanan (id_user, id_jadwal_bus, tanggal_pemesanan, nomor_kursi, status, tagihan, tenggat_waktu) VALUES
+        (4, 1, '2024-11-01 08:00:00', 'A1', 'pending', 100000, '2024-11-01 12:00:00'),
+        (4, 2, '2024-11-02 09:00:00', 'B2', 'pending', 150000, '2024-11-02 13:00:00')
     ");
 
     // Insert default data ke tabel tiket
@@ -70,12 +69,11 @@ try {
     // Insert default data ke tabel laporan_khusus
     $pdo->exec("
         INSERT INTO laporan_khusus (id_bus, id_user, tanggal, masalah) VALUES
-(NULL, NULL, CURRENT_DATE, 'Tidak ada masalah pada sistem.'),
-(NULL, 1, CURRENT_DATE, 'Masalah dengan pengguna: Tidak hadir pada waktu keberangkatan.'),
-(2, NULL, CURRENT_DATE, 'Masalah dengan bus: Kerusakan mesin saat perjalanan.'),
-(1, 3, CURRENT_DATE, 'Masalah pada pengguna: Laporan kehilangan barang.'),
-(NULL, NULL, CURRENT_DATE, 'Laporan rutin tanpa masalah yang tercatat.');
-
+        (NULL, NULL, CURRENT_DATE, 'Tidak ada masalah pada sistem.'),
+        (NULL, 1, CURRENT_DATE, 'Masalah dengan pengguna: Tidak hadir pada waktu keberangkatan.'),
+        (2, NULL, CURRENT_DATE, 'Masalah dengan bus: Kerusakan mesin saat perjalanan.'),
+        (1, 3, CURRENT_DATE, 'Masalah pada pengguna: Laporan kehilangan barang.'),
+        (NULL, NULL, CURRENT_DATE, 'Laporan rutin tanpa masalah yang tercatat.')
     ");
 
     echo "Data default berhasil dimasukkan.";

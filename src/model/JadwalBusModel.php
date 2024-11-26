@@ -19,8 +19,8 @@ class JadwalBusModel
                 jb.rute_keberangkatan,
                 jb.rute_transit,
                 jb.rute_tujuan,
-                jb.jam_keberangkatan,
-                jb.jam_sampai,
+                jb.datetime_keberangkatan,
+                jb.datetime_sampai,
                 jb.harga,
                 t1.nama_terminal AS keberangkatan,
                 t2.nama_terminal AS tujuan,
@@ -46,8 +46,8 @@ class JadwalBusModel
                 jb.rute_keberangkatan,
                 jb.rute_transit,
                 jb.rute_tujuan,
-                jb.jam_keberangkatan,
-                jb.jam_sampai,
+                jb.datetime_keberangkatan,
+                jb.datetime_sampai,
                 jb.harga,
                 t1.nama_terminal AS keberangkatan,
                 t2.nama_terminal AS tujuan,
@@ -67,11 +67,11 @@ class JadwalBusModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $jam_keberangkatan, $jam_sampai, $harga)
+    public function createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga)
     {
         $sql = "
-            INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, jam_keberangkatan, jam_sampai, harga)
-            VALUES (:id_bus, :rute_keberangkatan, :rute_transit, :rute_tujuan, :jam_keberangkatan, :jam_sampai, :harga);
+            INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, datetime_keberangkatan, datetime_sampai, harga)
+            VALUES (:id_bus, :rute_keberangkatan, :rute_transit, :rute_tujuan, :datetime_keberangkatan, :datetime_sampai, :harga);
         ";
 
         $stmt = $this->pdo->prepare($sql);
@@ -79,19 +79,19 @@ class JadwalBusModel
         $stmt->bindParam(':rute_keberangkatan', $rute_keberangkatan);
         $stmt->bindParam(':rute_transit', $rute_transit);
         $stmt->bindParam(':rute_tujuan', $rute_tujuan);
-        $stmt->bindParam(':jam_keberangkatan', $jam_keberangkatan);
-        $stmt->bindParam(':jam_sampai', $jam_sampai);
+        $stmt->bindParam(':datetime_keberangkatan', $datetime_keberangkatan);
+        $stmt->bindParam(':datetime_sampai', $datetime_sampai);
         $stmt->bindParam(':harga', $harga);
 
         return $stmt->execute();
     }
 
-    public function updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $jam_keberangkatan, $jam_sampai, $harga)
+    public function updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga)
     {
         $sql = "
             UPDATE jadwal_bus
             SET id_bus = :id_bus, rute_keberangkatan = :rute_keberangkatan, rute_transit = :rute_transit, rute_tujuan = :rute_tujuan, 
-                jam_keberangkatan = :jam_keberangkatan, jam_sampai = :jam_sampai, harga = :harga
+                datetime_keberangkatan = :datetime_keberangkatan, datetime_sampai = :datetime_sampai, harga = :harga
             WHERE id_jadwal_bus = :id;
         ";
 
@@ -101,8 +101,8 @@ class JadwalBusModel
         $stmt->bindParam(':rute_keberangkatan', $rute_keberangkatan);
         $stmt->bindParam(':rute_transit', $rute_transit);
         $stmt->bindParam(':rute_tujuan', $rute_tujuan);
-        $stmt->bindParam(':jam_keberangkatan', $jam_keberangkatan);
-        $stmt->bindParam(':jam_sampai', $jam_sampai);
+        $stmt->bindParam(':datetime_keberangkatan', $datetime_keberangkatan);
+        $stmt->bindParam(':datetime_sampai', $datetime_sampai);
         $stmt->bindParam(':harga', $harga);
 
         return $stmt->execute();

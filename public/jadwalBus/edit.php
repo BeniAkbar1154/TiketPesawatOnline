@@ -35,8 +35,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $rute_keberangkatan = $_POST['rute_keberangkatan'];
     $rute_transit = !empty($_POST['rute_transit']) ? $_POST['rute_transit'] : null; // Set NULL jika kosong
     $rute_tujuan = $_POST['rute_tujuan'];
-    $jam_keberangkatan = $_POST['jam_keberangkatan'];
-    $jam_sampai = $_POST['jam_sampai'];
+    $datetime_keberangkatan = $_POST['datetime_keberangkatan'];
+    $datetime_sampai = $_POST['datetime_sampai'];
     $harga = $_POST['harga'];
 
     $updateQuery = "
@@ -46,8 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             rute_keberangkatan = '$rute_keberangkatan',
             rute_transit = " . ($rute_transit ? "'$rute_transit'" : "NULL") . ",
             rute_tujuan = '$rute_tujuan',
-            jam_keberangkatan = '$jam_keberangkatan',
-            jam_sampai = '$jam_sampai',
+            datetime_keberangkatan = '$datetime_keberangkatan',
+            datetime_sampai = '$datetime_sampai',
             harga = '$harga'
         WHERE id_jadwal_bus = '$id'
     ";
@@ -373,16 +373,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="container mt-5">
                 <h1>Edit Jadwal Bus</h1>
                 <?php if (!empty($error)): ?>
-                            <div class="alert alert-danger"><?= $error; ?></div>
+                                <div class="alert alert-danger"><?= $error; ?></div>
                 <?php endif; ?>
                 <form method="POST">
                     <div class="form-group">
                         <label for="id_bus">Bus</label>
                         <select name="id_bus" id="id_bus" class="form-control" required>
                             <?php while ($bus = mysqli_fetch_assoc($busResult)): ?>
-                                        <option value="<?= $bus['id_bus']; ?>" <?= $jadwal['id_bus'] == $bus['id_bus'] ? 'selected' : ''; ?>>
-                                            <?= $bus['nama']; ?>
-                                        </option>
+                                            <option value="<?= $bus['id_bus']; ?>" <?= $jadwal['id_bus'] == $bus['id_bus'] ? 'selected' : ''; ?>>
+                                                <?= $bus['nama']; ?>
+                                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -390,10 +390,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <label for="rute_keberangkatan">Keberangkatan</label>
                         <select name="rute_keberangkatan" id="rute_keberangkatan" class="form-control" required>
                             <?php while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                        <option value="<?= $terminal['id_terminal']; ?>"
-                                            <?= $jadwal['rute_keberangkatan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                            <?= $terminal['nama_terminal']; ?>
-                                        </option>
+                                            <option value="<?= $terminal['id_terminal']; ?>"
+                                                <?= $jadwal['rute_keberangkatan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
+                                                <?= $terminal['nama_terminal']; ?>
+                                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -402,10 +402,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <select name="rute_transit" id="rute_transit" class="form-control">
                             <option value="">Tidak Ada Transit</option>
                             <?php while ($pemberhentian = mysqli_fetch_assoc($pemberhentianResult)): ?>
-                                        <option value="<?= $pemberhentian['id_pemberhentian']; ?>"
-                                            <?= $jadwal['rute_transit'] == $pemberhentian['id_pemberhentian'] ? 'selected' : ''; ?>>
-                                            <?= $pemberhentian['nama_pemberhentian']; ?>
-                                        </option>
+                                            <option value="<?= $pemberhentian['id_pemberhentian']; ?>"
+                                                <?= $jadwal['rute_transit'] == $pemberhentian['id_pemberhentian'] ? 'selected' : ''; ?>>
+                                                <?= $pemberhentian['nama_pemberhentian']; ?>
+                                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
@@ -416,22 +416,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             // Reset terminal result untuk tujuan
                             mysqli_data_seek($terminalResult, 0);
                             while ($terminal = mysqli_fetch_assoc($terminalResult)): ?>
-                                        <option value="<?= $terminal['id_terminal']; ?>"
-                                            <?= $jadwal['rute_tujuan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
-                                            <?= $terminal['nama_terminal']; ?>
-                                        </option>
+                                            <option value="<?= $terminal['id_terminal']; ?>"
+                                                <?= $jadwal['rute_tujuan'] == $terminal['id_terminal'] ? 'selected' : ''; ?>>
+                                                <?= $terminal['nama_terminal']; ?>
+                                            </option>
                             <?php endwhile; ?>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="jam_keberangkatan">Jam Keberangkatan</label>
-                        <input type="time" name="jam_keberangkatan" id="jam_keberangkatan" class="form-control"
-                            value="<?= $jadwal['jam_keberangkatan']; ?>" required>
+                        <label for="datetime_keberangkatan">Jam Keberangkatan</label>
+                        <input type="datetime-local" name="datetime_keberangkatan" id="datetime_keberangkatan" class="form-control"
+                            value="<?= $jadwal['datetime_keberangkatan']; ?>" required>
                     </div>
                     <div class="form-group">
-                        <label for="jam_sampai">Jam Sampai</label>
-                        <input type="time" name="jam_sampai" id="jam_sampai" class="form-control"
-                            value="<?= $jadwal['jam_sampai']; ?>" required>
+                        <label for="datetime_sampai">Jam Sampai</label>
+                        <input type="datetime-local" name="datetime_sampai" id="datetime_sampai" class="form-control"
+                            value="<?= $jadwal['datetime_sampai']; ?>" required>
                     </div>
                     <div class="form-group">
                         <label for="harga">Harga</label>

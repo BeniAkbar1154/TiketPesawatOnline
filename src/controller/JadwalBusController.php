@@ -31,11 +31,11 @@ class JadwalBusController
         $rute_keberangkatan = $data['rute_keberangkatan'];
         $rute_transit = !empty($data['rute_transit']) ? $data['rute_transit'] : null; // Transit opsional
         $rute_tujuan = $data['rute_tujuan'];
-        $jam_keberangkatan = $data['jam_keberangkatan'];
-        $jam_sampai = $data['jam_sampai'];
+        $datetime_keberangkatan = $data['datetime_keberangkatan'];
+        $datetime_sampai = $data['datetime_sampai'];
         $harga = $data['harga'];
 
-        return $this->model->createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $jam_keberangkatan, $jam_sampai, $harga);
+        return $this->model->createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
     }
 
     // Mengupdate jadwal
@@ -45,11 +45,11 @@ class JadwalBusController
         $rute_keberangkatan = $data['rute_keberangkatan'];
         $rute_transit = !empty($data['rute_transit']) ? $data['rute_transit'] : null; // Transit opsional
         $rute_tujuan = $data['rute_tujuan'];
-        $jam_keberangkatan = $data['jam_keberangkatan'];
-        $jam_sampai = $data['jam_sampai'];
+        $datetime_keberangkatan = $data['datetime_keberangkatan'];
+        $datetime_sampai = $data['datetime_sampai'];
         $harga = $data['harga'];
 
-        return $this->model->updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $jam_keberangkatan, $jam_sampai, $harga);
+        return $this->model->updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
     }
 
     // Menghapus jadwal

@@ -341,8 +341,8 @@ $schedules = $controller->getAllSchedules();
                                                         <th>Keberangkatan</th>
                                                         <th>Transit</th>
                                                         <th>Tujuan</th>
-                                                        <th>Jam Keberangkatan</th>
-                                                        <th>Jam Sampai</th>
+                                                        <th>Keberangkatan</th>
+                                                        <th>Sampai</th>
                                                         <th>Harga</th>
                                                         <th>Aksi</th>
                                                     </tr>
@@ -356,8 +356,9 @@ $schedules = $controller->getAllSchedules();
                                                                 <td><?= htmlspecialchars($schedule['keberangkatan']) ?></td>
                                                                 <td><?= htmlspecialchars($schedule['transit'] ?? '-') ?></td>
                                                                 <td><?= htmlspecialchars($schedule['tujuan']) ?></td>
-                                                                <td><?= htmlspecialchars($schedule['jam_keberangkatan']) ?></td>
-                                                                <td><?= htmlspecialchars($schedule['jam_sampai']) ?></td>
+                                                                <td><?= htmlspecialchars($schedule['datetime_keberangkatan']) ?>
+                                                                </td>
+                                                                <td><?= htmlspecialchars($schedule['datetime_sampai']) ?></td>
                                                                 <td><?= htmlspecialchars(number_format($schedule['harga'], 0, ',', '.')) ?>
                                                                 </td>
                                                                 <td>
