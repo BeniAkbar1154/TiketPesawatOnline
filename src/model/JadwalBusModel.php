@@ -67,6 +67,12 @@ class JadwalBusModel
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
+    public function getAllJadwalBus()
+    {
+        $stmt = $this->pdo->query("SELECT * FROM jadwal_bus");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga)
     {
         $sql = "

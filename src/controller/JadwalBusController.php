@@ -5,17 +5,28 @@ require_once __DIR__ . '../../model/JadwalBusModel.php';
 class JadwalBusController
 {
     private $model;
+    private $pdo;
 
-    public function __construct()
+    public function __construct($pdo)
     {
-        global $pdo; // Menggunakan $pdo dari db_connection.php
-        $this->model = new JadwalBusModel($pdo);
+        if (!$pdo) {
+            throw new Exception("PDO instance not provided.");
+        }
+
+        $this->pdo = $pdo; // Simpan koneksi PDO
+        require_once __DIR__ . '/../model/JadwalBusModel.php';
+        $this->jadwalBusModel = new JadwalBusModel($pdo); // Berikan $pdo ke model
     }
 
     // Mendapatkan semua jadwal bus
     public function getAllSchedules()
     {
         return $this->model->getAllSchedules();
+    }
+
+    public function index()
+    {
+        return $this->jadwalBusModel->getAllJadwalBus();
     }
 
     // Mendapatkan jadwal berdasarkan ID

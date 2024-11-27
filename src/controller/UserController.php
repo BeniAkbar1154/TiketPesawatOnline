@@ -4,10 +4,21 @@ require_once __DIR__ . '/../model/UserModel.php';
 class UserController
 {
     private $userModel;
+    private $pdo;
 
-    public function __construct()
+    public function __construct($pdo)
     {
-        $this->userModel = new UserModel();
+        if (!$pdo) {
+            throw new Exception("PDO instance not provided.");
+        }
+        $this->pdo = $pdo;
+        $this->userModel = new UserModel($pdo); // Inisialisasi UserModel dengan koneksi PDO
+    }
+
+    public function index()
+    {
+        $stmt = $this->pdo->query("SELECT * FROM user");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     public function getAllUsers()
