@@ -1,1 +1,8 @@
-tes
+session_start();
+
+// Pastikan pengguna sudah login dan id_user tersedia
+if (!isset($_SESSION['id_user'])) {
+    die("Pengguna tidak login.");
+}
+
+$id_user = $_SESSION['id_user']; // Ambil id_user dari sesi
