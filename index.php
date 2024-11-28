@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/database/db_connection.php';
+require_once __DIR__ . '../src/controller/PesanController.php';
 
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
@@ -12,6 +13,26 @@ $totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'];
 // Menghitung jumlah klien (customer)
 $stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE level = 'customer'");
 $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
+
+$pesanController = new PesanController($pdo);
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Ambil data dari form yang dikirimkan menggunakan AJAX
+    $id_user = $_POST['id_user'];
+    $pesan = $_POST['pesan'];
+
+    // Cek jika id_user dan pesan tidak kosong
+    if (!empty($id_user) && !empty($pesan)) {
+        // Simpan pesan ke database
+        if ($pesanController->create($id_user, $pesan)) {
+            echo "Pesan berhasil dikirim!";
+        } else {
+            echo "Gagal mengirim pesan. Coba lagi.";
+        }
+    } else {
+        echo "ID User dan Pesan tidak boleh kosong.";
+    }
+}
 ?>
 
 <html lang="en">
@@ -52,12 +73,12 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
 <body>
     <div class="container-xxl bg-white p-0">
         <!-- Spinner Start -->
-        <div id="spinner"
+        <!-- <div id="spinner"
             class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-        </div>
+        </div> -->
         <!-- Spinner End -->
 
         <!-- Header Start -->
@@ -135,9 +156,11 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
                                     Tiket Bus Online</h6>
                                 <h1 class="display-3 text-white mb-4 animated slideInDown">Temukan Tiket Bus Yang
                                     Terbaik</h1>
-                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                <a href="public/register/register.php"
+                                    class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
                                     Register</a>
-                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                <a href="public/register/login.php"
+                                    class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
                                     Login</a>
 
                             </div>
@@ -151,9 +174,11 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
                                     Tiket Bus Online</h6>
                                 <h1 class="display-3 text-white mb-4 animated slideInDown">Temukan Tiket Bus Yang
                                 </h1>
-                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                <a href="public/register/register.php"
+                                    class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
                                     Register</a>
-                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                <a href="public/register/login.php"
+                                    class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
                                     Login</a>
                             </div>
                         </div>
@@ -275,120 +300,71 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
         <!-- About End -->
 
 
-        <!-- Room Start -->
+        <!-- Tikcket Start -->
         <div class="container-xxl py-5">
             <div class="container">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-                    <h6 class="section-title text-center text-primary text-uppercase">Our Ticket</h6>
-                    <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Ticket</span></h1>
+                    <h6 class="section-title text-center text-primary text-uppercase">Our Tickets</h6>
+                    <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Tickets</span></h1>
                 </div>
                 <div class="row g-4">
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                        <div class="room-item shadow rounded overflow-hidden">
-                            <div class="position-relative">
-                                <img class="img-fluid" src="public/landing/img/room-1.jpg" alt="">
-                                <small
-                                    class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">$100/Night</small>
-                            </div>
-                            <div class="p-4 mt-2">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="mb-0">Junior Suite</h5>
-                                    <div class="ps-2">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
+                    <?php
+                    // Ambil data jadwal bus dari database
+                    $jadwalBuses = getJadwalBus(); // Fungsi untuk mengambil data dari database
+                    
+                    foreach ($jadwalBuses as $jadwal) {
+                        $gambarBus = 'public/landing/img/bus/' . $jadwal['gambar']; // Asumsi gambar bus disimpan di folder public/landing/img/bus/
+                        $hargaTiket = number_format($jadwal['harga'], 0, ',', '.'); // Format harga dalam bentuk Rp.
+                        $namaRute = $jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'];
+                        $waktuKeberangkatan = date('d M Y H:i', strtotime($jadwal['waktu_keberangkatan']));
+                        $waktuKedatangan = date('d M Y H:i', strtotime($jadwal['waktu_kedatangan']));
+                        ?>
+                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                            <div class="room-item shadow rounded overflow-hidden">
+                                <div class="position-relative">
+                                    <img class="img-fluid" src="<?php echo $gambarBus; ?>" alt="Bus Image">
+                                    <small
+                                        class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">Rp.
+                                        <?php echo $hargaTiket; ?>/Tiket</small>
+                                </div>
+                                <div class="p-4 mt-2">
+                                    <div class="d-flex justify-content-between mb-3">
+                                        <h5 class="mb-0"><?php echo $namaRute; ?></h5>
+                                        <div class="ps-2">
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                            <small class="fa fa-star text-primary"></small>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>3
-                                        Bed</small>
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bath text-primary me-2"></i>2
-                                        Bath</small>
-                                    <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
-                                </div>
-                                <p class="text-body mb-3">Erat ipsum justo amet duo et elitr dolor, est duo duo eos
-                                    lorem sed diam stet diam sed stet lorem.</p>
-                                <div class="d-flex justify-content-between">
-                                    <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
-                                    <a class="btn btn-sm btn-dark rounded py-2 px-4" href="">Book Now</a>
+                                    <div class="d-flex mb-3">
+                                        <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>2
+                                            Kursi
+                                            Bersandingan</small>
+                                        <?php if ($jadwal['rute_transit']) { ?>
+                                            <small class="border-end me-3 pe-3"><i
+                                                    class="fa fa-bath text-primary me-2"></i>Transit</small>
+                                        <?php } ?>
+                                        <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
+                                    </div>
+                                    <p class="text-body mb-3"><?php echo $waktuKeberangkatan . ' - ' . $waktuKedatangan; ?>
+                                    </p>
+                                    <div class="d-flex justify-content-between">
+                                        <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
+                                        <a class="btn btn-sm btn-dark rounded py-2 px-4" href="">Book Now</a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
-                        <div class="room-item shadow rounded overflow-hidden">
-                            <div class="position-relative">
-                                <img class="img-fluid" src="public/landing/img/room-2.jpg" alt="">
-                                <small
-                                    class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">$100/Night</small>
-                            </div>
-                            <div class="p-4 mt-2">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="mb-0">Executive Suite</h5>
-                                    <div class="ps-2">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                    </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>3
-                                        Bed</small>
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bath text-primary me-2"></i>2
-                                        Bath</small>
-                                    <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
-                                </div>
-                                <p class="text-body mb-3">Erat ipsum justo amet duo et elitr dolor, est duo duo eos
-                                    lorem sed diam stet diam sed stet lorem.</p>
-                                <div class="d-flex justify-content-between">
-                                    <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
-                                    <a class="btn btn-sm btn-dark rounded py-2 px-4" href="">Book Now</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.6s">
-                        <div class="room-item shadow rounded overflow-hidden">
-                            <div class="position-relative">
-                                <img class="img-fluid" src="public/landing/img/room-3.jpg" alt="">
-                                <small
-                                    class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">$100/Night</small>
-                            </div>
-                            <div class="p-4 mt-2">
-                                <div class="d-flex justify-content-between mb-3">
-                                    <h5 class="mb-0">Super Deluxe</h5>
-                                    <div class="ps-2">
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                        <small class="fa fa-star text-primary"></small>
-                                    </div>
-                                </div>
-                                <div class="d-flex mb-3">
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>3
-                                        Bed</small>
-                                    <small class="border-end me-3 pe-3"><i class="fa fa-bath text-primary me-2"></i>2
-                                        Bath</small>
-                                    <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
-                                </div>
-                                <p class="text-body mb-3">Erat ipsum justo amet duo et elitr dolor, est duo duo eos
-                                    lorem sed diam stet diam sed stet lorem.</p>
-                                <div class="d-flex justify-content-between">
-                                    <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
-                                    <a class="btn btn-sm btn-dark rounded py-2 px-4" href="">Book Now</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                        <?php
+                    }
+                    ?>
                 </div>
             </div>
         </div>
-        <!-- Room End -->
+
+        <!-- Ticket End -->
 
         <!-- Service Start -->
         <div class="container-xxl py-5">
@@ -541,24 +517,53 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
                     <div class="border rounded text-center p-1">
                         <div class="bg-white rounded text-center p-5">
                             <h4 class="mb-4">Hubungi <span class="text-primary text-uppercase">Kami</span></h4>
-                            <form action="mailto:TicketBus@gmail.com" method="POST" enctype="text/plain">
+                            <form id="pesanForm">
                                 <div class="position-relative mx-auto" style="max-width: 400px;">
-                                    <!-- Input untuk Email -->
-                                    <input class="form-control w-100 py-3 ps-4 pe-5 mb-3" type="email" name="email"
-                                        placeholder="Enter your email" required>
+                                    <!-- Input untuk ID User -->
+                                    <input class="form-control w-100 py-3 ps-4 pe-5 mb-3" type="text" name="id_user"
+                                        id="id_user" placeholder="Masukkan ID Anda" required>
                                 </div>
                                 <div class="position-relative mx-auto" style="max-width: 400px;">
                                     <!-- Input untuk Pesan -->
-                                    <textarea class="form-control w-100 py-3 ps-4 pe-5 mb-3" name="message"
-                                        placeholder="Enter your message" rows="4" required></textarea>
+                                    <textarea class="form-control w-100 py-3 ps-4 pe-5 mb-3" name="pesan" id="pesan"
+                                        placeholder="Masukkan pesan Anda" rows="4" required></textarea>
                                 </div>
-                                <button type="submit" class="btn btn-primary py-2 px-4 mt-2">Submit</button>
+                                <button type="submit" class="btn btn-primary py-2 px-4 mt-2">Kirim Pesan</button>
                             </form>
+                            <div id="responseMessage" class="mt-3"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <script>
+            // Handle form submission with AJAX
+            document.getElementById('pesanForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var id_user = document.getElementById('id_user').value;
+                var pesan = document.getElementById('pesan').value;
+
+                // Prepare data for AJAX request
+                var formData = new FormData();
+                formData.append('id_user', id_user);
+                formData.append('pesan', pesan);
+
+                // AJAX request
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'index.php', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Show response message from server
+                        document.getElementById('responseMessage').innerHTML = xhr.responseText;
+                    }
+                };
+                xhr.send(formData);
+            });
+        </script>
+
 
         <!-- Newsletter Start -->
 
