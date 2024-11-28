@@ -73,21 +73,39 @@ class BusController
 
     public function updateBus($id, $data, $file)
     {
+        // Ambil data bus lama
+        $oldBus = $this->busModel->getBusById($id);
+        if (!$oldBus) {
+            throw new Exception("Bus tidak ditemukan.");
+        }
+
+        // Jika ada file gambar baru yang diunggah
         if (isset($file['gambar']) && $file['gambar']['error'] === UPLOAD_ERR_OK) {
             $uploadDir = __DIR__ . '/../../public/gambar/bus/';
             $tempPath = $file['gambar']['tmp_name'];
             $fileName = uniqid() . '.jpg';
             $destination = $uploadDir . $fileName;
 
+            // Resize dan simpan gambar baru
             if ($this->resizeImage($tempPath, $destination, 400, 400)) {
-                $data['gambar'] = 'public/gambar/bus/' . $fileName;
+                $data['gambar'] = 'gambar/bus/' . $fileName;
+
+                // Hapus gambar lama jika ada
+                if (!empty($oldBus['gambar']) && file_exists(__DIR__ . '/../../public/' . $oldBus['gambar'])) {
+                    unlink(__DIR__ . '/../../public/' . $oldBus['gambar']);
+                }
             } else {
                 throw new Exception("Gagal memproses gambar baru.");
             }
+        } else {
+            // Gunakan gambar lama jika tidak ada file baru
+            $data['gambar'] = $oldBus['gambar'];
         }
 
+        // Update data bus di database
         $this->busModel->updateBus($id, $data);
     }
+
 
     public function deleteBus($id)
     {

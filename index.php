@@ -1,4 +1,19 @@
-<!DOCTYPE html>
+<?php
+require_once __DIR__ . '/database/db_connection.php';
+
+// Menghitung jumlah bus
+$stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
+$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'];
+
+// Menghitung jumlah staf (petugas, admin, superadmin)
+$stmtStaff = $pdo->query("SELECT COUNT(*) AS total_staff FROM user WHERE level IN ('admin', 'petugas', 'superadmin')");
+$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'];
+
+// Menghitung jumlah klien (customer)
+$stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE level = 'customer'");
+$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
+?>
+
 <html lang="en">
 
 <head>
@@ -49,7 +64,7 @@
         <div class="container-fluid bg-dark px-0">
             <div class="row gx-0">
                 <div class="col-lg-3 bg-dark d-none d-lg-block">
-                    <a href="index.html"
+                    <a href="#"
                         class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
                         <h1 class="m-0 text-primary text-uppercase">Ticket Bus</h1>
                     </a>
@@ -86,10 +101,10 @@
                         </button>
                         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                             <div class="navbar-nav mr-auto py-0">
-                                <a href="index.html" class="nav-item nav-link active">Home</a>
-                                <a href="about.html" class="nav-item nav-link">About</a>
-                                <a href="service.html" class="nav-item nav-link">Services</a>
-                                <a href="room.html" class="nav-item nav-link">Rooms</a>
+                                <a href="#" class="nav-item nav-link active">Home</a>
+                                <a href="public/views/landing/about.html" class="nav-item nav-link">About</a>
+                                <a href="public/views/landing/service.html" class="nav-item nav-link">Services</a>
+                                <a href="public/views/landing/room.html" class="nav-item nav-link">Rooms</a>
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                     <div class="dropdown-menu rounded-0 m-0">
@@ -121,8 +136,10 @@
                                 <h1 class="display-3 text-white mb-4 animated slideInDown">Temukan Tiket Bus Yang
                                     Terbaik</h1>
                                 <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
-                                    Bus Kami</a>
-                                <a href="" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Pesan Tiket</a>
+                                    Register</a>
+                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                    Login</a>
+
                             </div>
                         </div>
                     </div>
@@ -135,8 +152,9 @@
                                 <h1 class="display-3 text-white mb-4 animated slideInDown">Temukan Tiket Bus Yang
                                 </h1>
                                 <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
-                                    Bus Kami</a>
-                                <a href="" class="btn btn-light py-md-3 px-md-5 animated slideInRight">Pesan Tiket</a>
+                                    Register</a>
+                                <a href="" class="btn btn-primary py-md-3 px-md-5 me-3 animated slideInLeft">
+                                    Login</a>
                             </div>
                         </div>
                     </div>
@@ -193,25 +211,28 @@
                 <div class="row g-5 align-items-center">
                     <div class="col-lg-6">
                         <h6 class="section-title text-start text-primary text-uppercase">About Us</h6>
-                        <h1 class="mb-4">Welcome to <span class="text-primary text-uppercase">Ticket Bus</span></h1>
-                        <p class="mb-4">Tempor erat elitr rebum at clita. Diam dolor diam ipsum sit. Aliqu diam amet
-                            diam et eos. Clita erat ipsum et lorem et sit, sed stet lorem sit clita duo justo magna
-                            dolore erat amet</p>
+                        <h1 class="mb-4">Selamat Datang Di <br> <span class="text-primary text-uppercase">Ticket
+                                Bus</span>
+                        </h1>
+                        <p class="mb-4"></p><span class="text-primary text-uppercase">Ticket
+                            Bus</span> adalah website pemesanan tiket bus online yang terpercaya dan terjamin oleh
+                        perusahaan bus
+                        </p>
                         <div class="row g-3 pb-4">
                             <div class="col-sm-4 wow fadeIn" data-wow-delay="0.1s">
                                 <div class="border rounded p-1">
                                     <div class="border rounded text-center p-4">
-                                        <i class="fa fa-hotel fa-2x text-primary mb-2"></i>
-                                        <h2 class="mb-1" data-toggle="counter-up">1234</h2>
-                                        <p class="mb-0">Rooms</p>
+                                        <i class="fa fa-bus fa-2x text-primary mb-2"></i>
+                                        <h2 class="mb-1" data-toggle="counter-up"><?= $totalBus ?></h2>
+                                        <p class="mb-0">Bus</p>
                                     </div>
                                 </div>
                             </div>
                             <div class="col-sm-4 wow fadeIn" data-wow-delay="0.3s">
                                 <div class="border rounded p-1">
                                     <div class="border rounded text-center p-4">
-                                        <i class="fa fa-users-cog fa-2x text-primary mb-2"></i>
-                                        <h2 class="mb-1" data-toggle="counter-up">1234</h2>
+                                        <i class="fa fa-user-shield fa-2x text-primary mb-2"></i>
+                                        <h2 class="mb-1" data-toggle="counter-up"><?= $totalStaff ?></h2>
                                         <p class="mb-0">Staffs</p>
                                     </div>
                                 </div>
@@ -220,13 +241,13 @@
                                 <div class="border rounded p-1">
                                     <div class="border rounded text-center p-4">
                                         <i class="fa fa-users fa-2x text-primary mb-2"></i>
-                                        <h2 class="mb-1" data-toggle="counter-up">1234</h2>
+                                        <h2 class="mb-1" data-toggle="counter-up"><?= $totalClients ?></h2>
                                         <p class="mb-0">Clients</p>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <a class="btn btn-primary py-3 px-5 mt-2" href="">Explore More</a>
+
                     </div>
                     <div class="col-lg-6">
                         <div class="row g-3">
@@ -258,8 +279,8 @@
         <div class="container-xxl py-5">
             <div class="container">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-                    <h6 class="section-title text-center text-primary text-uppercase">Our Rooms</h6>
-                    <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Rooms</span></h1>
+                    <h6 class="section-title text-center text-primary text-uppercase">Our Ticket</h6>
+                    <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Ticket</span></h1>
                 </div>
                 <div class="row g-4">
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
@@ -373,91 +394,94 @@
         <div class="container-xxl py-5">
             <div class="container">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
-                    <h6 class="section-title text-center text-primary text-uppercase">Our Services</h6>
-                    <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Services</span></h1>
+                    <h6 class="section-title text-center text-primary text-uppercase">Layanan Kami</h6>
+                    <h1 class="mb-5">Jelajahi <span class="text-primary text-uppercase">Layanan</span> Kami</h1>
                 </div>
                 <div class="row g-4">
+                    <!-- Poin 1: Reservasi Bus -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-hotel fa-2x text-primary"></i>
+                                    <i class="fa fa-bus fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">Rooms & Appartment</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Reservasi Bus</h5>
+                            <p class="text-body mb-0">Pesan kursi Anda dengan mudah melalui layanan reservasi bus kami.
+                            </p>
                         </a>
                     </div>
+                    <!-- Poin 2: Jadwal Bus -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.2s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-utensils fa-2x text-primary"></i>
+                                    <i class="fa fa-clock fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">Food & Restaurant</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Jadwal Bus</h5>
+                            <p class="text-body mb-0">Lihat jadwal keberangkatan dan kedatangan bus secara real-time.
+                            </p>
                         </a>
                     </div>
+                    <!-- Poin 3: Rute Perjalanan -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.3s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-spa fa-2x text-primary"></i>
+                                    <i class="fa fa-map-marker-alt fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">Spa & Fitness</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Rute Perjalanan</h5>
+                            <p class="text-body mb-0">Temukan informasi lengkap tentang rute perjalanan bus.</p>
                         </a>
                     </div>
+                    <!-- Poin 4: Layanan Bus -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.4s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-swimmer fa-2x text-primary"></i>
+                                    <i class="fa fa-concierge-bell fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">Sports & Gaming</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Layanan Bus</h5>
+                            <p class="text-body mb-0">Nikmati layanan bus dengan fasilitas terbaik dan nyaman.</p>
                         </a>
                     </div>
+                    <!-- Poin 5: Tiket Online -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.5s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-glass-cheers fa-2x text-primary"></i>
+                                    <i class="fa fa-ticket-alt fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">Event & Party</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Tiket Online</h5>
+                            <p class="text-body mb-0">Pesan tiket secara online dengan mudah dan cepat.</p>
                         </a>
                     </div>
+                    <!-- Poin 6: Pelacakan Bus -->
                     <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.6s">
                         <a class="service-item rounded" href="">
                             <div class="service-icon bg-transparent border rounded p-1">
                                 <div
                                     class="w-100 h-100 border rounded d-flex align-items-center justify-content-center">
-                                    <i class="fa fa-dumbbell fa-2x text-primary"></i>
+                                    <i class="fa fa-route fa-2x text-primary"></i>
                                 </div>
                             </div>
-                            <h5 class="mb-3">GYM & Yoga</h5>
-                            <p class="text-body mb-0">Erat ipsum justo amet duo et elitr dolor, est duo duo eos lorem
-                                sed diam stet diam sed stet lorem.</p>
+                            <h5 class="mb-3">Pelacakan Bus</h5>
+                            <p class="text-body mb-0">Pantau lokasi bus secara langsung melalui fitur pelacakan.</p>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- Service End -->
 
 
@@ -516,19 +540,26 @@
                 <div class="col-lg-10 border rounded p-1">
                     <div class="border rounded text-center p-1">
                         <div class="bg-white rounded text-center p-5">
-                            <h4 class="mb-4">Hubungi <span class="text-primary text-uppercase">Kami</span>
-                            </h4>
-                            <div class="position-relative mx-auto" style="max-width: 400px;">
-                                <input class="form-control w-100 py-3 ps-4 pe-5" type="text"
-                                    placeholder="Enter your email">
-                                <button type="button"
-                                    class="btn btn-primary py-2 px-3 position-absolute top-0 end-0 mt-2 me-2">Submit</button>
-                            </div>
+                            <h4 class="mb-4">Hubungi <span class="text-primary text-uppercase">Kami</span></h4>
+                            <form action="mailto:TicketBus@gmail.com" method="POST" enctype="text/plain">
+                                <div class="position-relative mx-auto" style="max-width: 400px;">
+                                    <!-- Input untuk Email -->
+                                    <input class="form-control w-100 py-3 ps-4 pe-5 mb-3" type="email" name="email"
+                                        placeholder="Enter your email" required>
+                                </div>
+                                <div class="position-relative mx-auto" style="max-width: 400px;">
+                                    <!-- Input untuk Pesan -->
+                                    <textarea class="form-control w-100 py-3 ps-4 pe-5 mb-3" name="message"
+                                        placeholder="Enter your message" rows="4" required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary py-2 px-4 mt-2">Submit</button>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
         <!-- Newsletter Start -->
 
 

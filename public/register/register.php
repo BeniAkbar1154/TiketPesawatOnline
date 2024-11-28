@@ -1,46 +1,73 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register User</title>
-    <!-- Include Bootstrap & AdminLTE CSS -->
-    <link rel="stylesheet" href="/FinalProject/public/adminlte/plugins/fontawesome-free/css/all.min.css">
-    <link rel="stylesheet" href="/FinalProject/public/adminlte/dist/css/adminlte.min.css">
-</head>
-<body>
-<div class="container mt-5">
-    <div class="card card-primary">
-        <div class="card-header">
-            <h3 class="card-title">Register New User</h3>
-        </div>
-        <!-- Form untuk register user baru -->
-        <form action="../routing.php?action=register" method="POST">
-            <div class="card-body">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" name="username" class="form-control" id="username" placeholder="Enter username" required>
-                </div>
-                <div class="form-group">
-                    <label for="email">Email address</label>
-                    <input type="email" name="email" class="form-control" id="email" placeholder="Enter email" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" name="password" class="form-control" id="password" placeholder="Enter password" required>
-                </div>
-            </div>
-            <!-- Submit button -->
-            <div class="card-footer">
-                <button type="submit" class="btn btn-primary">Register</button>
-            </div>
-        </form>
-    </div>
-</div>
+<?php
+require_once __DIR__ . '/../../database/db_connection.php';
 
-<!-- Include jQuery & Bootstrap JS -->
-<script src="/FinalProject/public/adminlte/plugins/jquery/jquery.min.js"></script>
-<script src="/FinalProject/public/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="/FinalProject/public/adminlte/dist/js/adminlte.min.js"></script>
-</body>
-</html>
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Ambil data dari form
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+    $confirm_password = trim($_POST['confirm_password']);
+
+    // Validasi input
+    $errors = [];
+    if (empty($username)) {
+        $errors[] = 'Username tidak boleh kosong.';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Format email tidak valid.';
+    }
+    if (empty($password)) {
+        $errors[] = 'Password tidak boleh kosong.';
+    }
+    if ($password !== $confirm_password) {
+        $errors[] = 'Password dan Konfirmasi Password tidak cocok.';
+    }
+
+    // Periksa apakah email sudah terdaftar
+    $query = $pdo->prepare("SELECT * FROM user WHERE email = ?");
+    $query->execute([$email]);
+    if ($query->rowCount() > 0) {
+        $errors[] = 'Email sudah digunakan.';
+    }
+
+    if (empty($errors)) {
+        // Hash password
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+        // Simpan ke database dengan level default 'customer'
+        $insert_query = $pdo->prepare("INSERT INTO user (username, email, password, level) VALUES (?, ?, ?, ?)");
+        $isInserted = $insert_query->execute([$username, $email, $hashed_password, 'customer']);
+
+        if ($isInserted) {
+            echo "Registrasi berhasil. Silakan login.";
+            // Redirect ke halaman login (opsional)
+            header("Location: login.php");
+            exit();
+        } else {
+            echo "Terjadi kesalahan saat menyimpan data.";
+        }
+    } else {
+        // Tampilkan error
+        foreach ($errors as $error) {
+            echo "<p style='color: red;'>$error</p>";
+        }
+    }
+}
+?>
+
+<!-- Form Registrasi -->
+<form method="POST" action="register.php">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <label for="confirm_password">Konfirmasi Password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" required>
+    <br>
+    <button type="submit">Daftar</button>
+</form>
