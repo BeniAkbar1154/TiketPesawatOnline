@@ -4,7 +4,7 @@ require_once __DIR__ . '../../model/JadwalBusModel.php';
 
 class JadwalBusController
 {
-    private $model;
+    private $jadwalBusModel;
     private $pdo;
 
     public function __construct($pdo)
@@ -21,7 +21,7 @@ class JadwalBusController
     // Mendapatkan semua jadwal bus
     public function getAllSchedules()
     {
-        return $this->model->getAllSchedules();
+        return $this->jadwalBusModel->getAllSchedules();
     }
 
     public function index()
@@ -32,7 +32,7 @@ class JadwalBusController
     // Mendapatkan jadwal berdasarkan ID
     public function getScheduleById($id)
     {
-        return $this->model->getScheduleById($id);
+        return $this->jadwalBusModel->getScheduleById($id);
     }
 
     // Menambahkan jadwal baru
@@ -46,7 +46,7 @@ class JadwalBusController
         $datetime_sampai = $data['datetime_sampai'];
         $harga = $data['harga'];
 
-        return $this->model->createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
+        return $this->jadwalBusModel->createSchedule($id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
     }
 
     // Mengupdate jadwal
@@ -60,13 +60,13 @@ class JadwalBusController
         $datetime_sampai = $data['datetime_sampai'];
         $harga = $data['harga'];
 
-        return $this->model->updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
+        return $this->jadwalBusModel->updateSchedule($id, $id_bus, $rute_keberangkatan, $rute_transit, $rute_tujuan, $datetime_keberangkatan, $datetime_sampai, $harga);
     }
 
     // Menghapus jadwal
     public function deleteSchedule($id)
     {
-        return $this->model->deleteSchedule($id);
+        return $this->jadwalBusModel->deleteSchedule($id);
     }
 }
 ?>

@@ -1,8 +1,8 @@
 <?php
 require_once '../../src/controller/JadwalBusController.php';
 
-$controller = new JadwalBusController();
-$schedules = $controller->getAllSchedules();
+$jadwalBusController = new JadwalBusController($pdo);
+$schedules = $jadwalBusController->getAllSchedules();
 ?>
 <!DOCTYPE html>
 <html lang="en">
