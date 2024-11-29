@@ -202,34 +202,18 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Menu
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                        <!-- Menu User -->
+                        <li class="nav-item">
+                            <a href="../user/user.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>User</p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>User</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+
+                        <!-- Menu Bus -->
                         <li class="nav-item menu-open">
                             <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-bus"></i> <!-- Ikon Bus -->
                                 <p>
                                     Bus
                                     <i class="right fas fa-angle-left"></i>
@@ -237,34 +221,36 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
+                                    <a href="../bus/bus.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../terminal/terminal.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Destinasi</p>
+                                        <p>Terminal</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Terminal/Pemberhentian</p>
+                                        <p>Pemberhentian</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Rute</p>
+                                        <p>Jadwal Bus</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
+
+                        <!-- Menu Administrasi -->
                         <li class="nav-item menu-open">
                             <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-cogs"></i> <!-- Ikon Administrasi -->
                                 <p>
                                     Administrasi
                                     <i class="right fas fa-angle-left"></i>
@@ -272,15 +258,46 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
+                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../pembayaran/pembayaran.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pembayaran</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../tiket/tiket.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Tiket</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Menu Laporan -->
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-chart-line"></i> <!-- Ikon Laporan -->
+                                <p>
+                                    Laporan
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Harian</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Khusus</p>
                                     </a>
                                 </li>
                             </ul>

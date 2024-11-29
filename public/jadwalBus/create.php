@@ -3,15 +3,18 @@ require_once '../../database/db_connection.php';
 
 // Ambil data bus
 $query_bus = "SELECT id_bus, nama FROM bus";
-$result_bus = mysqli_query($conn, $query_bus);
+$stmt_bus = $pdo->query($query_bus);
+$result_bus = $stmt_bus->fetchAll(PDO::FETCH_ASSOC);
 
 // Ambil data terminal (keberangkatan & tujuan)
 $query_terminal = "SELECT id_terminal, nama_terminal FROM terminal";
-$result_terminal = mysqli_query($conn, $query_terminal);
+$stmt_terminal = $pdo->query($query_terminal);
+$result_terminal = $stmt_terminal->fetchAll(PDO::FETCH_ASSOC);
 
 // Ambil data pemberhentian (transit)
 $query_pemberhentian = "SELECT id_pemberhentian, nama_pemberhentian FROM pemberhentian";
-$result_pemberhentian = mysqli_query($conn, $query_pemberhentian);
+$stmt_pemberhentian = $pdo->query($query_pemberhentian);
+$result_pemberhentian = $stmt_pemberhentian->fetchAll(PDO::FETCH_ASSOC);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_bus = $_POST['id_bus'];
@@ -22,19 +25,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $datetime_sampai = $_POST['datetime_sampai'];
     $harga = $_POST['harga'];
 
+    // Menggunakan prepared statement untuk mencegah SQL Injection
     $query = "INSERT INTO jadwal_bus (id_bus, rute_keberangkatan, rute_transit, rute_tujuan, datetime_keberangkatan, datetime_sampai, harga) 
-              VALUES ('$id_bus', '$rute_keberangkatan', " .
-        ($rute_transit ? "'$rute_transit'" : "NULL") . ", '$rute_tujuan', '$datetime_keberangkatan', '$datetime_sampai', '$harga')";
+              VALUES (:id_bus, :rute_keberangkatan, :rute_transit, :rute_tujuan, :datetime_keberangkatan, :datetime_sampai, :harga)";
 
-    if (mysqli_query($conn, $query)) {
+    $stmt = $pdo->prepare($query);
+    $stmt->bindParam(':id_bus', $id_bus);
+    $stmt->bindParam(':rute_keberangkatan', $rute_keberangkatan);
+    $stmt->bindParam(':rute_transit', $rute_transit, PDO::PARAM_NULL);
+    $stmt->bindParam(':rute_tujuan', $rute_tujuan);
+    $stmt->bindParam(':datetime_keberangkatan', $datetime_keberangkatan);
+    $stmt->bindParam(':datetime_sampai', $datetime_sampai);
+    $stmt->bindParam(':harga', $harga);
+
+    if ($stmt->execute()) {
         header('Location: jadwalBus.php');
         exit();
     } else {
-        $error = "Gagal menambahkan jadwal bus: " . mysqli_error($conn);
+        $error = "Gagal menambahkan jadwal bus: " . $stmt->errorInfo()[2];
     }
 }
-
 ?>
+
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -231,34 +244,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                         data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
-               with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Menu
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
+                        <!-- Menu User -->
+                        <li class="nav-item">
+                            <a href="../user/user.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>User</p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>User</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+
+                        <!-- Menu Bus -->
                         <li class="nav-item menu-open">
                             <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-bus"></i> <!-- Ikon Bus -->
                                 <p>
                                     Bus
                                     <i class="right fas fa-angle-left"></i>
@@ -266,34 +263,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
+                                    <a href="../bus/bus.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../terminal/terminal.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Destinasi</p>
+                                        <p>Terminal</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Terminal/Pemberhentian</p>
+                                        <p>Pemberhentian</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
-                                        <p>Rute</p>
+                                        <p>Jadwal Bus</p>
                                     </a>
                                 </li>
                             </ul>
                         </li>
+
+                        <!-- Menu Administrasi -->
                         <li class="nav-item menu-open">
                             <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <i class="nav-icon fas fa-cogs"></i> <!-- Ikon Administrasi -->
                                 <p>
                                     Administrasi
                                     <i class="right fas fa-angle-left"></i>
@@ -301,15 +300,46 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
+                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
+                                    <a href="../pembayaran/pembayaran.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pembayaran</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../tiket/tiket.php" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Tiket</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <!-- Menu Laporan -->
+                        <li class="nav-item menu-open">
+                            <a href="#" class="nav-link active">
+                                <i class="nav-icon fas fa-chart-line"></i> <!-- Ikon Laporan -->
+                                <p>
+                                    Laporan
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Harian</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Laporan Khusus</p>
                                     </a>
                                 </li>
                             </ul>
@@ -358,31 +388,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label>Bus</label>
                                 <select name="id_bus" class="form-control" required>
                                     <option value="">Pilih Bus</option>
-                                    <?php while ($row = mysqli_fetch_assoc($result_bus)): ?>
+                                    <?php
+                                    // Ambil data bus menggunakan PDO
+                                    $query_bus = "SELECT id_bus, nama FROM bus";
+                                    $stmt_bus = $pdo->query($query_bus);
+                                    $result_bus = $stmt_bus->fetchAll(PDO::FETCH_ASSOC);
+
+                                    foreach ($result_bus as $row): ?>
                                         <option value="<?= $row['id_bus'] ?>"><?= htmlspecialchars($row['nama']) ?></option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Keberangkatan</label>
                                 <select name="rute_keberangkatan" class="form-control" required>
                                     <option value="">Pilih Terminal Keberangkatan</option>
-                                    <?php while ($row = mysqli_fetch_assoc($result_terminal)): ?>
+                                    <?php
+                                    // Ambil data terminal untuk keberangkatan
+                                    $query_terminal = "SELECT id_terminal, nama_terminal FROM terminal";
+                                    $stmt_terminal = $pdo->query($query_terminal);
+                                    $result_terminal = $stmt_terminal->fetchAll(PDO::FETCH_ASSOC);
+
+                                    foreach ($result_terminal as $row): ?>
                                         <option value="<?= $row['id_terminal'] ?>">
                                             <?= htmlspecialchars($row['nama_terminal']) ?>
                                         </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="form-group">
                                 <label>Transit (Opsional)</label>
                                 <select name="rute_transit" class="form-control">
                                     <option value="">Tidak Ada Transit</option>
-                                    <?php while ($row = mysqli_fetch_assoc($result_pemberhentian)): ?>
+                                    <?php
+                                    // Ambil data pemberhentian untuk transit
+                                    $query_pemberhentian = "SELECT id_pemberhentian, nama_pemberhentian FROM pemberhentian";
+                                    $stmt_pemberhentian = $pdo->query($query_pemberhentian);
+                                    $result_pemberhentian = $stmt_pemberhentian->fetchAll(PDO::FETCH_ASSOC);
+
+                                    foreach ($result_pemberhentian as $row): ?>
                                         <option value="<?= $row['id_pemberhentian'] ?>">
                                             <?= htmlspecialchars($row['nama_pemberhentian']) ?>
                                         </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="form-group">
@@ -390,12 +438,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <select name="rute_tujuan" class="form-control" required>
                                     <option value="">Pilih Terminal Tujuan</option>
                                     <?php
-                                    mysqli_data_seek($result_terminal, 0); // Reset pointer untuk hasil terminal
-                                    while ($row = mysqli_fetch_assoc($result_terminal)): ?>
+                                    // Reset pointer untuk hasil terminal dan tampilkan lagi untuk tujuan
+                                    foreach ($result_terminal as $row): ?>
                                         <option value="<?= $row['id_terminal'] ?>">
                                             <?= htmlspecialchars($row['nama_terminal']) ?>
                                         </option>
-                                    <?php endwhile; ?>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                             <div class="form-group">
