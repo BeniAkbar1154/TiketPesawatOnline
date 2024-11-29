@@ -1,21 +1,36 @@
 <?php
+require_once '../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
 
-$userController = new UserController();
+$userController = new UserController($pdo);
 
-// Ambil data user berdasarkan ID
-$user = $userController->getUserById($_GET['id']);
-
-if (!$user) {
-    echo "User not found!";
+if (!isset($_GET['id'])) {
+    header("Location: user.php");
     exit;
 }
 
-// Jika form di-submit
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $userController->updateUser($_GET['id'], $_POST);
-    header('Location: user.php');
+$id = $_GET['id'];
+$user = $userController->getUserById($id);
+
+if (!$user) {
+    echo "Pengguna tidak ditemukan.";
     exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'username' => $_POST['username'],
+        'email' => $_POST['email'],
+        'password' => !empty($_POST['password']) ? password_hash($_POST['password'], PASSWORD_BCRYPT) : $user['password'], // Hanya update password jika diisi
+        'level' => $_POST['level']
+    ];
+
+    if ($userController->updateUser($id, $data)) {
+        header("Location: user.php");
+        exit;
+    } else {
+        $error = "Gagal memperbarui pengguna.";
+    }
 }
 ?>
 

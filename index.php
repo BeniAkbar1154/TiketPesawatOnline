@@ -310,7 +310,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <div class="row g-4">
                     <?php
                     // Ambil data jadwal bus dari database
-                    $jadwalBuses = getJadwalBus(); // Fungsi untuk mengambil data dari database
+                    $jadwalBusController = new JadwalBusController(); // Fungsi untuk mengambil data dari database
                     
                     foreach ($jadwalBuses as $jadwal) {
                         $gambarBus = 'public/landing/img/bus/' . $jadwal['gambar']; // Asumsi gambar bus disimpan di folder public/landing/img/bus/

@@ -1,12 +1,23 @@
 <?php
+require_once '../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
 
-$userController = new UserController();
+$userController = new UserController($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  $userController->createUser($_POST);
-  header('Location: user.php');
-  exit;
+  $data = [
+    'username' => $_POST['username'],
+    'email' => $_POST['email'],
+    'password' => password_hash($_POST['password'], PASSWORD_BCRYPT), // Enkripsi password
+    'level' => $_POST['level']
+  ];
+
+  if ($userController->createUser($data)) {
+    header("Location: user.php");
+    exit;
+  } else {
+    $error = "Gagal menambahkan pengguna baru.";
+  }
 }
 ?>
 

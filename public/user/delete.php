@@ -1,17 +1,21 @@
 <?php
+require_once '../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
-
-if (!isset($_GET['id'])) {
-    header('Location: user.php');
-    exit;
-}
 
 $userController = new UserController($pdo);
 
-if ($userController->deleteUser($_GET['id'])) {
-    header('Location: user.php');
+if (!isset($_GET['id'])) {
+    header("Location: user.php");
+    exit;
+}
+
+$id = $_GET['id'];
+
+// Proses penghapusan data
+if ($userController->deleteUser($id)) {
+    header("Location: user.php?success=Pengguna berhasil dihapus.");
     exit;
 } else {
-    echo "Gagal menghapus user.";
+    header("Location: user.php?error=Gagal menghapus pengguna.");
+    exit;
 }
-?>

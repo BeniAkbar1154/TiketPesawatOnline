@@ -1,7 +1,11 @@
 <?php
-require_once __DIR__ . '/../../src/controller/UserController.php';
+require_once '../../database/db_connection.php'; // File koneksi database
+require_once __DIR__ . '/../../src/controller/UserController.php'; // File controller
 
-$userController = new UserController();
+// Membuat instance UserController
+$userController = new UserController($pdo);
+
+// Mengambil semua data user
 $users = $userController->getAllUsers();
 ?>
 

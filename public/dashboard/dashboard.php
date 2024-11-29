@@ -14,7 +14,7 @@ session_start();
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AdminLTE 3 | Dashboard 3</title>
+  <title>Ticket Transportation</title>
 
   <!-- Google Font: Source Sans Pro -->
   <link rel="stylesheet"
@@ -199,6 +199,12 @@ session_start();
           <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
             <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
+            <li class="nav-item">
+              <a href="../user/user.php" class="nav-link">
+                <i class="far fa-circle nav-icon"></i>
+                <p>User</p>
+              </a>
+            </li>
             <li class="nav-item menu-open">
               <a href="#" class="nav-link active">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
@@ -211,24 +217,38 @@ session_start();
                 <li class="nav-item">
                   <a href="../user/user.php" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
-                    <p>User</p>
+                    <p>Bus</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="./index2.html" class="nav-link">
+                  <a href="../user/user.php" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
-                    <p>Penerbangan</p>
+                    <p>Jadwal Bus</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li class="nav-item menu-open">
+              <a href="#" class="nav-link active">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <p>
+                  Menu
+                  <i class="right fas fa-angle-left"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="../user/user.php" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Bus</p>
                   </a>
                 </li>
                 <li class="nav-item">
-                  <a href="./index3.html" class="nav-link active">
+                  <a href="../user/user.php" class="nav-link">
                     <i class="far fa-circle nav-icon"></i>
-                    <p>Dashboard</p>
+                    <p>Jadwal Bus</p>
                   </a>
                 </li>
-                <!-- Button Logout -->
-                <!-- <a href="../register/logout.php" class="btn btn-danger">Logout</a> -->
-
               </ul>
             </li>
           </ul>
