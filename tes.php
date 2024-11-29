@@ -1,12 +1,54 @@
 <?php
-session_start();
+require_once __DIR__ . '/../../src/controller/TiketController.php';
+require_once __DIR__ . '/../../src/controller/PemesananController.php';
+require_once __DIR__ . '/../../src/controller/UserController.php';
+require_once __DIR__ . '/../../src/controller/JadwalBusController.php';
+require_once __DIR__ . '/../../database/db_connection.php';
 
-// Auth
-// if (!isset($_SESSION['user_level']) || $_SESSION['user_level'] != 3) {
-//     header("Location: ../register/login.php");
-//     exit();
-// }
-// ?>
+// Inisialisasi controller
+$tiketController = new TiketController($pdo);
+$pemesananController = new PemesananController($pdo);
+$userController = new UserController($pdo);
+$jadwalBusController = new JadwalBusController($pdo);
+
+// Ambil data tiket berdasarkan ID
+$id_tiket = $_GET['id'] ?? null;
+if (!$id_tiket) {
+    die("ID Tiket tidak ditemukan.");
+}
+
+$tiket = $tiketController->getTiketById($id_tiket);
+if (!$tiket) {
+    die("Tiket dengan ID tersebut tidak ditemukan.");
+}
+
+// Ambil data untuk dropdown
+$pemesananList = $pemesananController->index();
+$userList = $userController->index();
+$jadwalBusList = $jadwalBusController->index();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'id_pemesanan' => $_POST['id_pemesanan'] ?? null,
+        'id_user' => $_POST['id_user'] ?? null,
+        'id_jadwal_bus' => $_POST['id_jadwal_bus'] ?? null,
+        'nomor_kursi' => $_POST['nomor_kursi'] ?? null,
+    ];
+
+    // Validasi input
+    if (!$data['id_pemesanan'] || !$data['id_user'] || !$data['id_jadwal_bus'] || !$data['nomor_kursi']) {
+        die("Semua kolom wajib diisi.");
+    }
+
+    // Update tiket
+    $tiketController->updateTiket($id_tiket, $data);
+
+    // Redirect setelah berhasil update
+    header("Location: tiket.php");
+    exit();
+}
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -25,6 +67,13 @@ session_start();
     <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="../adminlte/dist/css/adminlte.min.css">
+    <script>
+        function updateTagihan() {
+            const jadwal = document.getElementById('id_jadwal_bus');
+            const harga = jadwal.options[jadwal.selectedIndex].dataset.harga;
+            document.getElementById('tagihan').value = harga;
+        }
+    </script>
 </head>
 
 <body class="hold-transition sidebar-mini">
@@ -334,258 +383,71 @@ session_start();
             <!-- /.content-header -->
 
             <!-- Main content -->
-            <div class="content">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header border-0">
-                                    <div class="d-flex justify-content-between">
-                                        <h3 class="card-title">Online Store Visitors</h3>
-                                        <a href="javascript:void(0);">View Report</a>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex">
-                                        <p class="d-flex flex-column">
-                                            <span class="text-bold text-lg">820</span>
-                                            <span>Visitors Over Time</span>
-                                        </p>
-                                        <p class="ml-auto d-flex flex-column text-right">
-                                            <span class="text-success">
-                                                <i class="fas fa-arrow-up"></i> 12.5%
-                                            </span>
-                                            <span class="text-muted">Since last week</span>
-                                        </p>
-                                    </div>
-                                    <!-- /.d-flex -->
-
-                                    <div class="position-relative mb-4">
-                                        <canvas id="visitors-chart" height="200"></canvas>
-                                    </div>
-
-                                    <div class="d-flex flex-row justify-content-end">
-                                        <span class="mr-2">
-                                            <i class="fas fa-square text-primary"></i> This Week
-                                        </span>
-
-                                        <span>
-                                            <i class="fas fa-square text-gray"></i> Last Week
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.card -->
-
-                            <div class="card">
-                                <div class="card-header border-0">
-                                    <h3 class="card-title">Products</h3>
-                                    <div class="card-tools">
-                                        <a href="#" class="btn btn-tool btn-sm">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-tool btn-sm">
-                                            <i class="fas fa-bars"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="card-body table-responsive p-0">
-                                    <table class="table table-striped table-valign-middle">
-                                        <thead>
-                                            <tr>
-                                                <th>Product</th>
-                                                <th>Price</th>
-                                                <th>Sales</th>
-                                                <th>More</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>
-                                                    <img src="dist/img/default-150x150.png" alt="Product 1"
-                                                        class="img-circle img-size-32 mr-2">
-                                                    Some Product
-                                                </td>
-                                                <td>$13 USD</td>
-                                                <td>
-                                                    <small class="text-success mr-1">
-                                                        <i class="fas fa-arrow-up"></i>
-                                                        12%
-                                                    </small>
-                                                    12,000 Sold
-                                                </td>
-                                                <td>
-                                                    <a href="#" class="text-muted">
-                                                        <i class="fas fa-search"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="dist/img/default-150x150.png" alt="Product 1"
-                                                        class="img-circle img-size-32 mr-2">
-                                                    Another Product
-                                                </td>
-                                                <td>$29 USD</td>
-                                                <td>
-                                                    <small class="text-warning mr-1">
-                                                        <i class="fas fa-arrow-down"></i>
-                                                        0.5%
-                                                    </small>
-                                                    123,234 Sold
-                                                </td>
-                                                <td>
-                                                    <a href="#" class="text-muted">
-                                                        <i class="fas fa-search"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="dist/img/default-150x150.png" alt="Product 1"
-                                                        class="img-circle img-size-32 mr-2">
-                                                    Amazing Product
-                                                </td>
-                                                <td>$1,230 USD</td>
-                                                <td>
-                                                    <small class="text-danger mr-1">
-                                                        <i class="fas fa-arrow-down"></i>
-                                                        3%
-                                                    </small>
-                                                    198 Sold
-                                                </td>
-                                                <td>
-                                                    <a href="#" class="text-muted">
-                                                        <i class="fas fa-search"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>
-                                                    <img src="dist/img/default-150x150.png" alt="Product 1"
-                                                        class="img-circle img-size-32 mr-2">
-                                                    Perfect Item
-                                                    <span class="badge bg-danger">NEW</span>
-                                                </td>
-                                                <td>$199 USD</td>
-                                                <td>
-                                                    <small class="text-success mr-1">
-                                                        <i class="fas fa-arrow-up"></i>
-                                                        63%
-                                                    </small>
-                                                    87 Sold
-                                                </td>
-                                                <td>
-                                                    <a href="#" class="text-muted">
-                                                        <i class="fas fa-search"></i>
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <!-- /.card -->
-                        </div>
-                        <!-- /.col-md-6 -->
-                        <div class="col-lg-6">
-                            <div class="card">
-                                <div class="card-header border-0">
-                                    <div class="d-flex justify-content-between">
-                                        <h3 class="card-title">Sales</h3>
-                                        <a href="javascript:void(0);">View Report</a>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex">
-                                        <p class="d-flex flex-column">
-                                            <span class="text-bold text-lg">$18,230.00</span>
-                                            <span>Sales Over Time</span>
-                                        </p>
-                                        <p class="ml-auto d-flex flex-column text-right">
-                                            <span class="text-success">
-                                                <i class="fas fa-arrow-up"></i> 33.1%
-                                            </span>
-                                            <span class="text-muted">Since last month</span>
-                                        </p>
-                                    </div>
-                                    <!-- /.d-flex -->
-
-                                    <div class="position-relative mb-4">
-                                        <canvas id="sales-chart" height="200"></canvas>
-                                    </div>
-
-                                    <div class="d-flex flex-row justify-content-end">
-                                        <span class="mr-2">
-                                            <i class="fas fa-square text-primary"></i> This year
-                                        </span>
-
-                                        <span>
-                                            <i class="fas fa-square text-gray"></i> Last year
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- /.card -->
-
-                            <div class="card">
-                                <div class="card-header border-0">
-                                    <h3 class="card-title">Online Store Overview</h3>
-                                    <div class="card-tools">
-                                        <a href="#" class="btn btn-sm btn-tool">
-                                            <i class="fas fa-download"></i>
-                                        </a>
-                                        <a href="#" class="btn btn-sm btn-tool">
-                                            <i class="fas fa-bars"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
-                                        <p class="text-success text-xl">
-                                            <i class="ion ion-ios-refresh-empty"></i>
-                                        </p>
-                                        <p class="d-flex flex-column text-right">
-                                            <span class="font-weight-bold">
-                                                <i class="ion ion-android-arrow-up text-success"></i> 12%
-                                            </span>
-                                            <span class="text-muted">CONVERSION RATE</span>
-                                        </p>
-                                    </div>
-                                    <!-- /.d-flex -->
-                                    <div class="d-flex justify-content-between align-items-center border-bottom mb-3">
-                                        <p class="text-warning text-xl">
-                                            <i class="ion ion-ios-cart-outline"></i>
-                                        </p>
-                                        <p class="d-flex flex-column text-right">
-                                            <span class="font-weight-bold">
-                                                <i class="ion ion-android-arrow-up text-warning"></i> 0.8%
-                                            </span>
-                                            <span class="text-muted">SALES RATE</span>
-                                        </p>
-                                    </div>
-                                    <!-- /.d-flex -->
-                                    <div class="d-flex justify-content-between align-items-center mb-0">
-                                        <p class="text-danger text-xl">
-                                            <i class="ion ion-ios-people-outline"></i>
-                                        </p>
-                                        <p class="d-flex flex-column text-right">
-                                            <span class="font-weight-bold">
-                                                <i class="ion ion-android-arrow-down text-danger"></i> 1%
-                                            </span>
-                                            <span class="text-muted">REGISTRATION RATE</span>
-                                        </p>
-                                    </div>
-                                    <!-- /.d-flex -->
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.col-md-6 -->
+            <div class="container mt-5">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h2 class="card-title mb-0">Edit Tiket</h2>
                     </div>
-                    <!-- /.row -->
+                    <div class="card-body">
+                        <form method="POST">
+                            <!-- Dropdown ID Pemesanan -->
+                            <div class="mb-3">
+                                <label for="id_pemesanan" class="form-label">ID Pemesanan:</label>
+                                <select name="id_pemesanan" id="id_pemesanan" class="form-select" required>
+                                    <option value="">-- Pilih ID Pemesanan --</option>
+                                    <?php foreach ($pemesananList as $pemesanan): ?>
+                                        <option value="<?= htmlspecialchars($pemesanan['id_pemesanan']) ?>"
+                                            <?= $pemesanan['id_pemesanan'] == $tiket['id_pemesanan'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($pemesanan['id_pemesanan'] . ' - ' . $pemesanan['tanggal_pemesanan']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Dropdown ID User -->
+                            <div class="mb-3">
+                                <label for="id_user" class="form-label">ID User:</label>
+                                <select name="id_user" id="id_user" class="form-select" required>
+                                    <option value="">-- Pilih User --</option>
+                                    <?php foreach ($userList as $user): ?>
+                                        <option value="<?= htmlspecialchars($user['id_user']) ?>"
+                                            <?= $user['id_user'] == $tiket['id_user'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($user['id_user'] . ' - ' . $user['username']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Dropdown ID Jadwal Bus -->
+                            <div class="mb-3">
+                                <label for="id_jadwal_bus" class="form-label">ID Jadwal Bus:</label>
+                                <select name="id_jadwal_bus" id="id_jadwal_bus" class="form-select" required>
+                                    <option value="">-- Pilih Jadwal Bus --</option>
+                                    <?php foreach ($jadwalBusList as $jadwal): ?>
+                                        <option value="<?= htmlspecialchars($jadwal['id_jadwal_bus']) ?>"
+                                            <?= $jadwal['id_jadwal_bus'] == $tiket['id_jadwal_bus'] ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($jadwal['id_jadwal_bus'] . ' - ' . $jadwal['rute_keberangkatan'] . ' ke ' . $jadwal['rute_tujuan']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+
+                            <!-- Input Nomor Kursi -->
+                            <div class="mb-3">
+                                <label for="nomor_kursi" class="form-label">Nomor Kursi:</label>
+                                <input type="text" name="nomor_kursi" id="nomor_kursi"
+                                    value="<?= htmlspecialchars($tiket['nomor_kursi']) ?>" class="form-control"
+                                    required>
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success">Simpan</button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <!-- /.container-fluid -->
             </div>
+
 
             <!-- /.content -->
         </div>

@@ -10,7 +10,14 @@ class UserController
         if (!$pdo) {
             throw new Exception("PDO instance not provided.");
         }
+        // Simpan model dengan koneksi PDO
         $this->userModel = new UserModel($pdo);
+    }
+
+    public function index()
+    {
+        // Gunakan model untuk mendapatkan data user
+        return $this->userModel->fetchAllUsers();
     }
 
     public function getAllUsers()
@@ -43,4 +50,3 @@ class UserController
         return $this->userModel->deleteUser($id);
     }
 }
-?>
