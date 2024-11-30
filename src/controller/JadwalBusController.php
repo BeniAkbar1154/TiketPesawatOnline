@@ -1,5 +1,6 @@
 <?php
-require_once '../../database/db_connection.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_connection.php';
+
 require_once __DIR__ . '../../model/JadwalBusModel.php';
 
 class JadwalBusController

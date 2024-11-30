@@ -309,9 +309,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="row g-4">
                     <?php
-                    // Ambil data jadwal bus dari database
-                    $jadwalBusController = new JadwalBusController(); // Fungsi untuk mengambil data dari database
-                    
+
+                    $jadwalBusController = new JadwalBusController($pdo);
+
                     foreach ($jadwalBuses as $jadwal) {
                         $gambarBus = 'public/landing/img/bus/' . $jadwal['gambar']; // Asumsi gambar bus disimpan di folder public/landing/img/bus/
                         $hargaTiket = number_format($jadwal['harga'], 0, ',', '.'); // Format harga dalam bentuk Rp.

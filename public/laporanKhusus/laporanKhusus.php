@@ -334,46 +334,44 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
             <!-- Main content -->
 
             <div class="container mt-5">
-                <div class="container-fluid">
-                    <div class="row mt-3">
-                        <div class="col-12">
-                            <div class="card">
-                                <h1>Daftar Laporan Khusus</h1>
-                                <a href="create.php"> <i class="fas fa-plus"></i>Tambah Laporan Khusus</a>
-                                <table class="table table-bordered table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>#</th>
-                                            <th>Bus</th>
-                                            <th>User</th>
-                                            <th>Tanggal</th>
-                                            <th>Masalah</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($laporanKhususList as $index => $laporan): ?>
-                                            <tr>
-                                                <td><?= $index + 1 ?></td>
-                                                <td><?= htmlspecialchars($laporan['bus_name'] ?? 'Tidak Ada') ?></td>
-                                                <td><?= htmlspecialchars($laporan['user_name'] ?? 'Tidak Ada') ?></td>
-                                                <td><?= htmlspecialchars($laporan['tanggal'] ?? '') ?></td>
-                                                <td><?= htmlspecialchars($laporan['masalah'] ?? 'Tidak Ada') ?></td>
-
-                                                <td>
-                                                    <a href="edit.php?id=<?= $laporan['id_laporan_khusus'] ?>">Edit</a>
-                                                    <a href="delete.php?id=<?= $laporan['id_laporan_khusus'] ?>"
-                                                        onclick="return confirm('Yakin ingin menghapus?');">Hapus</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <h1>Daftar Laporan Khusus</h1>
+                <a href="create.php" class="btn btn-primary mb-3">
+                    <i class="fas fa-plus"></i> Tambah Laporan Khusus
+                </a>
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Bus</th>
+                            <th>User</th>
+                            <th>Tanggal</th>
+                            <th>Masalah</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($laporanKhususList as $index => $laporan): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($index + 1) ?></td>
+                                <td><?= htmlspecialchars($laporan['bus_name'] ?? 'Tidak Ada') ?></td>
+                                <td><?= htmlspecialchars($laporan['user_name'] ?? 'Tidak Ada') ?></td>
+                                <td><?= htmlspecialchars($laporan['tanggal'] ?? '') ?></td>
+                                <td><?= htmlspecialchars($laporan['masalah'] ?? 'Tidak Ada') ?></td>
+                                <td>
+                                    <a href="edit.php?id=<?= $laporan['id_laporan_khusus'] ?>"
+                                        class="btn btn-warning btn-sm">
+                                        Edit
+                                    </a>
+                                    <a href="delete.php?id=<?= $laporan['id_laporan_khusus'] ?>"
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Yakin ingin menghapus?');">Hapus</a>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
+
 
             <!-- /.content -->
         </div>

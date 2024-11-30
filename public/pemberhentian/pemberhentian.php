@@ -203,7 +203,7 @@ $pemberhentianList = $controller->getAllPemberhentian();
                         data-accordion="false">
                         <!-- Menu User -->
                         <li class="nav-item">
-                            <a href="../user/user.php" class="nav-link">
+                            <a href="../user/user.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
                             </a>
@@ -335,12 +335,12 @@ $pemberhentianList = $controller->getAllPemberhentian();
             <div class="container mt-5">
                 <h1>Daftar Pemberhentian</h1>
                 <a href="create.php" class="btn btn-primary mb-3">Tambah Pemberhentian</a>
-                <table border="1">
+                <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th>ID</th>
-                            <th>Nama</th>
-                            <th>Lokasi</th>
+                            <th>ID Pemberhentian</th>
+                            <th>Nama Pemberhentian</th>
+                            <th>Lokasi Pemberhentian</th>
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -362,6 +362,7 @@ $pemberhentianList = $controller->getAllPemberhentian();
                     </tbody>
                 </table>
             </div>
+
 
             <!-- /.content -->
         </div>

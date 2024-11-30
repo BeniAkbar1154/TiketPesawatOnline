@@ -1,51 +1,57 @@
 <?php
-require_once __DIR__ . '/../../src/controller/TiketController.php';
-require_once __DIR__ . '/../../src/controller/PemesananController.php';
-require_once __DIR__ . '/../../src/controller/UserController.php';
-require_once __DIR__ . '/../../src/controller/JadwalBusController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
-// Inisialisasi controller
-$tiketController = new TiketController($pdo);
-$pemesananController = new PemesananController($pdo);
-$userController = new UserController($pdo);
-$jadwalBusController = new JadwalBusController($pdo);
-
-// Ambil data tiket berdasarkan ID
-$id_tiket = $_GET['id'] ?? null;
-if (!$id_tiket) {
-    die("ID Tiket tidak ditemukan.");
-}
-
-$tiket = $tiketController->getTiketById($id_tiket);
-if (!$tiket) {
-    die("Tiket dengan ID tersebut tidak ditemukan.");
-}
-
-// Ambil data untuk dropdown
-$pemesananList = $pemesananController->index();
-$userList = $userController->index();
-$jadwalBusList = $jadwalBusController->index();
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $data = [
-        'id_pemesanan' => $_POST['id_pemesanan'] ?? null,
-        'id_user' => $_POST['id_user'] ?? null,
-        'id_jadwal_bus' => $_POST['id_jadwal_bus'] ?? null,
-        'nomor_kursi' => $_POST['nomor_kursi'] ?? null,
-    ];
+    // Ambil data dari form
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
+    $confirm_password = trim($_POST['confirm_password']);
 
     // Validasi input
-    if (!$data['id_pemesanan'] || !$data['id_user'] || !$data['id_jadwal_bus'] || !$data['nomor_kursi']) {
-        die("Semua kolom wajib diisi.");
+    $errors = [];
+    if (empty($username)) {
+        $errors[] = 'Username tidak boleh kosong.';
+    }
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $errors[] = 'Format email tidak valid.';
+    }
+    if (empty($password)) {
+        $errors[] = 'Password tidak boleh kosong.';
+    }
+    if ($password !== $confirm_password) {
+        $errors[] = 'Password dan Konfirmasi Password tidak cocok.';
     }
 
-    // Update tiket
-    $tiketController->updateTiket($id_tiket, $data);
+    // Periksa apakah email sudah terdaftar
+    $query = $pdo->prepare("SELECT * FROM user WHERE email = ?");
+    $query->execute([$email]);
+    if ($query->rowCount() > 0) {
+        $errors[] = 'Email sudah digunakan.';
+    }
 
-    // Redirect setelah berhasil update
-    header("Location: tiket.php");
-    exit();
+    if (empty($errors)) {
+        // Hash password
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+
+        // Simpan ke database dengan level default 'customer'
+        $insert_query = $pdo->prepare("INSERT INTO user (username, email, password, level) VALUES (?, ?, ?, ?)");
+        $isInserted = $insert_query->execute([$username, $email, $hashed_password, 'customer']);
+
+        if ($isInserted) {
+            echo "Registrasi berhasil. Silakan login.";
+            // Redirect ke halaman login (opsional)
+            header("Location: login.php");
+            exit();
+        } else {
+            echo "Terjadi kesalahan saat menyimpan data.";
+        }
+    } else {
+        // Tampilkan error
+        foreach ($errors as $error) {
+            echo "<p style='color: red;'>$error</p>";
+        }
+    }
 }
 ?>
 
@@ -384,69 +390,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Main content -->
             <div class="container mt-5">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white">
-                        <h2 class="card-title mb-0">Edit Tiket</h2>
+                <h1 class="text-center">Form Registrasi</h1>
+                <form method="POST" action="register.php" class="mt-4">
+                    <div class="mb-3">
+                        <label for="username" class="form-label">Username:</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
                     </div>
-                    <div class="card-body">
-                        <form method="POST">
-                            <!-- Dropdown ID Pemesanan -->
-                            <div class="mb-3">
-                                <label for="id_pemesanan" class="form-label">ID Pemesanan:</label>
-                                <select name="id_pemesanan" id="id_pemesanan" class="form-select" required>
-                                    <option value="">-- Pilih ID Pemesanan --</option>
-                                    <?php foreach ($pemesananList as $pemesanan): ?>
-                                        <option value="<?= htmlspecialchars($pemesanan['id_pemesanan']) ?>"
-                                            <?= $pemesanan['id_pemesanan'] == $tiket['id_pemesanan'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($pemesanan['id_pemesanan'] . ' - ' . $pemesanan['tanggal_pemesanan']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Dropdown ID User -->
-                            <div class="mb-3">
-                                <label for="id_user" class="form-label">ID User:</label>
-                                <select name="id_user" id="id_user" class="form-select" required>
-                                    <option value="">-- Pilih User --</option>
-                                    <?php foreach ($userList as $user): ?>
-                                        <option value="<?= htmlspecialchars($user['id_user']) ?>"
-                                            <?= $user['id_user'] == $tiket['id_user'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($user['id_user'] . ' - ' . $user['username']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Dropdown ID Jadwal Bus -->
-                            <div class="mb-3">
-                                <label for="id_jadwal_bus" class="form-label">ID Jadwal Bus:</label>
-                                <select name="id_jadwal_bus" id="id_jadwal_bus" class="form-select" required>
-                                    <option value="">-- Pilih Jadwal Bus --</option>
-                                    <?php foreach ($jadwalBusList as $jadwal): ?>
-                                        <option value="<?= htmlspecialchars($jadwal['id_jadwal_bus']) ?>"
-                                            <?= $jadwal['id_jadwal_bus'] == $tiket['id_jadwal_bus'] ? 'selected' : '' ?>>
-                                            <?= htmlspecialchars($jadwal['id_jadwal_bus'] . ' - ' . $jadwal['rute_keberangkatan'] . ' ke ' . $jadwal['rute_tujuan']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-
-                            <!-- Input Nomor Kursi -->
-                            <div class="mb-3">
-                                <label for="nomor_kursi" class="form-label">Nomor Kursi:</label>
-                                <input type="text" name="nomor_kursi" id="nomor_kursi"
-                                    value="<?= htmlspecialchars($tiket['nomor_kursi']) ?>" class="form-control"
-                                    required>
-                            </div>
-
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-success">Simpan</button>
-                            </div>
-                        </form>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email:</label>
+                        <input type="email" id="email" name="email" class="form-control" required>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password:</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Konfirmasi Password:</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="form-control"
+                            required>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">Daftar</button>
+                    </div>
+                </form>
             </div>
+
 
 
             <!-- /.content -->

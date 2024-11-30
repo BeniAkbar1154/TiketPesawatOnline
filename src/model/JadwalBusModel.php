@@ -1,5 +1,6 @@
 <?php
-require_once '../../database/db_connection.php';
+// require_once '../../database/db_connection.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_connection.php';
 
 class JadwalBusModel
 {
@@ -14,23 +15,24 @@ class JadwalBusModel
     {
         $sql = "
             SELECT 
-                jb.id_jadwal_bus,
-                jb.id_bus,
-                jb.rute_keberangkatan,
-                jb.rute_transit,
-                jb.rute_tujuan,
-                jb.datetime_keberangkatan,
-                jb.datetime_sampai,
-                jb.harga,
-                t1.nama_terminal AS keberangkatan,
-                t2.nama_terminal AS tujuan,
-                p.nama_pemberhentian AS transit,
-                b.nama AS bus_name
-            FROM jadwal_bus jb
-            LEFT JOIN terminal t1 ON jb.rute_keberangkatan = t1.id_terminal
-            LEFT JOIN terminal t2 ON jb.rute_tujuan = t2.id_terminal
-            LEFT JOIN pemberhentian p ON jb.rute_transit = p.id_pemberhentian
-            LEFT JOIN bus b ON jb.id_bus = b.id_bus;
+    jb.id_jadwal_bus,
+    jb.id_bus,
+    jb.rute_keberangkatan,
+    jb.rute_transit,
+    jb.rute_tujuan,
+    jb.datetime_keberangkatan,
+    jb.datetime_sampai,
+    jb.harga,
+    t1.nama_terminal AS keberangkatan,
+    t2.nama_terminal AS tujuan,
+    p.nama_pemberhentian AS transit,
+    b.nama AS bus_name
+FROM jadwal_bus jb
+LEFT JOIN terminal t1 ON jb.rute_keberangkatan = t1.id_terminal
+LEFT JOIN terminal t2 ON jb.rute_tujuan = t2.id_terminal
+LEFT JOIN pemberhentian p ON jb.rute_transit = p.id_pemberhentian
+LEFT JOIN bus b ON jb.id_bus = b.id_bus;
+
         ";
 
         $stmt = $this->pdo->query($sql);
