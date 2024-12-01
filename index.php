@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/database/db_connection.php';
 require_once __DIR__ . '../src/controller/PesanController.php';
+require_once __DIR__ . '../src/controller/JadwalBusController.php';
 
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
@@ -33,6 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         echo "ID User dan Pesan tidak boleh kosong.";
     }
 }
+
+$jadwalBusController = new JadwalBusController($pdo);
+$jadwalBuses = $jadwalBusController->getAllSchedules();
 ?>
 
 <html lang="en">
@@ -122,10 +126,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                         </button>
                         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                             <div class="navbar-nav mr-auto py-0">
-                                <a href="#" class="nav-item nav-link active">Home</a>
-                                <a href="public/views/landing/about.html" class="nav-item nav-link">About</a>
-                                <a href="public/views/landing/service.html" class="nav-item nav-link">Services</a>
-                                <a href="public/views/landing/room.html" class="nav-item nav-link">Rooms</a>
+                                <a href="index.php" class="nav-item nav-link active">Home</a>
+                                <a href="public/views/about.html" class="nav-item nav-link">About</a>
+                                <a href="public/views/service.html" class="nav-item nav-link">Services</a>
+                                <a href="public/views/room.html" class="nav-item nav-link">Rooms</a>
                                 <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                     <div class="dropdown-menu rounded-0 m-0">
@@ -309,15 +313,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 </div>
                 <div class="row g-4">
                     <?php
-
-                    $jadwalBusController = new JadwalBusController($pdo);
-
                     foreach ($jadwalBuses as $jadwal) {
-                        $gambarBus = 'public/landing/img/bus/' . $jadwal['gambar']; // Asumsi gambar bus disimpan di folder public/landing/img/bus/
+                        // Validasi gambar bus
+                        $gambarBus = isset($jadwal['gambar']) && !empty($jadwal['gambar'])
+                            ? 'public/landing/img/bus/' . $jadwal['gambar']
+                            : 'public/landing/img/bus/default.jpg'; // Gambar default jika tidak ada
+                    
+                        // Validasi waktu keberangkatan
+                        $waktuKeberangkatan = !empty($jadwal['datetime_keberangkatan'])
+                            ? date('d M Y H:i', strtotime($jadwal['datetime_keberangkatan']))
+                            : 'Belum ditentukan';
+
+                        // Validasi waktu sampai
+                        $waktuSampai = !empty($jadwal['datetime_sampai'])
+                            ? date('d M Y H:i', strtotime($jadwal['datetime_sampai']))
+                            : 'Belum ditentukan';
+
+                        // Informasi tambahan
                         $hargaTiket = number_format($jadwal['harga'], 0, ',', '.'); // Format harga dalam bentuk Rp.
                         $namaRute = $jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'];
-                        $waktuKeberangkatan = date('d M Y H:i', strtotime($jadwal['waktu_keberangkatan']));
-                        $waktuKedatangan = date('d M Y H:i', strtotime($jadwal['waktu_kedatangan']));
                         ?>
                         <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                             <div class="room-item shadow rounded overflow-hidden">
@@ -340,15 +354,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                     </div>
                                     <div class="d-flex mb-3">
                                         <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>2
-                                            Kursi
-                                            Bersandingan</small>
-                                        <?php if ($jadwal['rute_transit']) { ?>
+                                            Kursi Bersandingan</small>
+                                        <?php if (!empty($jadwal['rute_transit'])) { ?>
                                             <small class="border-end me-3 pe-3"><i
-                                                    class="fa fa-bath text-primary me-2"></i>Transit</small>
+                                                    class="fa fa-train text-primary me-2"></i>Transit</small>
                                         <?php } ?>
                                         <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
                                     </div>
-                                    <p class="text-body mb-3"><?php echo $waktuKeberangkatan . ' - ' . $waktuKedatangan; ?>
+
+                                    <p class="text-body mb-3">
+                                        <?php echo $waktuKeberangkatan . ' - ' . $waktuSampai; ?>
                                     </p>
                                     <div class="d-flex justify-content-between">
                                         <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
