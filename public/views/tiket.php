@@ -45,7 +45,18 @@ $ruteKeberangkatan = $_GET['rute_keberangkatan'] ?? '';
 $ruteTujuan = $_GET['rute_tujuan'] ?? '';
 
 // Query untuk mengambil jadwal bus berdasarkan rute keberangkatan dan tujuan
-$query = "SELECT * FROM jadwal_bus WHERE rute_keberangkatan LIKE :ruteKeberangkatan AND rute_tujuan LIKE :ruteTujuan";
+$query = "
+    SELECT jb.*, 
+           b.nama AS nama_bus, 
+           b.gambar AS gambar_bus,
+           t1.nama_terminal AS rute_keberangkatan, 
+           t2.nama_terminal AS rute_tujuan
+    FROM jadwal_bus jb
+    JOIN bus b ON jb.id_bus = b.id_bus
+    LEFT JOIN terminal t1 ON jb.rute_keberangkatan = t1.id_terminal
+    LEFT JOIN terminal t2 ON jb.rute_tujuan = t2.id_terminal
+    WHERE t1.nama_terminal LIKE :ruteKeberangkatan AND t2.nama_terminal LIKE :ruteTujuan
+";
 
 // Persiapkan query menggunakan PDO
 $stmt = $pdo->prepare($query);
@@ -56,7 +67,6 @@ $stmt->execute();
 // Ambil hasil pencarian
 $jadwalBuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -186,6 +196,7 @@ $jadwalBuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <div class="container">
           <div class="bg-white shadow" style="padding: 35px">
             <div class="row g-2">
+              <!-- Dropdown Rute Keberangkatan -->
               <div class="col-md-5">
                 <div class="row g-2">
                   <div class="col-md-12">
@@ -193,16 +204,23 @@ $jadwalBuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       <option value="">Pilih Rute Keberangkatan</option>
                       <option value="">Semua Rute Keberangkatan</option> <!-- Opsi untuk semua rute keberangkatan -->
                       <?php
-                      // Ambil rute keberangkatan dari database (misalnya menggunakan PDO)
-                      $stmtKeberangkatan = $pdo->query("SELECT DISTINCT rute_keberangkatan FROM jadwal_bus");
+                      // Ambil nama terminal keberangkatan dari database
+                      $stmtKeberangkatan = $pdo->query("
+                    SELECT DISTINCT t.id_terminal, t.nama_terminal 
+                    FROM jadwal_bus jb 
+                    LEFT JOIN terminal t ON jb.rute_keberangkatan = t.id_terminal
+                    WHERE t.nama_terminal IS NOT NULL
+                  ");
                       while ($row = $stmtKeberangkatan->fetch(PDO::FETCH_ASSOC)) {
-                        echo "<option value='" . htmlspecialchars($row['rute_keberangkatan']) . "'>" . htmlspecialchars($row['rute_keberangkatan']) . "</option>";
+                        echo "<option value='" . htmlspecialchars($row['id_terminal']) . "'>" . htmlspecialchars($row['nama_terminal']) . "</option>";
                       }
                       ?>
                     </select>
                   </div>
                 </div>
               </div>
+
+              <!-- Dropdown Rute Tujuan -->
               <div class="col-md-5">
                 <div class="row g-2">
                   <div class="col-md-12">
@@ -210,16 +228,23 @@ $jadwalBuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
                       <option value="">Pilih Rute Tujuan</option>
                       <option value="">Semua Rute Tujuan</option> <!-- Opsi untuk semua rute tujuan -->
                       <?php
-                      // Ambil rute tujuan dari database (misalnya menggunakan PDO)
-                      $stmtTujuan = $pdo->query("SELECT DISTINCT rute_tujuan FROM jadwal_bus");
+                      // Ambil nama terminal tujuan dari database
+                      $stmtTujuan = $pdo->query("
+                    SELECT DISTINCT t.id_terminal, t.nama_terminal 
+                    FROM jadwal_bus jb 
+                    LEFT JOIN terminal t ON jb.rute_tujuan = t.id_terminal
+                    WHERE t.nama_terminal IS NOT NULL
+                  ");
                       while ($row = $stmtTujuan->fetch(PDO::FETCH_ASSOC)) {
-                        echo "<option value='" . htmlspecialchars($row['rute_tujuan']) . "'>" . htmlspecialchars($row['rute_tujuan']) . "</option>";
+                        echo "<option value='" . htmlspecialchars($row['id_terminal']) . "'>" . htmlspecialchars($row['nama_terminal']) . "</option>";
                       }
                       ?>
                     </select>
                   </div>
                 </div>
               </div>
+
+              <!-- Tombol Cari -->
               <div class="col-md-2">
                 <button class="btn btn-primary w-100" type="submit">Cari Jadwal</button>
               </div>
@@ -229,6 +254,7 @@ $jadwalBuses = $stmt->fetchAll(PDO::FETCH_ASSOC);
       </div>
 
     </form>
+
     <!-- Search End -->
 
 

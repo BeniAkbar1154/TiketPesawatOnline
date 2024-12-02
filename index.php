@@ -38,6 +38,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 $jadwalBusController = new JadwalBusController($pdo);
 $jadwalBuses = $jadwalBusController->getAllSchedules();
 
+$stmt_jadwal = $pdo->query("
+    SELECT *, 
+           b.nama AS nama_bus, 
+           b.gambar AS gambar_bus,
+           t1.nama_terminal AS rute_keberangkatan, 
+           t2.nama_terminal AS rute_tujuan
+    FROM jadwal_bus
+    JOIN bus b ON jadwal_bus.id_bus = b.id_bus
+    LEFT JOIN terminal t1 ON jadwal_bus.rute_keberangkatan = t1.id_terminal
+    LEFT JOIN terminal t2 ON jadwal_bus.rute_tujuan = t2.id_terminal
+");
+$jadwalBuses = $stmt_jadwal->fetchAll(PDO::FETCH_ASSOC);
+
+
 // Cek apakah ada jadwal bus yang ditemukan
 if (!$jadwalBuses) {
     echo "<p>Tidak ada jadwal bus yang tersedia.</p>";
