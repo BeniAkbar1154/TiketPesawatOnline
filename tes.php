@@ -1,450 +1,157 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
+require_once __DIR__ . '/database/db_connection.php';
+require_once __DIR__ . '/src/controller/PesanController.php'; // Perbaiki jalur file
+require_once __DIR__ . '/src/controller/JadwalBusController.php'; // Perbaiki jalur file
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data dari form
-    $username = trim($_POST['username']);
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
-    $confirm_password = trim($_POST['confirm_password']);
+// Menghitung jumlah bus
+$stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
+$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0; // Jika tidak ada data, set default 0
 
-    // Validasi input
-    $errors = [];
-    if (empty($username)) {
-        $errors[] = 'Username tidak boleh kosong.';
-    }
-    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'Format email tidak valid.';
-    }
-    if (empty($password)) {
-        $errors[] = 'Password tidak boleh kosong.';
-    }
-    if ($password !== $confirm_password) {
-        $errors[] = 'Password dan Konfirmasi Password tidak cocok.';
-    }
+// Menghitung jumlah staf (petugas, admin, superadmin)
+$stmtStaff = $pdo->query("SELECT COUNT(*) AS total_staff FROM user WHERE level IN ('admin', 'petugas', 'superadmin')");
+$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'] ?? 0; // Jika tidak ada data, set default 0
 
-    // Periksa apakah email sudah terdaftar
-    $query = $pdo->prepare("SELECT * FROM user WHERE email = ?");
-    $query->execute([$email]);
-    if ($query->rowCount() > 0) {
-        $errors[] = 'Email sudah digunakan.';
-    }
+// Menghitung jumlah klien (customer)
+$stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE level = 'customer'");
+$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0; // Jika tidak ada data, set default 0
 
-    if (empty($errors)) {
-        // Hash password
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+$pesanController = new PesanController($pdo);
 
-        // Simpan ke database dengan level default 'customer'
-        $insert_query = $pdo->prepare("INSERT INTO user (username, email, password, level) VALUES (?, ?, ?, ?)");
-        $isInserted = $insert_query->execute([$username, $email, $hashed_password, 'customer']);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    // Ambil data dari form yang dikirimkan menggunakan AJAX
+    $id_user = $_POST['id_user'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
+    $pesan = $_POST['pesan'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
 
-        if ($isInserted) {
-            echo "Registrasi berhasil. Silakan login.";
-            // Redirect ke halaman login (opsional)
-            header("Location: login.php");
-            exit();
+    // Cek jika id_user dan pesan tidak kosong
+    if (!empty($id_user) && !empty($pesan)) {
+        // Simpan pesan ke database
+        if ($pesanController->create($id_user, $pesan)) {
+            echo "Pesan berhasil dikirim!";
         } else {
-            echo "Terjadi kesalahan saat menyimpan data.";
+            echo "Gagal mengirim pesan. Coba lagi.";
         }
     } else {
-        // Tampilkan error
-        foreach ($errors as $error) {
-            echo "<p style='color: red;'>$error</p>";
-        }
+        echo "ID User dan Pesan tidak boleh kosong.";
     }
 }
+
+// Pengambilan jadwal bus
+$jadwalBusController = new JadwalBusController($pdo);
+$jadwalBuses = $jadwalBusController->getAllSchedules();
+
+// Cek apakah ada jadwal bus yang ditemukan
+if (!$jadwalBuses) {
+    echo "<p>Tidak ada jadwal bus yang tersedia.</p>";
+}
+
+
+$stmt = $pdo->prepare("SELECT jb.*, b.nama AS nama_bus, b.gambar AS gambar_bus,
+                            t1.nama_terminal AS rute_keberangkatan, t2.nama_terminal AS rute_tujuan
+                       FROM jadwal_bus jb
+                       JOIN bus b ON jb.id_bus = b.id_bus
+                       LEFT JOIN terminal t1 ON jb.rute_keberangkatan = t1.id_terminal
+                       LEFT JOIN terminal t2 ON jb.rute_tujuan = t2.id_terminal
+                       WHERE jb.id_jadwal_bus = :id_jadwal_bus");
+$stmt->execute(['id_jadwal_bus' => $id_jadwal_bus]);
+$tiket = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Cek jika tiket ditemukan
+if ($tiket) {
+    $gambarBus = !empty($tiket['gambar_bus']) ? 'public/landing/img/bus/' . $tiket['gambar_bus'] : 'public/landing/img/bus/default.jpg';
+    $hargaTiket = !empty($tiket['harga']) ? number_format($tiket['harga'], 0, ',', '.') : 'N/A';
+    $namaRute = $tiket['rute_keberangkatan'] . ' - ' . $tiket['rute_tujuan'];  // Menggunakan nama terminal
+    $waktuKeberangkatan = !empty($tiket['waktu_keberangkatan']) ? date('d M Y H:i', strtotime($tiket['waktu_keberangkatan'])) : 'Belum ditentukan';
+    $waktuSampai = !empty($tiket['waktu_kedatangan']) ? date('d M Y H:i', strtotime($tiket['waktu_kedatangan'])) : 'Belum ditentukan';
+} else {
+    // Jika tiket tidak ditemukan
+    $tiket = null;
+}
+
 ?>
 
+<div class="container-xxl py-5">
+    <div class="container">
+        <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
+            <h6 class="section-title text-center text-primary text-uppercase">Our Tickets</h6>
+            <h1 class="mb-5">Explore Our <span class="text-primary text-uppercase">Tickets</span></h1>
+        </div>
+        <div class="row g-4">
+            <?php
+            if (!empty($jadwalBuses)) {
+                // Ambil maksimal 3 data
+                $jadwalBuses = array_slice($jadwalBuses, 0, 3);
 
-<!DOCTYPE html>
-<html lang="en">
+                foreach ($jadwalBuses as $jadwal) {
+                    // Validasi gambar bus
+                    $gambarBus = !empty($jadwal['gambar']) ? 'public/landing/img/bus/' . $jadwal['gambar'] : 'public/landing/img/bus/default.jpg';
 
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Ticket Transportation</title>
+                    // Validasi waktu keberangkatan
+                    $waktuKeberangkatan = !empty($jadwal['datetime_keberangkatan']) ? date('d M Y H:i', strtotime($jadwal['datetime_keberangkatan'])) : 'Belum ditentukan';
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../adminlte/plugins/fontawesome-free/css/all.min.css">
-    <!-- IonIcons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="../adminlte/dist/css/adminlte.min.css">
-    <script>
-        function updateTagihan() {
-            const jadwal = document.getElementById('id_jadwal_bus');
-            const harga = jadwal.options[jadwal.selectedIndex].dataset.harga;
-            document.getElementById('tagihan').value = harga;
-        }
-    </script>
-</head>
+                    // Validasi waktu sampai
+                    $waktuSampai = !empty($jadwal['datetime_sampai']) ? date('d M Y H:i', strtotime($jadwal['datetime_sampai'])) : 'Belum ditentukan';
 
-<body class="hold-transition sidebar-mini">
-    <div class="wrapper">
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
-            </ul>
+                    // Informasi tambahan
+                    $hargaTiket = !empty($jadwal['harga']) ? number_format($jadwal['harga'], 0, ',', '.') : 'N/A'; // Pastikan harga ada
+                    $namaRute = $jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'];
+                    ?>
+                    <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                        <div class="room-item shadow rounded overflow-hidden">
+                            <div class="position-relative">
+                                <img class="img-fluid" src="<?php echo $gambarBus; ?>" alt="Bus Image">
+                                <small
+                                    class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">Rp.
+                                    <?php echo $hargaTiket; ?>/Tiket</small>
+                            </div>
+                            <div class="p-4 mt-2">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5 class="mb-0"><?php echo $namaRute; ?></h5>
+                                    <div class="ps-2">
+                                        <small class="fa fa-star text-primary"></small>
+                                        <small class="fa fa-star text-primary"></small>
+                                        <small class="fa fa-star text-primary"></small>
+                                        <small class="fa fa-star text-primary"></small>
+                                        <small class="fa fa-star text-primary"></small>
+                                    </div>
+                                </div>
+                                <div class="d-flex mb-3">
+                                    <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>2
+                                        Kursi
+                                        Bersandingan</small>
+                                    <?php if (!empty($jadwal['rute_transit'])) { ?>
+                                        <small class="border-end me-3 pe-3"><i
+                                                class="fa fa-train text-primary me-2"></i>Transit</small>
+                                    <?php } ?>
+                                    <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
+                                </div>
 
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
-                    </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search"
-                                    aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
+                                <p class="text-body mb-3">
+                                    <?php echo $waktuKeberangkatan . ' - ' . $waktuSampai; ?>
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <a class="btn btn-sm btn-primary rounded py-2 px-4"
+                                        href="public/views/detail.php?id_jadwal_bus=<?php echo $jadwal['id_jadwal_bus']; ?>">View
+                                        Detail</a>
+                                    <a class="btn btn-sm btn-dark rounded py-2 px-4" href="booking.php">Book Now</a>
                                 </div>
                             </div>
-                        </form>
-                    </div>
-                </li>
-
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user1-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 mr-3 img-circle">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Brad Diesel
-                                        <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">Call me whenever you can...</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user8-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        John Pierce
-                                        <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">I got your message bro</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user3-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Nora Silvester
-                                        <span class="float-right text-sm text-warning"><i
-                                                class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">The subject goes here</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li>
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">15 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope mr-2"></i> 4 new messages
-                            <span class="float-right text-muted text-sm">3 mins</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> 8 friend requests
-                            <span class="float-right text-muted text-sm">12 hours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2"></i> 3 new reports
-                            <span class="float-right text-muted text-sm">2 days</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
-                    </div>
-                </div>
-
-                <!-- SidebarSearch Form -->
-                <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search"
-                            aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
                         </div>
                     </div>
+                    <?php
+                }
+            } else {
+                // Jika tidak ada tiket
+                ?>
+                <div class="text-center">
+                    <h4 class="text-danger">Tiket Kosong</h4>
+                    <p>Belum ada jadwal tiket yang tersedia saat ini.</p>
                 </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <!-- Menu User -->
-                        <li class="nav-item">
-                            <a href="../user/user.php" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
-                                <p>User</p>
-                            </a>
-                        </li>
-
-                        <!-- Menu Bus -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-bus"></i> <!-- Ikon Bus -->
-                                <p>
-                                    Bus
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../bus/bus.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../terminal/terminal.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Terminal</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pemberhentian</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Jadwal Bus</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Menu Administrasi -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-cogs"></i> <!-- Ikon Administrasi -->
-                                <p>
-                                    Administrasi
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pemesanan</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../pembayaran/pembayaran.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pembayaran</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../tiket/tiket.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Tiket</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Menu Laporan -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-chart-line"></i> <!-- Ikon Laporan -->
-                                <p>
-                                    Laporan
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Laporan Harian</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Laporan Khusus</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-
-                <a href="../register/logout.php" class="btn btn-danger">Logout</a>
-                <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-        </aside>
-
-        <!-- Content Wrapper. Contains page content -->
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0"></h1>
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard v3</li>
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
-            <!-- /.content-header -->
-
-            <!-- Main content -->
-            <div class="container mt-5">
-                <h1 class="text-center">Form Registrasi</h1>
-                <form method="POST" action="register.php" class="mt-4">
-                    <div class="mb-3">
-                        <label for="username" class="form-label">Username:</label>
-                        <input type="text" id="username" name="username" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="email" class="form-label">Email:</label>
-                        <input type="email" id="email" name="email" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password:</label>
-                        <input type="password" id="password" name="password" class="form-control" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label">Konfirmasi Password:</label>
-                        <input type="password" id="confirm_password" name="confirm_password" class="form-control"
-                            required>
-                    </div>
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary">Daftar</button>
-                    </div>
-                </form>
-            </div>
-
-
-
-            <!-- /.content -->
+                <?php
+            }
+            ?>
         </div>
-        <!-- /.content-wrapper -->
-
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-        </aside>
-        <!-- /.control-sidebar -->
-
-        <!-- Main Footer -->
-        <footer class="main-footer">
-        </footer>
+        <div class="text-center mt-4">
+            <a class="btn btn-primary rounded py-2 px-4" href="public/views/tiket.php">Lihat Semua Tiket</a>
+        </div>
     </div>
-
-    <!-- jQuery -->
-    <script src="../adminlte/plugins/jquery/jquery.min.js"></script>
-    <!-- Bootstrap -->
-    <script src="../adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE -->
-    <script src="../adminlte/dist/js/adminlte.js"></script>
-
-    <!-- OPTIONAL SCRIPTS -->
-    <script src="../adminlte/plugins/chart.js/Chart.min.js"></script>
-    <!-- AdminLTE for demo purposes -->
-    <!-- <script src="../adminlte/dist/js/demo.js"></script> -->
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="../adminlte/dist/js/pages/dashboard3.js"></script>
-</body>
-
-</html>
+</div>

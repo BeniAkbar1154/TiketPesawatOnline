@@ -1,26 +1,26 @@
 <?php
 require_once __DIR__ . '/database/db_connection.php';
-require_once __DIR__ . '../src/controller/PesanController.php';
-require_once __DIR__ . '../src/controller/JadwalBusController.php';
+require_once __DIR__ . '/src/controller/PesanController.php'; // Perbaiki jalur file
+require_once __DIR__ . '/src/controller/JadwalBusController.php'; // Perbaiki jalur file
 
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
-$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'];
+$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0; // Jika tidak ada data, set default 0
 
 // Menghitung jumlah staf (petugas, admin, superadmin)
 $stmtStaff = $pdo->query("SELECT COUNT(*) AS total_staff FROM user WHERE level IN ('admin', 'petugas', 'superadmin')");
-$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'];
+$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'] ?? 0; // Jika tidak ada data, set default 0
 
 // Menghitung jumlah klien (customer)
 $stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE level = 'customer'");
-$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
+$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0; // Jika tidak ada data, set default 0
 
 $pesanController = new PesanController($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Ambil data dari form yang dikirimkan menggunakan AJAX
-    $id_user = $_POST['id_user'];
-    $pesan = $_POST['pesan'];
+    $id_user = $_POST['id_user'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
+    $pesan = $_POST['pesan'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
 
     // Cek jika id_user dan pesan tidak kosong
     if (!empty($id_user) && !empty($pesan)) {
@@ -37,7 +37,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $jadwalBusController = new JadwalBusController($pdo);
 $jadwalBuses = $jadwalBusController->getAllSchedules();
+
+// Cek apakah ada jadwal bus yang ditemukan
+if (!$jadwalBuses) {
+    echo "<p>Tidak ada jadwal bus yang tersedia.</p>";
+}
 ?>
+
 
 <html lang="en">
 
@@ -103,7 +109,7 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                             </div>
                             <div class="h-100 d-inline-flex align-items-center py-2">
                                 <i class="fa fa-phone-alt text-primary me-2"></i>
-                                <p class="mb-0">+621 1234 5678</p>
+                                <p class="mb-0">+628 1234 5678</p>
                             </div>
                         </div>
                         <div class="col-lg-5 px-5 text-end">
@@ -127,18 +133,18 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                             <div class="navbar-nav mr-auto py-0">
                                 <a href="index.php" class="nav-item nav-link active">Home</a>
-                                <a href="public/views/about.html" class="nav-item nav-link">About</a>
-                                <a href="public/views/service.html" class="nav-item nav-link">Services</a>
-                                <a href="public/views/room.html" class="nav-item nav-link">Rooms</a>
-                                <div class="nav-item dropdown">
+                                <a href="public/views/about.php" class="nav-item nav-link">About</a>
+                                <a href="public/views/service.php" class="nav-item nav-link">Services</a>
+                                <a href="public/views/tiket.php" class="nav-item nav-link">Tickets</a>
+                                <!-- <div class="nav-item dropdown">
                                     <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
                                     <div class="dropdown-menu rounded-0 m-0">
                                         <a href="booking.html" class="dropdown-item">Booking</a>
                                         <a href="team.html" class="dropdown-item">Our Team</a>
                                         <a href="testimonial.html" class="dropdown-item">Testimonial</a>
                                     </div>
-                                </div>
-                                <a href="contact.html" class="nav-item nav-link">Contact</a>
+                                </div> -->
+                                <a href="public/views/contact.php" class="nav-item nav-link">Contact</a>
                             </div>
                         </div>
                     </nav>
@@ -202,36 +208,6 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
         </div>
         <!-- Carousel End -->
 
-
-        <!-- Booking Start -->
-        <div class="container-fluid booking pb-5 wow fadeIn" data-wow-delay="0.1s">
-            <div class="container">
-                <div class="bg-white shadow" style="padding: 35px;">
-                    <div class="row g-2">
-                        <div class="col-md-10">
-                            <div class="row g-2">
-                                <div class="col-md-6">
-                                    <div class="form-select">
-                                        <input type="text" class="form-control datetimepicker-input"
-                                            placeholder="Tempat Awal" />
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="form-select">
-                                        <input type="text" class="form-control datetimepicker-input"
-                                            placeholder="Destinasi" />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary w-100">Submit</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Booking End -->
 
 
         <!-- About Start -->
@@ -304,7 +280,7 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
         <!-- About End -->
 
 
-        <!-- Tikcket Start -->
+        <!-- Ticket Start -->
         <div class="container-xxl py-5">
             <div class="container">
                 <div class="text-center wow fadeInUp" data-wow-delay="0.1s">
@@ -313,71 +289,86 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                 </div>
                 <div class="row g-4">
                     <?php
-                    foreach ($jadwalBuses as $jadwal) {
-                        // Validasi gambar bus
-                        $gambarBus = isset($jadwal['gambar']) && !empty($jadwal['gambar'])
-                            ? 'public/landing/img/bus/' . $jadwal['gambar']
-                            : 'public/landing/img/bus/default.jpg'; // Gambar default jika tidak ada
-                    
-                        // Validasi waktu keberangkatan
-                        $waktuKeberangkatan = !empty($jadwal['datetime_keberangkatan'])
-                            ? date('d M Y H:i', strtotime($jadwal['datetime_keberangkatan']))
-                            : 'Belum ditentukan';
+                    if (!empty($jadwalBuses)) {
+                        // Ambil maksimal 3 data
+                        $jadwalBuses = array_slice($jadwalBuses, 0, 3);
 
-                        // Validasi waktu sampai
-                        $waktuSampai = !empty($jadwal['datetime_sampai'])
-                            ? date('d M Y H:i', strtotime($jadwal['datetime_sampai']))
-                            : 'Belum ditentukan';
+                        foreach ($jadwalBuses as $jadwal) {
+                            // Validasi gambar bus
+                            $gambarBus = !empty($jadwal['gambar']) ? 'public/landing/img/bus/' . $jadwal['gambar'] : 'public/landing/img/bus/default.jpg';
 
-                        // Informasi tambahan
-                        $hargaTiket = number_format($jadwal['harga'], 0, ',', '.'); // Format harga dalam bentuk Rp.
-                        $namaRute = $jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'];
-                        ?>
-                        <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
-                            <div class="room-item shadow rounded overflow-hidden">
-                                <div class="position-relative">
-                                    <img class="img-fluid" src="<?php echo $gambarBus; ?>" alt="Bus Image">
-                                    <small
-                                        class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">Rp.
-                                        <?php echo $hargaTiket; ?>/Tiket</small>
-                                </div>
-                                <div class="p-4 mt-2">
-                                    <div class="d-flex justify-content-between mb-3">
-                                        <h5 class="mb-0"><?php echo $namaRute; ?></h5>
-                                        <div class="ps-2">
-                                            <small class="fa fa-star text-primary"></small>
-                                            <small class="fa fa-star text-primary"></small>
-                                            <small class="fa fa-star text-primary"></small>
-                                            <small class="fa fa-star text-primary"></small>
-                                            <small class="fa fa-star text-primary"></small>
+                            // Validasi waktu keberangkatan
+                            $waktuKeberangkatan = !empty($jadwal['datetime_keberangkatan']) ? date('d M Y H:i', strtotime($jadwal['datetime_keberangkatan'])) : 'Belum ditentukan';
+
+                            // Validasi waktu sampai
+                            $waktuSampai = !empty($jadwal['datetime_sampai']) ? date('d M Y H:i', strtotime($jadwal['datetime_sampai'])) : 'Belum ditentukan';
+
+                            // Informasi tambahan
+                            $hargaTiket = !empty($jadwal['harga']) ? number_format($jadwal['harga'], 0, ',', '.') : 'N/A'; // Pastikan harga ada
+                            $namaRute = $jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'];
+                            ?>
+                            <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
+                                <div class="room-item shadow rounded overflow-hidden">
+                                    <div class="position-relative">
+                                        <img class="img-fluid" src="<?php echo $gambarBus; ?>" alt="Bus Image">
+                                        <small
+                                            class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">Rp.
+                                            <?php echo $hargaTiket; ?>/Tiket</small>
+                                    </div>
+                                    <div class="p-4 mt-2">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <h5 class="mb-0"><?php echo $namaRute; ?></h5>
+                                            <div class="ps-2">
+                                                <small class="fa fa-star text-primary"></small>
+                                                <small class="fa fa-star text-primary"></small>
+                                                <small class="fa fa-star text-primary"></small>
+                                                <small class="fa fa-star text-primary"></small>
+                                                <small class="fa fa-star text-primary"></small>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="d-flex mb-3">
-                                        <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>2
-                                            Kursi Bersandingan</small>
-                                        <?php if (!empty($jadwal['rute_transit'])) { ?>
-                                            <small class="border-end me-3 pe-3"><i
-                                                    class="fa fa-train text-primary me-2"></i>Transit</small>
-                                        <?php } ?>
-                                        <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
-                                    </div>
+                                        <div class="d-flex mb-3">
+                                            <small class="border-end me-3 pe-3"><i class="fa fa-bed text-primary me-2"></i>2
+                                                Kursi
+                                                Bersandingan</small>
+                                            <?php if (!empty($jadwal['rute_transit'])) { ?>
+                                                <small class="border-end me-3 pe-3"><i
+                                                        class="fa fa-train text-primary me-2"></i>Transit</small>
+                                            <?php } ?>
+                                            <small><i class="fa fa-wifi text-primary me-2"></i>Wifi</small>
+                                        </div>
 
-                                    <p class="text-body mb-3">
-                                        <?php echo $waktuKeberangkatan . ' - ' . $waktuSampai; ?>
-                                    </p>
-                                    <div class="d-flex justify-content-between">
-                                        <a class="btn btn-sm btn-primary rounded py-2 px-4" href="">View Detail</a>
-                                        <a class="btn btn-sm btn-dark rounded py-2 px-4" href="">Book Now</a>
+                                        <p class="text-body mb-3">
+                                            <?php echo $waktuKeberangkatan . ' - ' . $waktuSampai; ?>
+                                        </p>
+                                        <div class="d-flex justify-content-between">
+                                            <a class="btn btn-sm btn-primary rounded py-2 px-4"
+                                                href="public/views/detail.php?id_jadwal_bus=<?php echo $jadwal['id_jadwal_bus']; ?>">View
+                                                Detail</a>
+                                            <a class="btn btn-sm btn-dark rounded py-2 px-4" href="booking.php">Book Now</a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <?php
+                        }
+                    } else {
+                        // Jika tidak ada tiket
+                        ?>
+                        <div class="text-center">
+                            <h4 class="text-danger">Tiket Kosong</h4>
+                            <p>Belum ada jadwal tiket yang tersedia saat ini.</p>
                         </div>
                         <?php
                     }
                     ?>
                 </div>
+                <div class="text-center mt-4">
+                    <a class="btn btn-primary rounded py-2 px-4" href="public/views/tiket.php">Lihat Semua Tiket</a>
+                </div>
             </div>
         </div>
+
+
 
         <!-- Ticket End -->
 
@@ -603,7 +594,7 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                         <h6 class="section-title text-start text-primary text-uppercase mb-4">Contact</h6>
                         <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
                         <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
-                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>info@example.com</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>TicketTransportation@gmail.com</p>
                         <div class="d-flex pt-2">
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
