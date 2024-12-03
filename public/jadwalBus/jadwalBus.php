@@ -388,6 +388,11 @@ $schedules = $jadwalBusController->getAllSchedules();
                                                                         onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
                                                                         <i class="fas fa-trash"></i> Hapus
                                                                     </a>
+                                                                    <!-- Tombol Nomor Kursi -->
+                                                                    <a href="../nomorKursi/nomorKursi.php?id_bus=<?= $schedule['id_bus'] ?>"
+                                                                        class="btn btn-info btn-sm">
+                                                                        <i class="fas fa-list"></i> Nomor Kursi
+                                                                    </a>
                                                                 </td>
                                                             </tr>
                                                         <?php endforeach; ?>
@@ -407,6 +412,7 @@ $schedules = $jadwalBusController->getAllSchedules();
                             </div>
                         </div><!-- /.container-fluid -->
                     </section>
+
                     <!-- /.content -->
                 </div>
                 <!-- /.content-wrapper -->

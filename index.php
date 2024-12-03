@@ -3,6 +3,13 @@ require_once __DIR__ . '/database/db_connection.php';
 require_once __DIR__ . '/src/controller/PesanController.php'; // Perbaiki jalur file
 require_once __DIR__ . '/src/controller/JadwalBusController.php'; // Perbaiki jalur file
 
+session_start();
+
+// Cek apakah user sudah login
+$isLoggedIn = isset($_SESSION['username']); // Ganti 'username' sesuai dengan nama sesi yang Anda gunakan
+$username = $isLoggedIn ? htmlspecialchars($_SESSION['username']) : null;
+
+
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
 $totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0; // Jika tidak ada data, set default 0
@@ -16,6 +23,7 @@ $stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE lev
 $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0; // Jika tidak ada data, set default 0
 
 $pesanController = new PesanController($pdo);
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Ambil data dari form yang dikirimkan menggunakan AJAX
@@ -160,6 +168,14 @@ if (!$jadwalBuses) {
                                 </div> -->
                                 <a href="public/views/contact.php" class="nav-item nav-link">Contact</a>
                             </div>
+                            <a href="#" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
+                                <?php if ($isLoggedIn): ?>
+                                    Selamat datang, <?= $username ?>!
+                                <?php else: ?>
+                                    Anda belum login
+                                <?php endif; ?>
+                            </a>
+
                         </div>
                     </nav>
                 </div>
