@@ -9,7 +9,6 @@ session_start();
 $isLoggedIn = isset($_SESSION['username']); // Ganti 'username' sesuai dengan nama sesi yang Anda gunakan
 $username = $isLoggedIn ? htmlspecialchars($_SESSION['username']) : null;
 
-
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
 $totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0; // Jika tidak ada data, set default 0
@@ -24,7 +23,7 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0; // 
 
 $pesanController = new PesanController($pdo);
 
-
+// Logika untuk menangani pesan
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Ambil data dari form yang dikirimkan menggunakan AJAX
     $id_user = $_POST['id_user'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
@@ -44,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $jadwalBusController = new JadwalBusController($pdo);
-$jadwalBuses = $jadwalBusController->getAllSchedules();
 
+// Ambil semua jadwal bus
 $stmt_jadwal = $pdo->query("
     SELECT *, 
            b.nama AS nama_bus, 
@@ -59,10 +58,18 @@ $stmt_jadwal = $pdo->query("
 ");
 $jadwalBuses = $stmt_jadwal->fetchAll(PDO::FETCH_ASSOC);
 
+// Ambil jumlah notifikasi untuk user
+$notificationCount = 0;
+if ($isLoggedIn && isset($_SESSION['id_user'])) {
+    $id_user = $_SESSION['id_user'];
 
-// Cek apakah ada jadwal bus yang ditemukan
-if (!$jadwalBuses) {
-    echo "<p>Tidak ada jadwal bus yang tersedia.</p>";
+    $stmt_notifikasi = $pdo->prepare("
+        SELECT COUNT(*) AS count 
+        FROM notifikasi 
+        WHERE id_user = :id_user AND status = 'unread'
+    ");
+    $stmt_notifikasi->execute(['id_user' => $id_user]);
+    $notificationCount = $stmt_notifikasi->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 }
 ?>
 
@@ -158,16 +165,22 @@ if (!$jadwalBuses) {
                                 <a href="public/views/about.php" class="nav-item nav-link">About</a>
                                 <a href="public/views/service.php" class="nav-item nav-link">Services</a>
                                 <a href="public/views/tiket.php" class="nav-item nav-link">Tickets</a>
-                                <!-- <div class="nav-item dropdown">
-                                    <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">Pages</a>
-                                    <div class="dropdown-menu rounded-0 m-0">
-                                        <a href="booking.html" class="dropdown-item">Booking</a>
-                                        <a href="team.html" class="dropdown-item">Our Team</a>
-                                        <a href="testimonial.html" class="dropdown-item">Testimonial</a>
-                                    </div>
-                                </div> -->
+
                                 <a href="public/views/contact.php" class="nav-item nav-link">Contact</a>
                             </div>
+                            <!-- Ikon Notifikasi -->
+                            <div class="navbar-nav ml-auto py-0">
+                                <a href="public/views/pesan.php" class="nav-item nav-link position-relative">
+                                    <i class="fa fa-bell text-white"></i>
+                                    <?php if ($notificationCount > 0): ?>
+                                        <span class="badge bg-danger rounded-circle position-absolute"
+                                            style="top: 5px; right: -5px;">
+                                            <?= $notificationCount ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
+                            </div>
+
                             <a href="#" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
                                 <?php if ($isLoggedIn): ?>
                                     Selamat datang, <?= $username ?>!
@@ -614,16 +627,16 @@ if (!$jadwalBuses) {
                                 <h1 class="text-white text-uppercase mb-3">Ticket Bus</h1>
                             </a>
                             <p class="text-white mb-0">
-                                Lorem ipsum dolor sit, amet consectetur adipisicing elit. Ullam labore velit quod quam
-                                unde, sapiente laborum dolor excepturi reprehenderit architecto facere ad dolores
-                                necessitatibus minima. Asperiores iusto tempora doloribus nam.
+                                Ticket Bus adalah sebuah website yang menyediakan layanan untuk memesan tiket bus
+                                secara online. Website ini memudahkan pengguna untuk memesan tiket bus dengan mudah dan
+                                cepat.
                             </p>
                         </div>
                     </div>
                     <div class="col-md-6 col-lg-3">
                         <h6 class="section-title text-start text-primary text-uppercase mb-4">Contact</h6>
-                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>123 Street, New York, USA</p>
-                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+012 345 67890</p>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Karawang, Jawa Barat</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+628123456789</p>
                         <p class="mb-2"><i class="fa fa-envelope me-3"></i>TicketTransportation@gmail.com</p>
                         <div class="d-flex pt-2">
                             <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
@@ -644,58 +657,37 @@ if (!$jadwalBuses) {
                             </div>
                             <div class="col-md-6">
                                 <h6 class="section-title text-start text-primary text-uppercase mb-4">Services</h6>
-                                <a class="btn btn-link" href="">Food & Restaurant</a>
-                                <a class="btn btn-link" href="">Spa & Fitness</a>
-                                <a class="btn btn-link" href="">Sports & Gaming</a>
-                                <a class="btn btn-link" href="">Event & Party</a>
-                                <a class="btn btn-link" href="">GYM & Yoga</a>
+                                <a class="btn btn-link" href="">Reservasi Bus</a>
+                                <a class="btn btn-link" href="">Ticket Online</a>
+                                <a class="btn btn-link" href="">Jadwal Bus</a>
+                                <a class="btn btn-link" href="">Pelacakan Bus</a>
+                                <a class="btn btn-link" href="">Rute Bus</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="container">
-                <div class="copyright">
-                    <div class="row">
-                        <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-                            &copy; <a class="border-bottom" href="#">Your Site Name</a>, All Right Reserved.
+            <!-- Footer End -->
 
-                            <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-                            Designed By <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
-                        </div>
-                        <div class="col-md-6 text-center text-md-end">
-                            <div class="footer-menu">
-                                <a href="">Home</a>
-                                <a href="">Cookies</a>
-                                <a href="">Help</a>
-                                <a href="">FQAs</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+
+            <!-- Back to Top -->
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
-        <!-- Footer End -->
 
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="public/landing/lib/wow/wow.min.js"></script>
+        <script src="public/landing/lib/easing/easing.min.js"></script>
+        <script src="public/landing/lib/waypoints/waypoints.min.js"></script>
+        <script src="public/landing/lib/counterup/counterup.min.js"></script>
+        <script src="public/landing/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="public/landing/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="public/landing/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="public/landing/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Back to Top -->
-        <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
-    </div>
-
-    <!-- JavaScript Libraries -->
-    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="public/landing/lib/wow/wow.min.js"></script>
-    <script src="public/landing/lib/easing/easing.min.js"></script>
-    <script src="public/landing/lib/waypoints/waypoints.min.js"></script>
-    <script src="public/landing/lib/counterup/counterup.min.js"></script>
-    <script src="public/landing/lib/owlcarousel/owl.carousel.min.js"></script>
-    <script src="public/landing/lib/tempusdominus/js/moment.min.js"></script>
-    <script src="public/landing/lib/tempusdominus/js/moment-timezone.min.js"></script>
-    <script src="public/landing/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
-
-    <!-- Template Javascript -->
-    <script src="public/landing/js/main.js"></script>
+        <!-- Template Javascript -->
+        <script src="public/landing/js/main.js"></script>
 </body>
 
 </html>

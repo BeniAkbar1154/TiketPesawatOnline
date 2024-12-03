@@ -3,6 +3,12 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_c
 require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/src/controller/PesanController.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/src/controller/JadwalBusController.php';
 
+session_start();
+
+// Cek apakah user sudah login
+$isLoggedIn = isset($_SESSION['username']); // Ganti 'username' sesuai dengan nama sesi yang Anda gunakan
+$username = $isLoggedIn ? htmlspecialchars($_SESSION['username']) : null;
+
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
 $totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'];
@@ -147,7 +153,13 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                   </div> -->
                 <a href="contact.html" class="nav-item nav-link active">Contact</a>
               </div>
-
+              <a href="#" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
+                <?php if ($isLoggedIn): ?>
+                  Selamat datang, <?= $username ?>!
+                <?php else: ?>
+                  Anda belum login
+                <?php endif; ?>
+              </a>
             </div>
           </nav>
         </div>
@@ -297,30 +309,20 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
           <div class="col-md-6 col-lg-4">
             <div class="bg-primary rounded p-4">
               <a href="index.html">
-                <h1 class="text-white text-uppercase mb-3">Hotelier</h1>
+                <h1 class="text-white text-uppercase mb-3">Ticket Bus</h1>
               </a>
               <p class="text-white mb-0">
-                Download
-                <a class="text-dark fw-medium" href="https://htmlcodex.com/hotel-html-template-pro">Hotelier – Premium
-                  Version</a>, build a professional website for your hotel business and
-                grab the attention of new visitors upon your site’s launch.
+                Ticket Bus adalah sebuah website yang menyediakan layanan untuk memesan tiket bus
+                secara online. Website ini memudahkan pengguna untuk memesan tiket bus dengan mudah dan
+                cepat.
               </p>
             </div>
           </div>
           <div class="col-md-6 col-lg-3">
-            <h6 class="section-title text-start text-primary text-uppercase mb-4">
-              Contact
-            </h6>
-            <p class="mb-2">
-              <i class="fa fa-map-marker-alt me-3"></i>123 Street, New York,
-              USA
-            </p>
-            <p class="mb-2">
-              <i class="fa fa-phone-alt me-3"></i>+628 1234 56780
-            </p>
-            <p class="mb-2">
-              <i class="fa fa-envelope me-3"></i>info@example.com
-            </p>
+            <h6 class="section-title text-start text-primary text-uppercase mb-4">Contact</h6>
+            <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Karawang, Jawa Barat</p>
+            <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+628123456789</p>
+            <p class="mb-2"><i class="fa fa-envelope me-3"></i>TicketTransportation@gmail.com</p>
             <div class="d-flex pt-2">
               <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
               <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
@@ -331,9 +333,7 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
           <div class="col-lg-5 col-md-12">
             <div class="row gy-5 g-4">
               <div class="col-md-6">
-                <h6 class="section-title text-start text-primary text-uppercase mb-4">
-                  Company
-                </h6>
+                <h6 class="section-title text-start text-primary text-uppercase mb-4">Company</h6>
                 <a class="btn btn-link" href="">About Us</a>
                 <a class="btn btn-link" href="">Contact Us</a>
                 <a class="btn btn-link" href="">Privacy Policy</a>
@@ -341,41 +341,22 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                 <a class="btn btn-link" href="">Support</a>
               </div>
               <div class="col-md-6">
-                <h6 class="section-title text-start text-primary text-uppercase mb-4">
-                  Services
-                </h6>
-                <a class="btn btn-link" href="">Food & Restaurant</a>
-                <a class="btn btn-link" href="">Spa & Fitness</a>
-                <a class="btn btn-link" href="">Sports & Gaming</a>
-                <a class="btn btn-link" href="">Event & Party</a>
-                <a class="btn btn-link" href="">GYM & Yoga</a>
+                <h6 class="section-title text-start text-primary text-uppercase mb-4">Services</h6>
+                <a class="btn btn-link" href="">Reservasi Bus</a>
+                <a class="btn btn-link" href="">Ticket Online</a>
+                <a class="btn btn-link" href="">Jadwal Bus</a>
+                <a class="btn btn-link" href="">Pelacakan Bus</a>
+                <a class="btn btn-link" href="">Rute Bus</a>
               </div>
             </div>
           </div>
         </div>
       </div>
-      <div class="container">
-        <div class="copyright">
-          <div class="row">
-            <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
-              &copy; <a class="border-bottom" href="#">Your Site Name</a>, All
-              Right Reserved.
+      <!-- Footer End -->
 
-              <!--/*** This template is free as long as you keep the footer author’s credit link/attribution link/backlink. If you'd like to use the template without the footer author’s credit link/attribution link/backlink, you can purchase the Credit Removal License from "https://htmlcodex.com/credit-removal". Thank you for your support. ***/-->
-              Designed By
-              <a class="border-bottom" href="https://htmlcodex.com">HTML Codex</a>
-            </div>
-            <div class="col-md-6 text-center text-md-end">
-              <div class="footer-menu">
-                <a href="">Home</a>
-                <a href="">Cookies</a>
-                <a href="">Help</a>
-                <a href="">FQAs</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+
+      <!-- Back to Top -->
+      <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
     </div>
     <!-- Footer End -->
 
