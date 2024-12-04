@@ -6,8 +6,9 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/src/controlle
 session_start();
 
 // Cek apakah user sudah login
-$isLoggedIn = isset($_SESSION['username']); // Ganti 'username' sesuai dengan nama sesi yang Anda gunakan
-$username = $isLoggedIn ? htmlspecialchars($_SESSION['username']) : null;
+$isLoggedIn = isset($_SESSION['user']); // Periksa apakah user ada dalam sesi
+$username = $isLoggedIn ? htmlspecialchars($_SESSION['user']['username']) : null; // Ambil username dari sesi
+$id_user = $isLoggedIn ? $_SESSION['user']['id_user'] : null; // Ambil id_user dari sesi jika login
 
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
@@ -23,14 +24,12 @@ $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
 
 $pesanController = new PesanController($pdo);
 
+// Logika untuk menangani pesan
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  // Ambil data dari form yang dikirimkan menggunakan AJAX
-  $id_user = $_POST['id_user'];
-  $pesan = $_POST['pesan'];
+  $id_user = $_POST['id_user'] ?? '';
+  $pesan = $_POST['pesan'] ?? '';
 
-  // Cek jika id_user dan pesan tidak kosong
   if (!empty($id_user) && !empty($pesan)) {
-    // Simpan pesan ke database
     if ($pesanController->create($id_user, $pesan)) {
       echo "Pesan berhasil dikirim!";
     } else {
@@ -43,6 +42,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 $jadwalBusController = new JadwalBusController($pdo);
 $jadwalBuses = $jadwalBusController->getAllSchedules();
+
+$notificationCount = 0;
+if ($isLoggedIn && isset($_SESSION['id_user'])) {
+  $id_user = $_SESSION['id_user'];
+
+  // Query untuk mengambil jumlah pesan yang belum dibaca
+  $stmt_notifikasi = $pdo->prepare("
+        SELECT COUNT(*) AS count 
+        FROM pesan 
+        WHERE id_user = :id_user AND status = 'unread'
+    ");
+  $stmt_notifikasi->execute(['id_user' => $id_user]);
+  $notificationCount = $stmt_notifikasi->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+}
 ?>
 
 <!DOCTYPE html>
@@ -83,20 +96,13 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
 
 <body>
   <div class="container-xxl bg-white p-0">
-    <!-- Spinner Start -->
-    <div id="spinner"
-      class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
-      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem" role="status">
-        <span class="sr-only">Loading...</span>
-      </div>
-    </div>
-    <!-- Spinner End -->
+
 
     <!-- Header Start -->
     <div class="container-fluid bg-dark px-0">
       <div class="row gx-0">
         <div class="col-lg-3 bg-dark d-none d-lg-block">
-          <a href="index.html"
+          <a href="../../index.php"
             class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
             <h1 class="m-0 text-primary text-uppercase">Ticket Bus</h1>
           </a>
@@ -136,30 +142,35 @@ $jadwalBuses = $jadwalBusController->getAllSchedules();
                 <a href="about.php" class="nav-item nav-link">About</a>
                 <a href="service.php" class="nav-item nav-link">Services</a>
                 <a href="tiket.php" class="nav-item nav-link">Tickets</a>
-                <!-- <div class="nav-item dropdown">
-                    <a
-                      href="#"
-                      class="nav-link dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      >Pages</a
-                    >
-                    <div class="dropdown-menu rounded-0 m-0">
-                      <a href="booking.html" class="dropdown-item">Booking</a>
-                      <a href="team.html" class="dropdown-item">Our Team</a>
-                      <a href="testimonial.html" class="dropdown-item"
-                        >Testimonial</a
-                      >
-                    </div>
-                  </div> -->
-                <a href="contact.html" class="nav-item nav-link active">Contact</a>
+                <a href="contact.php" class="nav-item nav-link active">Contact</a>
               </div>
-              <a href="#" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
-                <?php if ($isLoggedIn): ?>
-                  Selamat datang, <?= $username ?>!
-                <?php else: ?>
-                  Anda belum login
+              <!-- Ikon Notifikasi -->
+              <div class="navbar-nav ml-auto py-0">
+                <a href="public/views/pesan.php" class="nav-item nav-link position-relative">
+                  <i class="fa fa-bell text-white"></i>
+                  <?php if ($notificationCount > 0): ?>
+                    <span class="badge bg-danger rounded-circle position-absolute" style="top: 5px; right: -5px;">
+                      <?= $notificationCount ?>
+                    </span>
+                  <?php endif; ?>
+                </a>
+              </div>
+
+              <div class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
+                <span class="text-white me-3">
+                  <?php if ($username): ?>
+                    Selamat datang, <?= htmlspecialchars($username) ?>!
+                  <?php else: ?>
+                    Anda belum login
+                  <?php endif; ?>
+                </span>
+
+                <?php if ($username): ?>
+                  <a href="public/register/logout.php" class="btn btn-danger btn-sm">
+                    Logout
+                  </a>
                 <?php endif; ?>
-              </a>
+              </div>
             </div>
           </nav>
         </div>

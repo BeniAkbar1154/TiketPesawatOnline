@@ -1,37 +1,35 @@
 <?php
 require_once __DIR__ . '/database/db_connection.php';
-require_once __DIR__ . '/src/controller/PesanController.php'; // Perbaiki jalur file
-require_once __DIR__ . '/src/controller/JadwalBusController.php'; // Perbaiki jalur file
+require_once __DIR__ . '/src/controller/PesanController.php';
+require_once __DIR__ . '/src/controller/JadwalBusController.php';
 
-session_start();
+session_start(); // Memulai sesi
 
 // Cek apakah user sudah login
-$isLoggedIn = isset($_SESSION['username']); // Ganti 'username' sesuai dengan nama sesi yang Anda gunakan
-$username = $isLoggedIn ? htmlspecialchars($_SESSION['username']) : null;
+$isLoggedIn = isset($_SESSION['user']); // Periksa apakah user ada dalam sesi
+$username = $isLoggedIn ? htmlspecialchars($_SESSION['user']['username']) : null; // Ambil username dari sesi
+$id_user = $isLoggedIn ? $_SESSION['user']['id_user'] : null; // Ambil id_user dari sesi jika login
 
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
-$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0; // Jika tidak ada data, set default 0
+$totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'] ?? 0;
 
 // Menghitung jumlah staf (petugas, admin, superadmin)
 $stmtStaff = $pdo->query("SELECT COUNT(*) AS total_staff FROM user WHERE level IN ('admin', 'petugas', 'superadmin')");
-$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'] ?? 0; // Jika tidak ada data, set default 0
+$totalStaff = $stmtStaff->fetch(PDO::FETCH_ASSOC)['total_staff'] ?? 0;
 
 // Menghitung jumlah klien (customer)
 $stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE level = 'customer'");
-$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0; // Jika tidak ada data, set default 0
+$totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'] ?? 0;
 
 $pesanController = new PesanController($pdo);
 
 // Logika untuk menangani pesan
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Ambil data dari form yang dikirimkan menggunakan AJAX
-    $id_user = $_POST['id_user'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
-    $pesan = $_POST['pesan'] ?? '';  // Gunakan null coalescing operator untuk menghindari undefined index
+    $id_user = $_POST['id_user'] ?? '';
+    $pesan = $_POST['pesan'] ?? '';
 
-    // Cek jika id_user dan pesan tidak kosong
     if (!empty($id_user) && !empty($pesan)) {
-        // Simpan pesan ke database
         if ($pesanController->create($id_user, $pesan)) {
             echo "Pesan berhasil dikirim!";
         } else {
@@ -43,8 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 $jadwalBusController = new JadwalBusController($pdo);
-
-// Ambil semua jadwal bus
 $stmt_jadwal = $pdo->query("
     SELECT *, 
            b.nama AS nama_bus, 
@@ -58,21 +54,21 @@ $stmt_jadwal = $pdo->query("
 ");
 $jadwalBuses = $stmt_jadwal->fetchAll(PDO::FETCH_ASSOC);
 
-// Ambil jumlah notifikasi untuk user
 $notificationCount = 0;
 if ($isLoggedIn && isset($_SESSION['id_user'])) {
     $id_user = $_SESSION['id_user'];
 
+    // Query untuk mengambil jumlah pesan yang belum dibaca
     $stmt_notifikasi = $pdo->prepare("
         SELECT COUNT(*) AS count 
-        FROM notifikasi 
+        FROM pesan 
         WHERE id_user = :id_user AND status = 'unread'
     ");
     $stmt_notifikasi->execute(['id_user' => $id_user]);
     $notificationCount = $stmt_notifikasi->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 }
-?>
 
+?>
 
 <html lang="en">
 
@@ -124,7 +120,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
         <div class="container-fluid bg-dark px-0">
             <div class="row gx-0">
                 <div class="col-lg-3 bg-dark d-none d-lg-block">
-                    <a href="#"
+                    <a href="index.php"
                         class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
                         <h1 class="m-0 text-primary text-uppercase">Ticket Bus</h1>
                     </a>
@@ -165,7 +161,6 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                                 <a href="public/views/about.php" class="nav-item nav-link">About</a>
                                 <a href="public/views/service.php" class="nav-item nav-link">Services</a>
                                 <a href="public/views/tiket.php" class="nav-item nav-link">Tickets</a>
-
                                 <a href="public/views/contact.php" class="nav-item nav-link">Contact</a>
                             </div>
                             <!-- Ikon Notifikasi -->
@@ -181,19 +176,27 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                                 </a>
                             </div>
 
-                            <a href="#" class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
-                                <?php if ($isLoggedIn): ?>
-                                    Selamat datang, <?= $username ?>!
-                                <?php else: ?>
-                                    Anda belum login
-                                <?php endif; ?>
-                            </a>
+                            <div class="btn btn-primary rounded-0 py-4 px-md-5 d-none d-lg-block">
+                                <span class="text-white me-3">
+                                    <?php if ($username): ?>
+                                        Selamat datang, <?= htmlspecialchars($username) ?>!
+                                    <?php else: ?>
+                                        Anda belum login
+                                    <?php endif; ?>
+                                </span>
 
+                                <?php if ($username): ?>
+                                    <a href="public/register/logout.php" class="btn btn-danger btn-sm">
+                                        Logout
+                                    </a>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </nav>
                 </div>
             </div>
         </div>
+
         <!-- Header End -->
 
 

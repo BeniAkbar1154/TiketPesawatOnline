@@ -1,6 +1,7 @@
 <?php
 // Include koneksi database
 require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_connection.php';
+session_start(); // Mulai sesi untuk memeriksa login pengguna
 
 // Validasi jika `id_jadwal_bus` tidak ada di URL
 if (!isset($_GET['id_jadwal_bus']) || empty($_GET['id_jadwal_bus'])) {
@@ -23,7 +24,6 @@ try {
     $stmt->execute(['id_jadwal_bus' => $id_jadwal_bus]);
     $tiket = $stmt->fetch(PDO::FETCH_ASSOC);
 
-
     // Jika data tidak ditemukan
     if (!$tiket) {
         echo "<h3>Detail tiket tidak ditemukan!</h3>";
@@ -32,6 +32,64 @@ try {
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
     exit;
+}
+
+// Proses ketika tombol "Pesan Tiket" ditekan
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if (!isset($_SESSION['user'])) {
+        // Redirect ke halaman login jika belum login
+        header("Location: /TiketTransportasiOnline/public/register/login.php");
+        exit;
+    }
+
+    $id_user = $_SESSION['user']['id_user']; // Ambil ID pengguna yang login
+
+    try {
+        $pdo->beginTransaction();
+
+        // Cari nomor kursi yang tersedia
+        $stmtKursi = $pdo->prepare("
+            SELECT id_kursi 
+            FROM kursi 
+            WHERE id_jadwal_bus = :id_jadwal_bus AND status = 'available'
+            LIMIT 1
+        ");
+        $stmtKursi->execute(['id_jadwal_bus' => $id_jadwal_bus]);
+        $kursi = $stmtKursi->fetch(PDO::FETCH_ASSOC);
+
+        if (!$kursi) {
+            echo "<h3>Kursi tidak tersedia untuk jadwal ini.</h3>";
+            $pdo->rollBack();
+            exit;
+        }
+
+        $id_kursi = $kursi['id_kursi'];
+
+        // Tandai kursi sebagai terpakai
+        $stmtUpdateKursi = $pdo->prepare("
+            UPDATE kursi 
+            SET status = 'booked' 
+            WHERE id_kursi = :id_kursi
+        ");
+        $stmtUpdateKursi->execute(['id_kursi' => $id_kursi]);
+
+        // Simpan pemesanan
+        $stmtPemesanan = $pdo->prepare("
+            INSERT INTO pemesanan (id_user, id_jadwal_bus, tanggal_pemesanan, nomor_kursi) 
+            VALUES (:id_user, :id_jadwal_bus, NOW(), :nomor_kursi)
+        ");
+        $stmtPemesanan->execute([
+            'id_user' => $id_user,
+            'id_jadwal_bus' => $id_jadwal_bus,
+            'nomor_kursi' => $id_kursi
+        ]);
+
+        $pdo->commit();
+        echo "<h3>Pemesanan berhasil. Nomor kursi Anda: " . htmlspecialchars($id_kursi) . "</h3>";
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        echo "<h3>Terjadi kesalahan: " . $e->getMessage() . "</h3>";
+    }
 }
 ?>
 
@@ -94,7 +152,7 @@ try {
         <div class="container-fluid bg-dark px-0">
             <div class="row gx-0">
                 <div class="col-lg-3 bg-dark d-none d-lg-block">
-                    <a href="index.php"
+                    <a href="../../index.php"
                         class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
                         <h1 class="m-0 text-primary text-uppercase">Ticket Bus</h1>
                     </a>
@@ -135,21 +193,6 @@ try {
                                 <a href="about.php" class="nav-item nav-link active">About</a>
                                 <a href="service.php" class="nav-item nav-link">Services</a>
                                 <a href="tiket.php" class="nav-item nav-link">Tickets</a>
-                                <!-- <div class="nav-item dropdown">
-                    <a
-                      href="#"
-                      class="nav-link dropdown-toggle"
-                      data-bs-toggle="dropdown"
-                      >Pages</a
-                    >
-                    <div class="dropdown-menu rounded-0 m-0">
-                      <a href="booking.php" class="dropdown-item">Booking</a>
-                      <a href="team.php" class="dropdown-item">Our Team</a>
-                      <a href="testimonial.php" class="dropdown-item"
-                        >Testimonial</a
-                      >
-                    </div>
-                  </div> -->
                                 <a href="contact.php" class="nav-item nav-link">Contact</a>
                             </div>
 
@@ -220,10 +263,23 @@ try {
 
                             <!-- Tombol Aksi -->
                             <div class="d-flex">
-                                <a href="booking.php?id_jadwal_bus=<?php echo $tiket['id_jadwal_bus'] ?? '#'; ?>"
-                                    class="btn btn-primary rounded py-2 px-4 me-2">Pesan Tiket</a>
+                                <?php if (isset($_SESSION['user'])): ?>
+                                    <!-- Tombol Pesan Tiket untuk Pengguna yang Login -->
+                                    <a href="booking.php?id_jadwal_bus=<?= htmlspecialchars($tiket['id_jadwal_bus'] ?? '#') ?>"
+                                        class="btn btn-primary rounded py-2 px-4 me-2">
+                                        Pesan Tiket
+                                    </a>
+                                <?php else: ?>
+                                    <!-- Tombol Login untuk Pengguna yang Belum Login -->
+                                    <a href="/TiketTransportasiOnline/public/register/login.php"
+                                        class="btn btn-warning rounded py-2 px-4 me-2">
+                                        Login untuk Memesan
+                                    </a>
+                                <?php endif; ?>
+                                <!-- Tombol Kembali -->
                                 <a href="tiket.php" class="btn btn-secondary rounded py-2 px-4">Kembali</a>
                             </div>
+
                         </div>
                     </div>
                 </div>
