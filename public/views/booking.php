@@ -1,91 +1,89 @@
 <?php
-// Include koneksi database dan mulai sesi
-require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_connection.php';
-session_start(); // Untuk memeriksa sesi login pengguna
+session_start();
+require_once '../../database/db_connection.php'; // Koneksi database
+require_once '../../src/controller/PemesananController.php'; // Controller Pemesanan
 
-// Validasi jika `id_jadwal_bus` tidak ada di URL
-if (!isset($_GET['id_jadwal_bus']) || empty($_GET['id_jadwal_bus'])) {
-    echo "<h3>ID Jadwal Bus tidak ditemukan!</h3>";
-    exit;
-}
-
-// Ambil ID dari URL
-$id_jadwal_bus = $_GET['id_jadwal_bus'];
-
-// Periksa apakah pengguna sudah login
+// Pastikan pengguna sudah login
 if (!isset($_SESSION['user'])) {
-    // Jika belum login, arahkan ke halaman login
-    header("Location: /TiketTransportasiOnline/public/register/login.php");
+    header("Location: ../register/login.php");
     exit;
 }
 
-// Ambil data pengguna yang login
+// Ambil ID User dari sesi
 $id_user = $_SESSION['user']['id_user'];
 
-try {
-    // Query untuk mendapatkan kursi yang tersedia untuk jadwal bus ini
-    $stmtKursi = $pdo->prepare("
-        SELECT id_kursi, nomor_kursi 
-        FROM kursi 
-        WHERE id_jadwal_bus = :id_jadwal_bus AND status = 'available'
-    ");
-    $stmtKursi->execute(['id_jadwal_bus' => $id_jadwal_bus]);
-    $kursiList = $stmtKursi->fetchAll(PDO::FETCH_ASSOC);
+// Ambil ID Jadwal Bus dari URL
+$id_jadwal_bus = $_GET['id_jadwal_bus'] ?? null;
+if (!$id_jadwal_bus || !is_numeric($id_jadwal_bus)) {
+    die("Jadwal bus tidak ditemukan atau parameter tidak valid.");
+}
 
-    // Debugging: Menampilkan jumlah kursi yang ditemukan
-    echo "<h3>Jumlah kursi tersedia: " . count($kursiList) . "</h3>";
+// Inisialisasi controller pemesanan
+$pemesananController = new PemesananController($pdo);
 
-    // Jika tidak ada kursi yang tersedia
-    if (empty($kursiList)) {
-        echo "<h3>Maaf, semua kursi untuk jadwal ini telah dipesan atau belum tersedia.</h3>";
-        exit;
-    }
+// Ambil data jadwal bus untuk validasi
+$jadwal = $pemesananController->getJadwalById($id_jadwal_bus);
+if (!$jadwal) {
+    die("Jadwal bus tidak ditemukan.");
+}
+print_r($jadwal);
 
-    // Tampilkan pilihan kursi yang tersedia
-    echo "<h3>Pilih Kursi Anda</h3>";
-    echo "<form method='post'>";
-    echo "<div class='list-kursi'>";
-    foreach ($kursiList as $kursi) {
-        echo "<input type='radio' name='id_kursi' value='" . $kursi['id_kursi'] . "'> Kursi " . $kursi['nomor_kursi'] . "<br>";
-    }
-    echo "</div>";
 
-    // Tombol untuk memesan
-    echo "<button type='submit' class='btn btn-primary'>Pesan Kursi</button>";
-    echo "</form>";
+// Debug: Periksa apakah data jadwal ada
+echo "<pre>";
+print_r($jadwal);
+echo "</pre>";
 
-    // Proses pemesanan setelah form disubmit
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id_kursi'])) {
-        $id_kursi = $_POST['id_kursi'];
+// Ambil kursi yang tersedia
+$kursiTersedia = $pemesananController->getKursiTersedia($jadwal['id_bus'], $jadwal['id_jadwal_bus']);
+if (empty($kursiTersedia)) {
+    die("Tidak ada kursi yang tersedia untuk bus ini.");
+}
 
-        // Debugging: Cek id_kursi yang dipilih
-        echo "<h3>Anda memilih kursi dengan ID: " . htmlspecialchars($id_kursi) . "</h3>";
+// Debug: Periksa data kursi yang tersedia
+echo "<pre>";
+print_r($kursiTersedia);
+echo "</pre>";
 
-        // Tandai kursi sebagai terpesan
-        $stmtUpdateKursi = $pdo->prepare("
-            UPDATE kursi 
-            SET status = 'booked' 
-            WHERE id_kursi = :id_kursi
-        ");
-        $stmtUpdateKursi->execute(['id_kursi' => $id_kursi]);
+// Ambil nomor kursi pertama yang tersedia
+$nomor_kursi = $kursiTersedia[0]['nomor_kursi'];
 
-        // Simpan data pemesanan ke tabel `pemesanan`
-        $stmtPemesanan = $pdo->prepare("
-            INSERT INTO pemesanan (id_user, id_jadwal_bus, tanggal_pemesanan, nomor_kursi) 
-            VALUES (:id_user, :id_jadwal_bus, NOW(), :nomor_kursi)
-        ");
-        $stmtPemesanan->execute([
-            'id_user' => $id_user,
-            'id_jadwal_bus' => $id_jadwal_bus,
-            'nomor_kursi' => $id_kursi
-        ]);
+// Buat data pemesanan
+$tanggal_pemesanan = date('Y-m-d H:i:s');
+$status = "pending";
+$tagihan = $jadwal['harga'];
 
-        echo "<script>
-            alert('Pemesanan berhasil! Nomor kursi Anda: " . htmlspecialchars($id_kursi) . "');
-            window.location.href = '/TiketTransportasiOnline/public/tiket.php';
-        </script>";
-    }
-} catch (Exception $e) {
-    echo "<h3>Terjadi kesalahan: " . $e->getMessage() . "</h3>";
+// Hitung tenggat waktu (3 jam sebelum waktu keberangkatan)
+$tenggat_waktu = null;
+if (!empty($jadwal['datetime_keberangkatan'])) {
+    $tenggat_waktu = date('Y-m-d H:i:s', strtotime($jadwal['datetime_keberangkatan']) - 3 * 60 * 60);
+} else {
+    die("Waktu keberangkatan tidak ditemukan dalam jadwal bus.");
+}
+
+$hasil = $pemesananController->buatPemesanan([
+    'id_user' => $id_user,
+    'id_bus' => $jadwal['id_bus'], // Tambahkan id_bus dari data jadwal
+    'id_jadwal_bus' => $id_jadwal_bus,
+    'tanggal_pemesanan' => $tanggal_pemesanan,
+    'nomor_kursi' => $nomor_kursi,
+    'status' => $status,
+    'tagihan' => $tagihan,
+    'tenggat_waktu' => $tenggat_waktu,
+]);
+
+
+if ($hasil) {
+    echo "Tiket berhasil dipesan! Nomor kursi Anda: $nomor_kursi";
+} else {
+    // Ambil error info jika ada masalah dalam penyimpanan
+    $errorInfo = $pdo->errorInfo();
+    echo "Terjadi kesalahan saat memesan tiket. Error: " . $errorInfo[2];
 }
 ?>
+echo "
+<pre>";
+print_r($jadwal);  // Memeriksa apakah data jadwal termasuk 'waktu_keberangkatan'
+echo "</pre>";
+
+<h1>tes</h1>
