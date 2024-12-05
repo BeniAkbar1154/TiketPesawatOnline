@@ -2,6 +2,24 @@
 require_once '../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
 
+session_start();  // Mulai session
+
+// Pastikan pengguna sudah login
+if (!isset($_SESSION['user'])) {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+
+// Ambil data level user dan username dari session
+$userLevel = $_SESSION['user']['level'];
+$userName = $_SESSION['user']['username']; // Ambil username dari session
+
+// Periksa apakah level user adalah 'customer'
+if ($userLevel === 'customer') {
+    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
+    exit();
+}
 $userController = new UserController($pdo);
 
 if (!isset($_GET['id'])) {
@@ -201,192 +219,196 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <!-- Main Sidebar Container -->
         <aside class="main-sidebar sidebar-dark-primary elevation-4">
 
-            <!-- Sidebar -->
-            <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+            <!-- Tampilan User Panel -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
+                </div>
+                <div class="info">
+                    <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a> <!-- Menampilkan nama user -->
+                </div>
+            </div>
+
+            <!-- SidebarSearch Form -->
+            <div class="form-inline">
+                <div class="input-group" data-widget="sidebar-search">
+                    <input class="form-control form-control-sidebar" type="search" placeholder="Search"
+                        aria-label="Search">
+                    <div class="input-group-append">
+                        <button class="btn btn-sidebar">
+                            <i class="fas fa-search fa-fw"></i>
+                        </button>
                     </div>
                 </div>
+            </div>
 
-                <!-- SidebarSearch Form -->
-                <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search"
-                            aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <!-- Add icons to the links using the .nav-icon class
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
+                    <!-- Add icons to the links using the .nav-icon class
                with font-awesome or any other icon font library -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Menu
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>User</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Bus
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Destinasi</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Terminal/Pemberhentian</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Rute</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-tachometer-alt"></i>
-                                <p>
-                                    Administrasi
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../crud/user.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pemesanan</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="./index2.html" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Tiket</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-                <a href="../register/logout.php" class="btn btn-danger">Logout</a>
-                <!-- /.sidebar-menu -->
-            </div>
-            <!-- /.sidebar -->
-        </aside>
+                    <li class="nav-item menu-open">
+                        <a href="#" class="nav-link active">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>
+                                Menu
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="../crud/user.php" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>User</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="../pesan/pesan.php" class="nav-link">
+                                    <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                    <p>Pesan</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./index2.html" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Bus</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item menu-open">
+                        <a href="#" class="nav-link active">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>
+                                Bus
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="../crud/user.php" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Bus</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./index2.html" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Destinasi</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./index2.html" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Terminal/Pemberhentian</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./index2.html" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Rute</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="nav-item menu-open">
+                        <a href="#" class="nav-link active">
+                            <i class="nav-icon fas fa-tachometer-alt"></i>
+                            <p>
+                                Administrasi
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="../crud/user.php" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Pemesanan</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="./index2.html" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Tiket</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <a href="../register/logout.php" class="btn btn-danger">Logout</a>
+            <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+    </aside>
 
-        <!-- Content Wrapper. Contains page content -->
+    <!-- Content Wrapper. Contains page content -->
 
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0"></h1>
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard v3</li>
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
-            <!-- /.content-header -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1 class="m-0"></h1>
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="#">Home</a></li>
+                            <li class="breadcrumb-item active">Dashboard v3</li>
+                        </ol>
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
 
-            <!-- Main content -->
-            <div class="container mt-5">
-                <h1>Edit User</h1>
-                <form method="POST">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" name="username" class="form-control"
-                            value="<?= htmlspecialchars($user['username']) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" name="email" class="form-control"
-                            value="<?= htmlspecialchars($user['email']) ?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="level">Level</label>
-                        <select name="level" class="form-control" required>
-                            <option value="customer" <?= $user['level'] === 'customer' ? 'selected' : '' ?>>Customer
-                            </option>
-                            <option value="petugas" <?= $user['level'] === 'petugas' ? 'selected' : '' ?>>Petugas</option>
-                            <option value="admin" <?= $user['level'] === 'admin' ? 'selected' : '' ?>>Admin</option>
-                            <option value="superadmin" <?= $user['level'] === 'superadmin' ? 'selected' : '' ?>>SuperAdmin
-                            </option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Update</button>
-                    <a href="user.php" class="btn btn-secondary">Cancel</a>
-                </form>
-            </div>
-
-
-            <!-- /.content -->
+        <!-- Main content -->
+        <div class="container mt-5">
+            <h1>Edit User</h1>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" name="username" class="form-control"
+                        value="<?= htmlspecialchars($user['username']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" name="email" class="form-control"
+                        value="<?= htmlspecialchars($user['email']) ?>" required>
+                </div>
+                <div class="form-group">
+                    <label for="level">Level</label>
+                    <select name="level" class="form-control" required>
+                        <option value="customer" <?= $user['level'] === 'customer' ? 'selected' : '' ?>>Customer
+                        </option>
+                        <option value="petugas" <?= $user['level'] === 'petugas' ? 'selected' : '' ?>>Petugas</option>
+                        <option value="admin" <?= $user['level'] === 'admin' ? 'selected' : '' ?>>Admin</option>
+                        <option value="superadmin" <?= $user['level'] === 'superadmin' ? 'selected' : '' ?>>SuperAdmin
+                        </option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Update</button>
+                <a href="user.php" class="btn btn-secondary">Cancel</a>
+            </form>
         </div>
 
-        <!-- /.content-wrapper -->
 
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-        </aside>
-        <!-- /.control-sidebar -->
+        <!-- /.content -->
+    </div>
 
-        <!-- Main Footer -->
-        <footer class="main-footer">
-        </footer>
+    <!-- /.content-wrapper -->
+
+    <!-- Control Sidebar -->
+    <aside class="control-sidebar control-sidebar-dark">
+        <!-- Control sidebar content goes here -->
+    </aside>
+    <!-- /.control-sidebar -->
+
+    <!-- Main Footer -->
+    <footer class="main-footer">
+    </footer>
     </div>
 
     <!-- jQuery -->

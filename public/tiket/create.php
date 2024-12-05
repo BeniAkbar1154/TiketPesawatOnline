@@ -5,6 +5,25 @@ require_once __DIR__ . '/../../src/controller/PemesananController.php';
 require_once __DIR__ . '/../../src/controller/UserController.php';
 require_once __DIR__ . '/../../src/controller/JadwalBusController.php';
 
+session_start();  // Mulai session
+
+// Pastikan pengguna sudah login
+if (!isset($_SESSION['user'])) {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+
+// Ambil data level user dan username dari session
+$userLevel = $_SESSION['user']['level'];
+$userName = $_SESSION['user']['username']; // Ambil username dari session
+
+// Periksa apakah level user adalah 'customer'
+if ($userLevel === 'customer') {
+    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
+    exit();
+}
+
 // Inisialisasi controller
 $tiketController = new TiketController($pdo);
 $pemesananController = new PemesananController($pdo);
@@ -212,13 +231,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
+                <!-- Tampilan User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a>
+                        <!-- Menampilkan nama user -->
                     </div>
                 </div>
 
@@ -244,6 +264,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <a href="../user/user.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../pesan/pesan.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>Pesan</p>
                             </a>
                         </li>
 
@@ -381,9 +407,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="id_pemesanan" class="form-label">Pilih ID Pemesanan:</label>
                                 <select name="id_pemesanan" id="id_pemesanan" class="form-select" required>
                                     <?php foreach ($pemesananList as $pemesanan): ?>
-                                            <option value="<?= htmlspecialchars($pemesanan['id_pemesanan']) ?>">
-                                                <?= htmlspecialchars('Pemesanan #' . $pemesanan['id_pemesanan']) ?>
-                                            </option>
+                                        <option value="<?= htmlspecialchars($pemesanan['id_pemesanan']) ?>">
+                                            <?= htmlspecialchars('Pemesanan #' . $pemesanan['id_pemesanan']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -393,9 +419,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="id_user" class="form-label">Pilih User:</label>
                                 <select name="id_user" id="id_user" class="form-select" required>
                                     <?php foreach ($userList as $user): ?>
-                                            <option value="<?= htmlspecialchars($user['id_user']) ?>">
-                                                <?= htmlspecialchars($user['username']) ?>
-                                            </option>
+                                        <option value="<?= htmlspecialchars($user['id_user']) ?>">
+                                            <?= htmlspecialchars($user['username']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -405,9 +431,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                 <label for="id_jadwal_bus" class="form-label">Pilih Jadwal Bus:</label>
                                 <select name="id_jadwal_bus" id="id_jadwal_bus" class="form-select" required>
                                     <?php foreach ($jadwalBusList as $jadwal): ?>
-                                            <option value="<?= htmlspecialchars($jadwal['id_jadwal_bus']) ?>">
-                                                <?= htmlspecialchars($jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'] . ' (' . $jadwal['datetime_keberangkatan'] . ')') ?>
-                                            </option>
+                                        <option value="<?= htmlspecialchars($jadwal['id_jadwal_bus']) ?>">
+                                            <?= htmlspecialchars($jadwal['rute_keberangkatan'] . ' - ' . $jadwal['rute_tujuan'] . ' (' . $jadwal['datetime_keberangkatan'] . ')') ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>

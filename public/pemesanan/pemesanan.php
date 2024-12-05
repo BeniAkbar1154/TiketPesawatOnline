@@ -1,6 +1,25 @@
 <?php
 require_once __DIR__ . '/../../database/db_connection.php';
 
+session_start();  // Mulai session
+
+// Pastikan pengguna sudah login
+if (!isset($_SESSION['user'])) {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+
+// Ambil data level user dan username dari session
+$userLevel = $_SESSION['user']['level'];
+$userName = $_SESSION['user']['username']; // Ambil username dari session
+
+// Periksa apakah level user adalah 'customer'
+if ($userLevel === 'customer') {
+    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
+    exit();
+}
+
 // Ambil data pemesanan
 $stmt = $pdo->prepare("
     SELECT p.id_pemesanan, u.username, b.nama AS bus, j.rute_keberangkatan, j.rute_tujuan, p.tanggal_pemesanan, 
@@ -183,13 +202,14 @@ $pemesanan = $stmt->fetchAll();
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
+                <!-- Tampilan User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a>
+                        <!-- Menampilkan nama user -->
                     </div>
                 </div>
 
@@ -215,6 +235,12 @@ $pemesanan = $stmt->fetchAll();
                             <a href="../user/user.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../pesan/pesan.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>Pesan</p>
                             </a>
                         </li>
 

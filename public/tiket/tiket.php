@@ -2,6 +2,25 @@
 require_once __DIR__ . '/../../src/controller/TiketController.php';
 require_once __DIR__ . '/../../database/db_connection.php';
 
+session_start();  // Mulai session
+
+// Pastikan pengguna sudah login
+if (!isset($_SESSION['user'])) {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+
+// Ambil data level user dan username dari session
+$userLevel = $_SESSION['user']['level'];
+$userName = $_SESSION['user']['username']; // Ambil username dari session
+
+// Periksa apakah level user adalah 'customer'
+if ($userLevel === 'customer') {
+    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
+    exit();
+}
+
 $controller = new TiketController($pdo);
 $tickets = $controller->index();
 ?>
@@ -183,13 +202,14 @@ $tickets = $controller->index();
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
+                <!-- Tampilan User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a>
+                        <!-- Menampilkan nama user -->
                     </div>
                 </div>
 
@@ -215,6 +235,12 @@ $tickets = $controller->index();
                             <a href="../user/user.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../pesan/pesan.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>Pesan</p>
                             </a>
                         </li>
 
@@ -361,20 +387,20 @@ $tickets = $controller->index();
                                 </thead>
                                 <tbody>
                                     <?php foreach ($tickets as $ticket): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($ticket['id_tiket']) ?></td>
-                                                <td><?= htmlspecialchars($ticket['nomor_kursi']) ?></td>
-                                                <td><?= htmlspecialchars($ticket['tanggal_pemesanan']) ?></td>
-                                                <td><?= htmlspecialchars($ticket['terminal_asal']) ?></td>
-                                                <td><?= htmlspecialchars($ticket['terminal_tujuan']) ?></td>
-                                                <td>
-                                                    <a href="edit.php?id=<?= $ticket['id_tiket'] ?>"
-                                                        class="btn btn-warning btn-sm">Edit</a>
-                                                    <a href="delete.php?id=<?= $ticket['id_tiket'] ?>"
-                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
-                                                        class="btn btn-danger btn-sm">Hapus</a>
-                                                </td>
-                                            </tr>
+                                        <tr>
+                                            <td><?= htmlspecialchars($ticket['id_tiket']) ?></td>
+                                            <td><?= htmlspecialchars($ticket['nomor_kursi']) ?></td>
+                                            <td><?= htmlspecialchars($ticket['tanggal_pemesanan']) ?></td>
+                                            <td><?= htmlspecialchars($ticket['terminal_asal']) ?></td>
+                                            <td><?= htmlspecialchars($ticket['terminal_tujuan']) ?></td>
+                                            <td>
+                                                <a href="edit.php?id=<?= $ticket['id_tiket'] ?>"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete.php?id=<?= $ticket['id_tiket'] ?>"
+                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
+                                                    class="btn btn-danger btn-sm">Hapus</a>
+                                            </td>
+                                        </tr>
                                     <?php endforeach; ?>
                                 </tbody>
                             </table>

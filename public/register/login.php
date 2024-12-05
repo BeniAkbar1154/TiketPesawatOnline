@@ -1,26 +1,30 @@
 <?php
-require_once __DIR__ . '/../../database/db_connection.php';
-require_once __DIR__ . '/../../src/controller/AuthController.php';
+session_start();  // Mulai session
 
-// Inisialisasi AuthController
-$authController = new AuthController($pdo);
+require_once __DIR__ . '/../../src/controller/AuthController.php';
+$authController = new AuthController();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Ambil data login dari form
-    $email = trim($_POST['email']);
-    $password = trim($_POST['password']);
+    $email = $_POST['email'];
+    $password = $_POST['password'];
 
-    // Panggil fungsi login dari controller
-    if ($authController->login($email, $password)) {
-        // Jika login berhasil, arahkan ke halaman dashboard atau halaman yang sesuai
-        header("Location: ../dashboard/dashboard.php");
-        exit;
+    // Melakukan login menggunakan AuthController
+    $user = $authController->login($email, $password);
+
+    if ($user) {
+        $_SESSION['user'] = $user; // Simpan data user ke session
+        if ($user['level'] === 'customer') {
+            header('Location: ../../index.php'); // Customer diarahkan ke index
+        } else {
+            header('Location: ../dashboard/dashboard.php'); // Non-customer diarahkan ke dashboard
+        }
+        exit();
     } else {
-        // Tampilkan pesan error jika login gagal
-        $error = "Email atau password salah.";
+        echo "Email atau password salah.";  // Tampilkan kesalahan jika login gagal
     }
 }
 ?>
+
 
 <!-- Form Login -->
 <div class="container mt-5">

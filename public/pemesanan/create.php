@@ -1,6 +1,25 @@
 <?php
 require_once __DIR__ . '/../../database/db_connection.php';
 
+session_start();  // Mulai session
+
+// Pastikan pengguna sudah login
+if (!isset($_SESSION['user'])) {
+    // Jika belum login, arahkan ke halaman login
+    header("Location: login.php");
+    exit();
+}
+
+// Ambil data level user dan username dari session
+$userLevel = $_SESSION['user']['level'];
+$userName = $_SESSION['user']['username']; // Ambil username dari session
+
+// Periksa apakah level user adalah 'customer'
+if ($userLevel === 'customer') {
+    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
+    exit();
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id_user = $_POST['id_user'];
     $id_jadwal_bus = $_POST['id_jadwal_bus'];
@@ -222,13 +241,14 @@ $jadwal_bus = $pdo->query("
 
             <!-- Sidebar -->
             <div class="sidebar">
-                <!-- Sidebar user panel (optional) -->
+                <!-- Tampilan User Panel -->
                 <div class="user-panel mt-3 pb-3 mb-3 d-flex">
                     <div class="image">
                         <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
                     </div>
                     <div class="info">
-                        <a href="#" class="d-block">Alexander Pierce</a>
+                        <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a>
+                        <!-- Menampilkan nama user -->
                     </div>
                 </div>
 
@@ -254,6 +274,12 @@ $jadwal_bus = $pdo->query("
                             <a href="../user/user.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../pesan/pesan.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>Pesan</p>
                             </a>
                         </li>
 
@@ -390,7 +416,7 @@ $jadwal_bus = $pdo->query("
                                 <label for="id_user">Pengguna:</label>
                                 <select name="id_user" id="id_user" class="form-control" required>
                                     <?php foreach ($users as $user): ?>
-                                                <option value="<?= $user['id_user'] ?>"><?= $user['username'] ?></option>
+                                        <option value="<?= $user['id_user'] ?>"><?= $user['username'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -400,10 +426,10 @@ $jadwal_bus = $pdo->query("
                                 <select name="id_jadwal_bus" id="id_jadwal_bus" class="form-control"
                                     onchange="updateTagihan()" required>
                                     <?php foreach ($jadwal_bus as $jadwal): ?>
-                                                <option value="<?= $jadwal['id_jadwal_bus'] ?>"
-                                                    data-harga="<?= $jadwal['harga'] ?>">
-                                                    <?= $jadwal['terminal_keberangkatan'] ?> ke <?= $jadwal['terminal_tujuan'] ?>
-                                                </option>
+                                        <option value="<?= $jadwal['id_jadwal_bus'] ?>"
+                                            data-harga="<?= $jadwal['harga'] ?>">
+                                            <?= $jadwal['terminal_keberangkatan'] ?> ke <?= $jadwal['terminal_tujuan'] ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
