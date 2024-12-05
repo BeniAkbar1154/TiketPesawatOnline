@@ -89,7 +89,7 @@ class PemesananController
         }
 
         // Debug isi $data untuk memeriksa kesesuaian
-        error_log(print_r($data, true)); // Tambahkan ini untuk melihat isi array $data
+        // error_log(print_r($data, true)); // Tambahkan ini untuk melihat isi array $data
 
         // Mulai transaksi
         $this->pdo->beginTransaction();

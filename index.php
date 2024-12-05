@@ -131,7 +131,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                         <div class="col-lg-7 px-5 text-start">
                             <div class="h-100 d-inline-flex align-items-center py-2 me-4">
                                 <i class="fa fa-envelope text-primary me-2"></i>
-                                <p class="mb-0">TicketTransport@gmail.com</p>
+                                <p class="mb-0">TicketTransportation@gmail.com</p>
                             </div>
                             <div class="h-100 d-inline-flex align-items-center py-2">
                                 <i class="fa fa-phone-alt text-primary me-2"></i>
@@ -342,7 +342,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
 
                         foreach ($jadwalBuses as $jadwal) {
                             // Validasi gambar bus
-                            $gambarBus = !empty($jadwal['gambar']) ? 'public/landing/img/bus/' . $jadwal['gambar'] : 'public/landing/img/bus/default.jpg';
+                            $gambarBus = !empty($jadwal['gambar']) ? 'public/gambar/bus/' . $jadwal['gambar'] : 'public/gambar/bus/default.jpg';
 
                             // Validasi waktu keberangkatan
                             $waktuKeberangkatan = !empty($jadwal['datetime_keberangkatan']) ? date('d M Y H:i', strtotime($jadwal['datetime_keberangkatan'])) : 'Belum ditentukan';
@@ -357,7 +357,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                             <div class="col-lg-4 col-md-6 wow fadeInUp" data-wow-delay="0.1s">
                                 <div class="room-item shadow rounded overflow-hidden">
                                     <div class="position-relative">
-                                        <img class="img-fluid" src="<?php echo $gambarBus; ?>" alt="Bus Image">
+                                        <img class="img-fluid" src="public/gambar/bus/default.jpg" alt="Bus Image">
                                         <small
                                             class="position-absolute start-0 top-100 translate-middle-y bg-primary text-white rounded py-1 px-3 ms-4">Rp.
                                             <?php echo $hargaTiket; ?>/Tiket</small>
@@ -391,7 +391,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                                             <a class="btn btn-sm btn-primary rounded py-2 px-4"
                                                 href="public/views/detail.php?id_jadwal_bus=<?php echo $jadwal['id_jadwal_bus']; ?>">View
                                                 Detail</a>
-                                            <a class="btn btn-sm btn-dark rounded py-2 px-4" href="booking.php">Book Now</a>
+
                                         </div>
                                     </div>
                                 </div>

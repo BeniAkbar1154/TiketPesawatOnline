@@ -199,12 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="navbar-nav ml-auto py-0">
                                 <a href="pesan.php" class="nav-item nav-link position-relative">
                                     <i class="fa fa-bell text-white"></i>
-                                    <?php if ($notificationCount > 0): ?>
-                                        <span class="badge bg-danger rounded-circle position-absolute"
-                                            style="top: 5px; right: -5px;">
-                                            <?= $notificationCount ?>
-                                        </span>
-                                    <?php endif; ?>
+
                                 </a>
                             </div>
 
@@ -236,7 +231,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="col-lg-6">
                         <div class="rounded shadow">
                             <img class="img-fluid rounded"
-                                src="public/landing/img/bus/<?php echo !empty($tiket['gambar_bus']) ? $tiket['gambar_bus'] : 'default.jpg'; ?>"
+                                src="<?= !empty($tiket['gambar']) ? '../gambar/bus/' . htmlspecialchars($tiket['gambar']) : '../gambar/bus/default.jpg'; ?>"
                                 alt="Bus Image">
                         </div>
                     </div>
@@ -245,29 +240,26 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                     <div class="col-lg-6">
                         <div class="detail-content">
                             <h1 class="text-primary mb-4">
-                                <?php echo htmlspecialchars($tiket['rute_keberangkatan']) . ' - ' . htmlspecialchars($tiket['rute_tujuan']); ?>
+                                <?= htmlspecialchars($tiket['rute_keberangkatan']) . ' - ' . htmlspecialchars($tiket['rute_tujuan']); ?>
                             </h1>
                             <p class="mb-3"><strong>Nama Bus:</strong>
-                                <?php echo htmlspecialchars($tiket['nama_bus'] ?? 'Tidak Diketahui'); ?></p>
+                                <?= htmlspecialchars($tiket['nama_bus'] ?? 'Tidak Diketahui'); ?>
+                            </p>
                             <p class="mb-3"><strong>Harga Tiket:</strong> Rp.
-                                <?php echo number_format($tiket['harga'] ?? 0, 0, ',', '.'); ?>
+                                <?= number_format($tiket['harga'] ?? 0, 0, ',', '.'); ?>
                             </p>
                             <p class="mb-3"><strong>Waktu Keberangkatan:</strong>
-                                <?php
-                                echo isset($tiket['waktu_keberangkatan'])
+                                <?= isset($tiket['waktu_keberangkatan'])
                                     ? date('d M Y H:i', strtotime($tiket['waktu_keberangkatan']))
-                                    : 'Belum Ditentukan';
-                                ?>
+                                    : 'Belum Ditentukan'; ?>
                             </p>
                             <p class="mb-3"><strong>Waktu Kedatangan:</strong>
-                                <?php
-                                echo isset($tiket['waktu_kedatangan'])
+                                <?= isset($tiket['waktu_kedatangan'])
                                     ? date('d M Y H:i', strtotime($tiket['waktu_kedatangan']))
-                                    : 'Belum Ditentukan';
-                                ?>
+                                    : 'Belum Ditentukan'; ?>
                             </p>
                             <p class="mb-3"><strong>Rute Transit:</strong>
-                                <?php echo !empty($tiket['rute_transit']) ? htmlspecialchars($tiket['rute_transit']) : 'Tidak Ada'; ?>
+                                <?= !empty($tiket['rute_transit']) ? htmlspecialchars($tiket['rute_transit']) : 'Tidak Ada'; ?>
                             </p>
                             <p class="mb-4"><strong>Deskripsi:</strong> Tiket perjalanan yang nyaman dan aman dengan
                                 fasilitas
@@ -277,10 +269,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                             <div class="d-flex">
                                 <?php if (isset($_SESSION['user'])): ?>
                                     <!-- Tombol Pesan Tiket untuk Pengguna yang Login -->
-                                    <a href="booking.php?id_jadwal_bus=<?= htmlspecialchars($tiket['id_jadwal_bus'] ?? '#') ?>"
-                                        class="btn btn-primary rounded py-2 px-4 me-2">
+                                    <button class="btn btn-primary rounded py-2 px-4 me-2" data-bs-toggle="modal"
+                                        data-bs-target="#confirmModal"
+                                        data-id-jadwal="<?= htmlspecialchars($tiket['id_jadwal_bus'] ?? '#') ?>">
                                         Pesan Tiket
-                                    </a>
+                                    </button>
                                 <?php else: ?>
                                     <!-- Tombol Login untuk Pengguna yang Belum Login -->
                                     <a href="/TiketTransportasiOnline/public/register/login.php"
@@ -291,8 +284,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <!-- Tombol Kembali -->
                                 <a href="tiket.php" class="btn btn-secondary rounded py-2 px-4">Kembali</a>
                             </div>
-
                         </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Konfirmasi -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="confirmModalLabel">Konfirmasi Pemesanan</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Dengan melanjutkan pemesanan, Anda menyetujui semua kebijakan kami.
+                            Silakan pastikan data pemesanan sudah benar sebelum melanjutkan.</p>
+                        <p><strong>Ketentuan:</strong> Tiket yang sudah dipesan dapat dibatalkan tapi anda akan kena
+                            penalti dari itu, dan Anda
+                            diwajibkan
+                            untuk membayar sebelum tenggat waktu.</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Kembali</button>
+                        <button type="button" class="btn btn-primary" id="confirmBooking">Konfirmasi</button>
                     </div>
                 </div>
             </div>
@@ -426,6 +442,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <!-- Template Javascript -->
     <script src="../landing/js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const confirmButton = document.getElementById("confirmBooking");
+
+            confirmButton.addEventListener("click", () => {
+                // Ambil ID jadwal dari tombol data
+                const idJadwal = document.querySelector("[data-id-jadwal]").getAttribute("data-id-jadwal");
+
+                // Kirim request ke booking.php
+                fetch(`booking.php?id_jadwal_bus=${idJadwal}`)
+                    .then(response => response.text())
+                    .then(result => {
+                        // Tampilkan hasil pesan
+                        alert(result);
+                        location.reload(); // Refresh halaman untuk update status
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Terjadi kesalahan saat memesan tiket.");
+                    });
+            });
+        });
+    </script>
 </body>
 
 </html>

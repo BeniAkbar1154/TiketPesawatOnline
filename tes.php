@@ -1,6 +1,6 @@
 <?php
-require_once '../../database/db_connection.php';
-require_once '../../src/controller/PesanController.php';
+require_once __DIR__ . '/../../src/controller/PembayaranController.php';
+require_once __DIR__ . '/../../database/db_connection.php';
 
 session_start();  // Mulai session
 
@@ -15,419 +15,311 @@ if (!isset($_SESSION['user'])) {
 $userLevel = $_SESSION['user']['level'];
 $userName = $_SESSION['user']['username']; // Ambil username dari session
 
-// Periksa apakah level user adalah 'customer'
-if ($userLevel === 'customer') {
-    echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
-    exit();
+
+$controller = new PembayaranController($pdo);
+
+// Debug parameter ID
+// var_dump($_GET);
+
+if (isset($_GET['id'])) {
+    $id_pemesanan = $_GET['id'];
+
+    // Ambil total tagihan dan total pembayaran sebelumnya
+    $totalTagihan = $controller->getTagihanById($id_pemesanan);
+    $totalBayar = $controller->getTotalPembayaran($id_pemesanan);
+
+    // Ambil id_user berdasarkan id_pemesanan
+    $id_user = $controller->getUserByPemesananId($id_pemesanan);
+    if (!$id_user) {
+        die("ID Pemesanan tidak valid atau tidak ditemukan.");
+    }
+} else {
+    die("ID Pemesanan tidak tersedia.");
 }
 
-$pesanController = new PesanController($pdo);
-$pesan_list = $pesanController->index();
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $data = [
+        'id_pemesanan' => $_POST['id_pemesanan'],
+        'id_user' => $_POST['id_user'],
+        'jumlah_bayar' => $_POST['jumlah_bayar'],
+        'metode_pembayaran' => $_POST['metode_pembayaran'],
+        'tanggal_pembayaran' => date('Y-m-d H:i:s'),
+        'tagihan' => $_POST['tagihan'], // Pastikan 'tagihan' dikirimkan
+    ];
+
+    // Debug data
+    var_dump($data); // Pastikan data diterima dengan benar
+
+    // Menyimpan pembayaran
+    $controller->createPembayaran($data);
+    echo "Pembayaran berhasil dibuat.";
+
+    // Redirect kembali ke halaman pesan.php setelah pembayaran berhasil
+    header('Location: /TiketTransportasiOnline/public/views/pesan.php');
+    exit();
+
+}
 ?>
 
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Tiket Transportasi Online</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
 
-    <!-- Google Font: Source Sans Pro -->
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../adminlte/plugins/fontawesome-free/css/all.min.css">
-    <!-- IonIcons -->
-    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="../adminlte/dist/css/adminlte.min.css">
+    <!-- Favicon -->
+    <link href="../landing/img/favicon.ico" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="../landing/lib/animate/animate.min.css" rel="stylesheet">
+    <link href="../landing/lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="../landing/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="../landing/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="../landing/css/style.css" rel="stylesheet">
 </head>
 
-<body class="hold-transition sidebar-mini">
-    <div class="wrapper">
-        <!-- Navbar -->
-        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-            <!-- Left navbar links -->
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
-                </li>
+<body>
+    <div class="container-xxl bg-white p-0">
+        <!-- Spinner Start -->
+        <!-- <div id="spinner"
+            class="show bg-white position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div> -->
+        <!-- Spinner End -->
 
-            </ul>
-
-            <!-- Right navbar links -->
-            <ul class="navbar-nav ml-auto">
-                <!-- Navbar Search -->
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="navbar-search" href="#" role="button">
-                        <i class="fas fa-search"></i>
+        <!-- Header Start -->
+        <div class="container-fluid bg-dark px-0">
+            <div class="row gx-0">
+                <div class="col-lg-3 bg-dark d-none d-lg-block">
+                    <a href="index.php"
+                        class="navbar-brand w-100 h-100 m-0 p-0 d-flex align-items-center justify-content-center">
+                        <h1 class="m-0 text-primary text-uppercase">Ticket Bus</h1>
                     </a>
-                    <div class="navbar-search-block">
-                        <form class="form-inline">
-                            <div class="input-group input-group-sm">
-                                <input class="form-control form-control-navbar" type="search" placeholder="Search"
-                                    aria-label="Search">
-                                <div class="input-group-append">
-                                    <button class="btn btn-navbar" type="submit">
-                                        <i class="fas fa-search"></i>
-                                    </button>
-                                    <button class="btn btn-navbar" type="button" data-widget="navbar-search">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </li>
-
-                <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user1-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 mr-3 img-circle">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Brad Diesel
-                                        <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">Call me whenever you can...</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user8-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        John Pierce
-                                        <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">I got your message bro</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <!-- Message Start -->
-                            <div class="media">
-                                <img src="dist/img/user3-128x128.jpg" alt="User Avatar"
-                                    class="img-size-50 img-circle mr-3">
-                                <div class="media-body">
-                                    <h3 class="dropdown-item-title">
-                                        Nora Silvester
-                                        <span class="float-right text-sm text-warning"><i
-                                                class="fas fa-star"></i></span>
-                                    </h3>
-                                    <p class="text-sm">The subject goes here</p>
-                                    <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                </div>
-                            </div>
-                            <!-- Message End -->
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li>
-                <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">15 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope mr-2"></i> 4 new messages
-                            <span class="float-right text-muted text-sm">3 mins</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> 8 friend requests
-                            <span class="float-right text-muted text-sm">12 hours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2"></i> 3 new reports
-                            <span class="float-right text-muted text-sm">2 days</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                        <i class="fas fa-th-large"></i>
-                    </a>
-                </li>
-            </ul>
-        </nav>
-        <!-- /.navbar -->
-
-        <!-- Main Sidebar Container -->
-        <aside class="main-sidebar sidebar-dark-primary elevation-4">
-
-            <!-- Sidebar -->
-            <div class="sidebar">
-
-                <!-- Tampilan User Panel -->
-                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
-                    <div class="image">
-                        <img src="dist/img/user2-160x160.jpg" class="img-circle elevation-2" alt="User Image">
-                    </div>
-                    <div class="info">
-                        <a href="#" class="d-block"><?= htmlspecialchars($userName) ?></a>
-                        <!-- Menampilkan nama user -->
-                    </div>
                 </div>
+                <div class="col-lg-9">
+                    <div class="row gx-0 bg-white d-none d-lg-flex">
+                        <div class="col-lg-7 px-5 text-start">
+                            <div class="h-100 d-inline-flex align-items-center py-2 me-4">
+                                <i class="fa fa-envelope text-primary me-2"></i>
+                                <p class="mb-0">TicketTransportation@gmail.com</p>
+                            </div>
+                            <div class="h-100 d-inline-flex align-items-center py-2">
+                                <i class="fa fa-phone-alt text-primary me-2"></i>
+                                <p class="mb-0">+628 1234 5678</p>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 px-5 text-end">
+                            <div class="d-inline-flex align-items-center py-2">
+                                <a class="me-3" href=""><i class="fab fa-facebook-f"></i></a>
+                                <a class="me-3" href=""><i class="fab fa-twitter"></i></a>
+                                <a class="me-3" href=""><i class="fab fa-linkedin-in"></i></a>
+                                <a class="me-3" href=""><i class="fab fa-instagram"></i></a>
+                                <a class="" href=""><i class="fab fa-youtube"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <nav class="navbar navbar-expand-lg bg-dark navbar-dark p-3 p-lg-0">
+                        <a href="index.html" class="navbar-brand d-block d-lg-none">
+                            <h1 class="m-0 text-primary text-uppercase">Hotelier</h1>
+                        </a>
+                        <button type="button" class="navbar-toggler" data-bs-toggle="collapse"
+                            data-bs-target="#navbarCollapse">
+                            <span class="navbar-toggler-icon"></span>
+                        </button>
+                        <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
+                            <div class="navbar-nav mr-auto py-0">
+                                <a href="index.php" class="nav-item nav-link active">Home</a>
+                                <a href="../views/about.php" class="nav-item nav-link">About</a>
+                                <a href="../views/service.php" class="nav-item nav-link">Services</a>
+                                <a href="../views/tiket.php" class="nav-item nav-link">Tickets</a>
+                                <a href="../views/contact.php" class="nav-item nav-link">Contact</a>
+                            </div>
 
-                <!-- SidebarSearch Form -->
-                <div class="form-inline">
-                    <div class="input-group" data-widget="sidebar-search">
-                        <input class="form-control form-control-sidebar" type="search" placeholder="Search"
-                            aria-label="Search">
-                        <div class="input-group-append">
-                            <button class="btn btn-sidebar">
-                                <i class="fas fa-search fa-fw"></i>
-                            </button>
+
+                        </div>
+                    </nav>
+                </div>
+            </div>
+        </div>
+
+        <!-- Header End -->
+
+        <!-- main start -->
+
+
+        <!-- Newsletter Start -->
+        <div class="container newsletter mt-5 wow fadeIn" data-wow-delay="0.1s">
+            <div class="row justify-content-center">
+                <div class="col-lg-10 border rounded p-1">
+                    <div class="border rounded text-center p-1">
+                        <div class="bg-white rounded text-center p-5">
+                            <h4 class="mb-4"><span class="text-primary text-uppercase">Pembayaran</span></h4>
+                            <?php if (isset($error)): ?>
+                                <p style="color: red;"><?= htmlspecialchars($error) ?></p>
+                            <?php endif; ?>
+                            <form method="POST">
+                                <input type="hidden" name="id_pemesanan" value="<?= htmlspecialchars($id_pemesanan) ?>">
+                                <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user) ?>">
+                                <input type="hidden" name="tagihan" value="<?= htmlspecialchars($totalTagihan) ?>">
+
+                                <div class="position-relative mx-auto" style="max-width: 400px;">
+                                    <label for="metode_pembayaran" class="form-label">Metode Pembayaran:</label>
+                                    <select id="metode_pembayaran" name="metode_pembayaran"
+                                        class="form-control py-3 ps-4 pe-5 mb-3" required>
+                                        <option value="Transfer Bank">Transfer Bank</option>
+                                        <option value="Kartu Kredit">Kartu Kredit</option>
+                                        <option value="E-Wallet">E-Wallet</option>
+                                    </select>
+                                </div>
+
+                                <div class="position-relative mx-auto" style="max-width: 400px;">
+                                    <label for="jumlah_bayar" class="form-label">Jumlah Bayar:</label>
+                                    <input type="number" id="jumlah_bayar" name="jumlah_bayar"
+                                        class="form-control w-100 py-3 ps-4 pe-5 mb-3" required>
+                                </div>
+
+                                <p>Total Tagihan: Rp<?= htmlspecialchars($totalTagihan) ?></p>
+                                <p>Total Dibayar: Rp<?= htmlspecialchars($totalBayar) ?></p>
+                                <p>Sisa Tagihan: Rp<?= htmlspecialchars($totalTagihan - $totalBayar) ?></p>
+
+                                <button type="submit" class="btn btn-primary py-2 px-4 mt-2">Bayar</button>
+                            </form>
+
+                            <div class="mt-4">
+                                <a href="index.php" class="btn btn-outline-primary py-2 px-4">Kembali</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-
-                <!-- Sidebar Menu -->
-                <nav class="mt-2">
-                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
-                        data-accordion="false">
-                        <!-- Menu User -->
-                        <li class="nav-item">
-                            <a href="../user/user.php" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
-                                <p>User</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="../pesan/pesan.php" class="nav-link">
-                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
-                                <p>Pesan</p>
-                            </a>
-                        </li>
-
-                        <!-- Menu Bus -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-bus"></i> <!-- Ikon Bus -->
-                                <p>
-                                    Bus
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../bus/bus.php" class="nav-link active">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Bus</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../terminal/terminal.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Terminal</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pemberhentian</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Jadwal Bus</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Menu Administrasi -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-cogs"></i> <!-- Ikon Administrasi -->
-                                <p>
-                                    Administrasi
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pemesanan</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../pembayaran/pembayaran.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Pembayaran</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../tiket/tiket.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Tiket</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-
-                        <!-- Menu Laporan -->
-                        <li class="nav-item menu-open">
-                            <a href="#" class="nav-link active">
-                                <i class="nav-icon fas fa-chart-line"></i> <!-- Ikon Laporan -->
-                                <p>
-                                    Laporan
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Laporan Harian</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Laporan Khusus</p>
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    </ul>
-                </nav>
-                <a href="../register/logout.php" class="btn btn-danger">Logout</a>
-                <!-- /.sidebar-menu -->
             </div>
-            <!-- /.sidebar -->
-        </aside>
+        </div>
 
-        <!-- Content Wrapper. Contains page content -->
 
-        <div class="content-wrapper">
-            <!-- Content Header (Page header) -->
-            <div class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h1 class="m-0"></h1>
-                        </div><!-- /.col -->
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="../dashboard/dashboard.php">Home</a></li>
-                                <li class="breadcrumb-item active">Dashboard v3</li>
-                            </ol>
-                        </div><!-- /.col -->
-                    </div><!-- /.row -->
-                </div><!-- /.container-fluid -->
-            </div>
-            <!-- /.content-header -->
 
-            <!-- Main content -->
-            <div class="container mt-5">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Daftar Pesan</h3>
+
+
+        <script>
+            // Handle form submission with AJAX
+            document.getElementById('pesanForm').addEventListener('submit', function (e) {
+                e.preventDefault(); // Prevent default form submission
+
+                // Get form data
+                var id_user = document.getElementById('id_user').value;
+                var pesan = document.getElementById('pesan').value;
+
+                // Prepare data for AJAX request
+                var formData = new FormData();
+                formData.append('id_user', id_user);
+                formData.append('pesan', pesan);
+
+                // AJAX request
+                var xhr = new XMLHttpRequest();
+                xhr.open('POST', 'index.php', true);
+                xhr.onreadystatechange = function () {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        // Show response message from server
+                        document.getElementById('responseMessage').innerHTML = xhr.responseText;
+                    }
+                };
+                xhr.send(formData);
+            });
+        </script>
+
+
+        <!-- Newsletter Start -->
+
+
+        <!-- Footer Start -->
+        <div class="container-fluid bg-dark text-light footer wow fadeIn" data-wow-delay="0.1s">
+            <div class="container pb-5">
+                <div class="row g-5">
+                    <div class="col-md-6 col-lg-4">
+                        <div class="bg-primary rounded p-4">
+                            <a href="index.html">
+                                <h1 class="text-white text-uppercase mb-3">Ticket Bus</h1>
+                            </a>
+                            <p class="text-white mb-0">
+                                Ticket Bus adalah sebuah website yang menyediakan layanan untuk memesan tiket bus
+                                secara online. Website ini memudahkan pengguna untuk memesan tiket bus dengan mudah dan
+                                cepat.
+                            </p>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <a href="create.php" class="btn btn-primary mb-3">Tambah Pesan</a>
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Username</th>
-                                    <th>Pesan</th>
-                                    <th>Status</th>
-                                    <th>Tanggal Kirim</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php foreach ($pesan_list as $pesan): ?>
-                                    <tr>
-                                        <td><?= htmlspecialchars($pesan['id_pesan']) ?></td>
-                                        <td><?= htmlspecialchars($pesan['username']) ?></td>
-                                        <td><?= htmlspecialchars($pesan['pesan']) ?></td>
-                                        <td><?= htmlspecialchars($pesan['status']) ?></td>
-                                        <td><?= htmlspecialchars($pesan['tanggal_kirim']) ?></td>
-                                        <td>
-                                            <a href="edit.php?id=<?= htmlspecialchars($pesan['id_pesan']) ?>"
-                                                class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= htmlspecialchars($pesan['id_pesan']) ?>"
-                                                onclick="return confirm('Yakin ingin menghapus?')"
-                                                class="btn btn-danger btn-sm">Hapus</a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            </tbody>
-                        </table>
+                    <div class="col-md-6 col-lg-3">
+                        <h6 class="section-title text-start text-primary text-uppercase mb-4">Contact</h6>
+                        <p class="mb-2"><i class="fa fa-map-marker-alt me-3"></i>Karawang, Jawa Barat</p>
+                        <p class="mb-2"><i class="fa fa-phone-alt me-3"></i>+628123456789</p>
+                        <p class="mb-2"><i class="fa fa-envelope me-3"></i>TicketTransportation@gmail.com</p>
+                        <div class="d-flex pt-2">
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-twitter"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-facebook-f"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-youtube"></i></a>
+                            <a class="btn btn-outline-light btn-social" href=""><i class="fab fa-linkedin-in"></i></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-5 col-md-12">
+                        <div class="row gy-5 g-4">
+                            <div class="col-md-6">
+                                <h6 class="section-title text-start text-primary text-uppercase mb-4">Company</h6>
+                                <a class="btn btn-link" href="">About Us</a>
+                                <a class="btn btn-link" href="">Contact Us</a>
+                                <a class="btn btn-link" href="">Privacy Policy</a>
+                                <a class="btn btn-link" href="">Terms & Condition</a>
+                                <a class="btn btn-link" href="">Support</a>
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="section-title text-start text-primary text-uppercase mb-4">Services</h6>
+                                <a class="btn btn-link" href="">Reservasi Bus</a>
+                                <a class="btn btn-link" href="">Ticket Online</a>
+                                <a class="btn btn-link" href="">Jadwal Bus</a>
+                                <a class="btn btn-link" href="">Pelacakan Bus</a>
+                                <a class="btn btn-link" href="">Rute Bus</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <!-- Footer End -->
 
 
-            <!-- /.content -->
+            <!-- Back to Top -->
+            <a href="#" class="btn btn-lg btn-primary btn-lg-square back-to-top"><i class="bi bi-arrow-up"></i></a>
         </div>
 
-        <!-- /.content-wrapper -->
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="../landing/lib/wow/wow.min.js"></script>
+        <script src="../landing/lib/easing/easing.min.js"></script>
+        <script src="../landing/lib/waypoints/waypoints.min.js"></script>
+        <script src="../landing/lib/counterup/counterup.min.js"></script>
+        <script src="../landing/lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="../landing/lib/tempusdominus/js/moment.min.js"></script>
+        <script src="../landing/lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="../landing/lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
 
-        <!-- Control Sidebar -->
-        <aside class="control-sidebar control-sidebar-dark">
-            <!-- Control sidebar content goes here -->
-        </aside>
-        <!-- /.control-sidebar -->
-
-        <!-- Main Footer -->
-        <footer class="main-footer">
-        </footer>
-    </div>
-
-    <!-- jQuery -->
-    <script src="../adminlte/plugins/jquery/jquery.min.js"></script>
-    <!-- Bootstrap -->
-    <script src="../adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE -->
-    <script src="../adminlte/dist/js/adminlte.js"></script>
-
-    <!-- OPTIONAL SCRIPTS -->
-    <script src="../adminlte/plugins/chart.js/Chart.min.js"></script>
-    <!-- AdminLTE for demo purposes -->
-    <!-- <script src="../adminlte/dist/js/demo.js"></script> -->
-    <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-    <script src="../adminlte/dist/js/pages/dashboard3.js"></script>
+        <!-- Template Javascript -->
+        <script src="../landing/js/main.js"></script>
 </body>
 
 </html>

@@ -26,13 +26,13 @@ $jadwal = $pemesananController->getJadwalById($id_jadwal_bus);
 if (!$jadwal) {
     die("Jadwal bus tidak ditemukan.");
 }
-print_r($jadwal);
+// print_r($jadwal);
 
 
 // Debug: Periksa apakah data jadwal ada
-echo "<pre>";
-print_r($jadwal);
-echo "</pre>";
+// echo "<pre>";
+// print_r($jadwal);
+// echo "</pre>";
 
 // Ambil kursi yang tersedia
 $kursiTersedia = $pemesananController->getKursiTersedia($jadwal['id_bus'], $jadwal['id_jadwal_bus']);
@@ -41,9 +41,9 @@ if (empty($kursiTersedia)) {
 }
 
 // Debug: Periksa data kursi yang tersedia
-echo "<pre>";
-print_r($kursiTersedia);
-echo "</pre>";
+// echo "<pre>";
+// print_r($kursiTersedia);
+// echo "</pre>";
 
 // Ambil nomor kursi pertama yang tersedia
 $nomor_kursi = $kursiTersedia[0]['nomor_kursi'];
@@ -74,16 +74,10 @@ $hasil = $pemesananController->buatPemesanan([
 
 
 if ($hasil) {
-    echo "Tiket berhasil dipesan! Nomor kursi Anda: $nomor_kursi";
+    echo "Tiket berhasil dipesan! Nomor kursi Anda: $nomor_kursi Silahkan Cek Icon Notifikasi Untuk Membayar";
 } else {
     // Ambil error info jika ada masalah dalam penyimpanan
     $errorInfo = $pdo->errorInfo();
     echo "Terjadi kesalahan saat memesan tiket. Error: " . $errorInfo[2];
 }
 ?>
-echo "
-<pre>";
-print_r($jadwal);  // Memeriksa apakah data jadwal termasuk 'waktu_keberangkatan'
-echo "</pre>";
-
-<h1>tes</h1>

@@ -33,7 +33,7 @@ class BusController
             $fileName = uniqid() . '.jpg';
             $destination = $uploadDir . $fileName;
 
-            if ($this->resizeImage($tempPath, $destination, 400, 400)) {
+            if ($this->resizeImage($tempPath, $destination, 400, 200)) {
                 $data['gambar'] = 'public/gambar/bus/' . $fileName;
             } else {
                 throw new Exception("Gagal memproses gambar.");
@@ -87,7 +87,7 @@ class BusController
             $destination = $uploadDir . $fileName;
 
             // Resize dan simpan gambar baru
-            if ($this->resizeImage($tempPath, $destination, 400, 400)) {
+            if ($this->resizeImage($tempPath, $destination, 400, 200)) {
                 $data['gambar'] = 'gambar/bus/' . $fileName;
 
                 // Hapus gambar lama jika ada
