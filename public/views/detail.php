@@ -195,6 +195,18 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <a href="tiket.php" class="nav-item nav-link">Tickets</a>
                                 <a href="contact.php" class="nav-item nav-link">Contact</a>
                             </div>
+                            <!-- Ikon Notifikasi -->
+                            <div class="navbar-nav ml-auto py-0">
+                                <a href="pesan.php" class="nav-item nav-link position-relative">
+                                    <i class="fa fa-bell text-white"></i>
+                                    <?php if ($notificationCount > 0): ?>
+                                        <span class="badge bg-danger rounded-circle position-absolute"
+                                            style="top: 5px; right: -5px;">
+                                            <?= $notificationCount ?>
+                                        </span>
+                                    <?php endif; ?>
+                                </a>
+                            </div>
 
                         </div>
                     </nav>

@@ -160,7 +160,7 @@ $pemesanan_list = $stmtPemesanan->fetchAll();
 
                             <!-- Ikon Notifikasi -->
                             <div class="navbar-nav ml-auto py-0">
-                                <a href="public/views/pesan.php" class="nav-item nav-link position-relative">
+                                <a href="pesan.php" class="nav-item nav-link position-relative">
                                     <i class="fa fa-bell text-white"></i>
                                     <?php if ($notificationCount > 0): ?>
                                         <span class="badge bg-danger rounded-circle position-absolute"

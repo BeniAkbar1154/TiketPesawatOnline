@@ -9,61 +9,56 @@ class UserModel
         $this->pdo = $pdo;
     }
 
+    // Mendapatkan semua user
     public function fetchAllUsers()
     {
-        // Hanya pilih kolom yang dibutuhkan
-        $stmt = $this->pdo->prepare("SELECT id_user, username, email, level FROM user");
+        $stmt = $this->pdo->prepare("SELECT * FROM user");
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    /*************  ✨ Codeium Command ⭐  *************/
+    /**
+     * Ambil data user berdasarkan ID
+     *
+     * @param int $id
+     * @return array|null
+     */
+    /******  ab7a060d-f2cd-4b4e-b33d-e9bd5ca6188b  *******/    // Menambahkan user baru
+    public function insertUser($data)
+    {
+        // Periksa apakah email sudah ada
+        $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM user WHERE email = ?");
+        $stmt->execute([$data['email']]);
+        if ($stmt->fetchColumn() > 0) {
+            return false; // Email sudah terdaftar
+        }
+
+        // Jika belum ada, masukkan data user
+        $stmt = $this->pdo->prepare("INSERT INTO user (username, email, password, level) VALUES (?, ?, ?, ?)");
+        return $stmt->execute([$data['username'], $data['email'], $data['password'], $data['level']]);
+    }
+
+    // Mendapatkan user berdasarkan ID
     public function fetchUserById($id)
     {
-        $stmt = $this->pdo->prepare("SELECT id_user, username, email, level FROM user WHERE id_user = :id");
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->execute();
+        $stmt = $this->pdo->prepare("SELECT * FROM user WHERE id_user = ?");
+        $stmt->execute([$id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function insertUser($data)
-    {
-        // Pastikan password di-hash sebelum dimasukkan
-        $hashedPassword = password_hash($data['password'], PASSWORD_BCRYPT);
-
-        $stmt = $this->pdo->prepare("INSERT INTO user (username, email, password, level) VALUES (:username, :email, :password, :level)");
-        $stmt->bindValue(':username', $data['username'], PDO::PARAM_STR);
-        $stmt->bindValue(':email', $data['email'], PDO::PARAM_STR);
-        $stmt->bindValue(':password', $hashedPassword, PDO::PARAM_STR);
-        $stmt->bindValue(':level', $data['level'], PDO::PARAM_STR);
-        return $stmt->execute();
-    }
-
+    // Update data user
     public function updateUser($id, $data)
     {
-        // Jika ada pembaruan password, pastikan di-hash
-        $hashedPassword = isset($data['password']) ? password_hash($data['password'], PASSWORD_BCRYPT) : null;
-
-        $stmt = $this->pdo->prepare(
-            "UPDATE user 
-             SET username = :username, 
-                 email = :email, 
-                 password = COALESCE(:password, password), 
-                 level = :level 
-             WHERE id_user = :id"
-        );
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        $stmt->bindValue(':username', $data['username'], PDO::PARAM_STR);
-        $stmt->bindValue(':email', $data['email'], PDO::PARAM_STR);
-        $stmt->bindValue(':password', $hashedPassword, PDO::PARAM_STR);
-        $stmt->bindValue(':level', $data['level'], PDO::PARAM_STR);
-        return $stmt->execute();
+        $stmt = $this->pdo->prepare("UPDATE user SET username = ?, email = ?, password = ?, level = ? WHERE id_user = ?");
+        return $stmt->execute([$data['username'], $data['email'], $data['password'], $data['level'], $id]);
     }
 
+    // Hapus user berdasarkan ID
     public function deleteUser($id)
     {
-        $stmt = $this->pdo->prepare("DELETE FROM user WHERE id_user = :id");
-        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
-        return $stmt->execute();
+        $stmt = $this->pdo->prepare("DELETE FROM user WHERE id_user = ?");
+        return $stmt->execute([$id]);
     }
 }
 ?>

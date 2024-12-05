@@ -1,33 +1,42 @@
 <?php
-
+require_once __DIR__ . '/../../database/db_connection.php';
 require_once __DIR__ . '/../../src/controller/AuthController.php';
 
-$authController = new AuthController();
+// Inisialisasi AuthController
+$authController = new AuthController($pdo);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-    $password = $_POST['password'];
+    // Ambil data login dari form
+    $email = trim($_POST['email']);
+    $password = trim($_POST['password']);
 
-    $user = $authController->login($email, $password);
-
-    if ($user) {
-        session_start();
-        $_SESSION['user'] = $user;
-        header('Location: ../../index.php');
-        exit();
+    // Panggil fungsi login dari controller
+    if ($authController->login($email, $password)) {
+        // Jika login berhasil, arahkan ke halaman dashboard atau halaman yang sesuai
+        header("Location: ../dashboard/dashboard.php");
+        exit;
     } else {
-        echo "Email atau password salah.";
+        // Tampilkan pesan error jika login gagal
+        $error = "Email atau password salah.";
     }
 }
 ?>
 
-<h2>Login</h2>
-<form method="POST">
-    <label>Email:</label>
-    <input type="email" name="email" required>
-    <br>
-    <label>Password:</label>
-    <input type="password" name="password" required>
-    <br>
-    <button type="submit">Login</button>
-</form>
+<!-- Form Login -->
+<div class="container mt-5">
+    <h1>Login</h1>
+    <?php if (isset($error)) {
+        echo "<p style='color: red;'>$error</p>";
+    } ?>
+    <form method="POST">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" name="password" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+</div>

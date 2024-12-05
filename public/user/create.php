@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header("Location: user.php");
     exit;
   } else {
-    $error = "Gagal menambahkan pengguna baru.";
+    $error = "Gagal menambahkan pengguna baru. Pastikan email belum terdaftar.";
   }
 }
 ?>
@@ -349,6 +349,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           <button type="submit" class="btn btn-primary">Submit</button>
         </form>
+        <?php if (isset($error)) {
+          echo "<p style='color: red;'>$error</p>";
+        } ?>
       </div>
 
 

@@ -211,6 +211,12 @@ session_start();
                                 <p>User</p>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a href="../pesan/pesan.php" class="nav-link">
+                                <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
+                                <p>Pesan</p>
+                            </a>
+                        </li>
 
                         <!-- Menu Bus -->
                         <li class="nav-item menu-open">
