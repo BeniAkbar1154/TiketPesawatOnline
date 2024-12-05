@@ -138,6 +138,49 @@ class PemesananController
         }
     }
 
+    public function tambahPemesanan($id_user, $id_jadwal_bus, $nomor_kursi, $tagihan, $status = 'pending')
+    {
+        global $pdo;
+
+        // Mulai Transaksi
+        $pdo->beginTransaction();
+
+        try {
+            // Tambahkan data pemesanan
+            $stmt = $pdo->prepare("
+            INSERT INTO pemesanan (id_user, id_jadwal_bus, tanggal_pemesanan, nomor_kursi, status, tagihan, tenggat_waktu)
+            VALUES (:id_user, :id_jadwal_bus, NOW(), :nomor_kursi, :status, :tagihan, DATE_ADD(NOW(), INTERVAL 1 DAY))
+        ");
+            $stmt->execute([
+                'id_user' => $id_user,
+                'id_jadwal_bus' => $id_jadwal_bus,
+                'nomor_kursi' => $nomor_kursi,
+                'status' => $status,
+                'tagihan' => $tagihan,
+            ]);
+
+            // Ambil ID pemesanan yang baru dibuat
+            $id_pemesanan = $pdo->lastInsertId();
+
+            // Tambahkan notifikasi untuk user
+            $stmtNotif = $pdo->prepare("
+            INSERT INTO pesan (id_user, pesan, status, tanggal)
+            VALUES (:id_user, :pesan, 'unread', NOW())
+        ");
+            $stmtNotif->execute([
+                'id_user' => $id_user,
+                'pesan' => "Pemesanan tiket berhasil dengan ID #$id_pemesanan. Silakan selesaikan pembayaran.",
+            ]);
+
+            // Commit Transaksi
+            $pdo->commit();
+
+            return $id_pemesanan; // Kembalikan ID pemesanan jika berhasil
+        } catch (Exception $e) {
+            $pdo->rollBack();
+            throw $e; // Kembalikan error jika terjadi
+        }
+    }
 
     public function index()
     {

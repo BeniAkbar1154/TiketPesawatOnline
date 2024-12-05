@@ -10,6 +10,11 @@ $isLoggedIn = isset($_SESSION['user']); // Periksa apakah user ada dalam sesi
 $username = $isLoggedIn ? htmlspecialchars($_SESSION['user']['username']) : null; // Ambil username dari sesi
 $id_user = $isLoggedIn ? $_SESSION['user']['id_user'] : null; // Ambil id_user dari sesi jika login
 
+if (!$isLoggedIn) {
+    echo "Anda harus login terlebih dahulu.";
+    exit; // Hentikan eksekusi jika tidak login
+}
+
 // Menghitung jumlah bus
 $stmtBus = $pdo->query("SELECT COUNT(*) AS total_bus FROM bus");
 $totalBus = $stmtBus->fetch(PDO::FETCH_ASSOC)['total_bus'];
@@ -23,40 +28,33 @@ $stmtClients = $pdo->query("SELECT COUNT(*) AS total_clients FROM user WHERE lev
 $totalClients = $stmtClients->fetch(PDO::FETCH_ASSOC)['total_clients'];
 
 $pesanController = new PesanController($pdo);
-
-// Logika untuk menangani pesan
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id_user = $_POST['id_user'] ?? '';
-    $pesan = $_POST['pesan'] ?? '';
-
-    if (!empty($id_user) && !empty($pesan)) {
-        if ($pesanController->create($id_user, $pesan)) {
-            echo "Pesan berhasil dikirim!";
-        } else {
-            echo "Gagal mengirim pesan. Coba lagi.";
-        }
-    } else {
-        echo "ID User dan Pesan tidak boleh kosong.";
-    }
-}
+$pesan_list = $pesanController->index($id_user); // Pesan untuk pengguna yang login
 
 $jadwalBusController = new JadwalBusController($pdo);
 $jadwalBuses = $jadwalBusController->getAllSchedules();
 
 $notificationCount = 0;
-if ($isLoggedIn && isset($_SESSION['id_user'])) {
-    $id_user = $_SESSION['id_user'];
-
+if ($isLoggedIn) {
     // Query untuk mengambil jumlah pesan yang belum dibaca
-    $stmt_notifikasi = $pdo->prepare("
-        SELECT COUNT(*) AS count 
-        FROM pesan 
-        WHERE id_user = :id_user AND status = 'unread'
-    ");
+    $stmt_notifikasi = $pdo->prepare("SELECT COUNT(*) AS count FROM pesan WHERE id_user = :id_user AND status = 'unread'");
     $stmt_notifikasi->execute(['id_user' => $id_user]);
     $notificationCount = $stmt_notifikasi->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 }
+
+// Ambil data pemesanan untuk id_user yang sedang login
+$stmtPemesanan = $pdo->prepare("
+    SELECT p.id_pemesanan, u.username, b.nama AS bus, j.rute_keberangkatan, j.rute_tujuan, 
+           p.tanggal_pemesanan, p.nomor_kursi, p.status, p.tagihan, p.tenggat_waktu
+    FROM pemesanan p
+    JOIN user u ON p.id_user = u.id_user
+    JOIN jadwal_bus j ON p.id_jadwal_bus = j.id_jadwal_bus
+    JOIN bus b ON j.id_bus = b.id_bus
+    WHERE p.id_user = :id_user
+");
+$stmtPemesanan->execute(['id_user' => $id_user]);
+$pemesanan_list = $stmtPemesanan->fetchAll();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -214,6 +212,80 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
 
         <!-- About End -->
 
+        <!-- Main Start -->
+        <div class="container mt-5">
+            <h1>Pesan Anda</h1>
+
+            <?php if ($pesan_list): ?>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID Pesan</th>
+                            <th>Pesan</th>
+                            <th>Status</th>
+                            <th>Tanggal Kirim</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($pesan_list as $pesan): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($pesan['id_pesan']) ?></td>
+                                <td><?= htmlspecialchars($pesan['pesan']) ?></td>
+                                <td><?= htmlspecialchars($pesan['status']) ?></td>
+                                <td><?= htmlspecialchars($pesan['tanggal_kirim']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>Belum ada pesan yang dikirim.</p>
+            <?php endif; ?>
+
+            <!-- Tambahkan Tabel Pemesanan Anda di bawah Pesan Anda -->
+            <h2>Pemesanan Anda</h2>
+            <?php if ($pemesanan_list): ?>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>ID Pemesanan</th>
+                            <th>Bus</th>
+                            <th>Keberangkatan</th>
+                            <th>Tujuan</th>
+                            <th>Tanggal Pemesanan</th>
+                            <th>Nomor Kursi</th>
+                            <th>Status</th>
+                            <th>Tagihan</th>
+                            <th>Tenggat Waktu</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($pemesanan_list as $item): ?>
+                            <tr>
+                                <td><?= $item['id_pemesanan'] ?></td>
+                                <td><?= $item['bus'] ?></td>
+                                <td><?= $item['rute_keberangkatan'] ?></td>
+                                <td><?= $item['rute_tujuan'] ?></td>
+                                <td><?= $item['tanggal_pemesanan'] ?></td>
+                                <td><?= $item['nomor_kursi'] ?></td>
+                                <td><?= $item['status'] ?></td>
+                                <td>Rp <?= number_format($item['tagihan'], 0, ',', '.') ?></td>
+                                <td><?= $item['tenggat_waktu'] ?></td>
+                                <td>
+                                    <!-- Tampilkan aksi hanya untuk pesan yang berstatus 'pending' -->
+                                    <?php if ($item['status'] === 'pending'): ?>
+                                        <a href="../Pembayaran/pembayaran.php?id=<?= $item['id_pemesanan'] ?>"
+                                            class="btn btn-success btn-sm">Bayar</a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            <?php else: ?>
+                <p>Belum ada pemesanan.</p>
+            <?php endif; ?>
+        </div>
 
 
         <!-- Newsletter Start -->

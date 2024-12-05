@@ -68,6 +68,7 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
     $notificationCount = $stmt_notifikasi->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 }
 
+
 ?>
 
 <html lang="en">

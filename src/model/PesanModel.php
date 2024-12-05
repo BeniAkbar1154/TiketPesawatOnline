@@ -3,13 +3,6 @@ class PesanModel
 {
     private $pdo;
 
-    /*************  ✨ Codeium Command ⭐  *************/
-    /**
-     * Constructor method to initialize the PesanModel with a PDO instance.
-     *
-     * @param PDO $pdo The PDO instance for database connection.
-     */
-    /******  004a4d57-e7a1-4313-8d0b-8f40df7c25e2  *******/
     public function __construct($pdo)
     {
         $this->pdo = $pdo;
