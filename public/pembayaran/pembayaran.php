@@ -65,25 +65,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 ?>
 
-<h1>Pembayaran</h1>
-<p>Total Tagihan: Rp<?= htmlspecialchars($totalTagihan) ?></p>
-<p>Total Dibayar: Rp<?= htmlspecialchars($totalBayar) ?></p>
-<p>Sisa Tagihan: Rp<?= htmlspecialchars($totalTagihan - $totalBayar) ?></p>
+<div class="container mt-5">
+    <h1>Pembayaran</h1>
+    <p>Total Tagihan: Rp<?= htmlspecialchars($totalTagihan) ?></p>
+    <p>Total Dibayar: Rp<?= htmlspecialchars($totalBayar) ?></p>
+    <p>Sisa Tagihan: Rp<?= htmlspecialchars($totalTagihan - $totalBayar) ?></p>
 
-<form method="POST">
-    <input type="hidden" name="id_pemesanan" value="<?= htmlspecialchars($id_pemesanan) ?>">
-    <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user) ?>"> <!-- id_user seharusnya tersedia -->
-    <input type="hidden" name="tagihan" value="<?= htmlspecialchars($totalTagihan) ?>">
-    <!-- Pastikan nilai tagihan dikirimkan -->
-    <label>Metode Pembayaran:</label>
-    <select name="metode_pembayaran" required>
-        <option value="Transfer Bank">Transfer Bank</option>
-        <option value="Kartu Kredit">Kartu Kredit</option>
-        <option value="E-Wallet">E-Wallet</option>
-    </select>
-    <br>
-    <label>Jumlah Bayar:</label>
-    <input type="number" name="jumlah_bayar" required>
-    <br>
-    <button type="submit">Bayar</button>
-</form>
+    <form method="POST">
+        <input type="hidden" name="id_pemesanan" value="<?= htmlspecialchars($id_pemesanan) ?>">
+        <input type="hidden" name="id_user" value="<?= htmlspecialchars($id_user) ?>">
+        <input type="hidden" name="tagihan" value="<?= htmlspecialchars($totalTagihan) ?>">
+        <div class="form-group">
+            <label for="metode_pembayaran">Metode Pembayaran:</label>
+            <select id="metode_pembayaran" name="metode_pembayaran" class="form-control" required>
+                <option value="Transfer Bank">Transfer Bank</option>
+                <option value="Kartu Kredit">Kartu Kredit</option>
+                <option value="E-Wallet">E-Wallet</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="jumlah_bayar">Jumlah Bayar:</label>
+            <input type="number" id="jumlah_bayar" name="jumlah_bayar" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary mt-3">Bayar</button>
+    </form>
+</div>

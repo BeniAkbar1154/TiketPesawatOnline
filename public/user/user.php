@@ -55,13 +55,11 @@ $users = $userController->getAllUsers();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -227,7 +225,7 @@ $users = $userController->getAllUsers();
                         data-accordion="false">
                         <!-- Menu User -->
                         <li class="nav-item">
-                            <a href="../user/user.php" class="nav-link">
+                            <a href="../user/user.php" class="nav-link active">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
                             </a>
@@ -382,15 +380,17 @@ $users = $userController->getAllUsers();
                                 <td><?= htmlspecialchars($user['email']) ?></td>
                                 <td><?= htmlspecialchars($user['level']) ?></td>
                                 <td>
-                                    <a href="edit.php?id=<?= $user['id_user'] ?>" class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="delete.php?id=<?= $user['id_user'] ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Are you sure?')">Delete</a>
+                                    <a href="edit.php?id=<?= htmlspecialchars($user['id_user']) ?>"
+                                        class="btn btn-warning btn-sm">Edit</a>
+                                    <a href="delete.php?id=<?= htmlspecialchars($user['id_user']) ?>"
+                                        class="btn btn-danger btn-sm" onclick="return confirm('Are you sure?')">Delete</a>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
             </div>
+
 
 
             <!-- /.content -->

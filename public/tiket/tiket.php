@@ -62,11 +62,9 @@ $tickets = $controller->index();
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -304,7 +302,7 @@ $tickets = $controller->index();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../tiket/tiket.php" class="nav-link">
+                                    <a href="../tiket/tiket.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Tiket</p>
                                     </a>
@@ -394,9 +392,9 @@ $tickets = $controller->index();
                                             <td><?= htmlspecialchars($ticket['terminal_asal']) ?></td>
                                             <td><?= htmlspecialchars($ticket['terminal_tujuan']) ?></td>
                                             <td>
-                                                <a href="edit.php?id=<?= $ticket['id_tiket'] ?>"
+                                                <a href="edit.php?id=<?= htmlspecialchars($ticket['id_tiket']) ?>"
                                                     class="btn btn-warning btn-sm">Edit</a>
-                                                <a href="delete.php?id=<?= $ticket['id_tiket'] ?>"
+                                                <a href="delete.php?id=<?= htmlspecialchars($ticket['id_tiket']) ?>"
                                                     onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
                                                     class="btn btn-danger btn-sm">Hapus</a>
                                             </td>
@@ -408,6 +406,7 @@ $tickets = $controller->index();
                     </div>
                 </div>
             </div>
+
 
             <!-- /.content -->
         </div>

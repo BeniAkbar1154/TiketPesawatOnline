@@ -52,13 +52,11 @@ $terminals = $controller->index();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -251,7 +249,7 @@ $terminals = $controller->index();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../terminal/terminal.php" class="nav-link">
+                                    <a href="../terminal/terminal.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Terminal</p>
                                     </a>
@@ -358,34 +356,42 @@ $terminals = $controller->index();
             <!-- Main content -->
 
             <div class="container mt-5">
-                <h1>Daftar Terminal</h1>
-                <a href="create.php" class="btn btn-primary mb-3">Tambah Terminal</a>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>ID Terminal</th>
-                            <th>Lokasi Terminal</th>
-                            <th>Nama Terminal</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($terminals as $terminal): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($terminal['id_terminal']) ?></td>
-                                <td><?= htmlspecialchars($terminal['lokasi_terminal']) ?></td>
-                                <td><?= htmlspecialchars($terminal['nama_terminal']) ?></td>
-                                <td>
-                                    <a href="edit.php?id=<?= $terminal['id_terminal'] ?>"
-                                        class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="delete.php?id=<?= $terminal['id_terminal'] ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Apakah Anda yakin ingin menghapus?')">Hapus</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Terminal</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mb-3">Tambah Terminal</a>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Terminal</th>
+                                    <th>Lokasi Terminal</th>
+                                    <th>Nama Terminal</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($terminals as $terminal): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($terminal['id_terminal']) ?></td>
+                                        <td><?= htmlspecialchars($terminal['lokasi_terminal']) ?></td>
+                                        <td><?= htmlspecialchars($terminal['nama_terminal']) ?></td>
+                                        <td>
+                                            <a href="edit.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
+                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <a href="delete.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
+                                                onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
+                                                class="btn btn-danger btn-sm">Hapus</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
 
             <!-- /.content -->
         </div>

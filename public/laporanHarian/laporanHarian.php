@@ -53,13 +53,11 @@ $laporanHarianList = $controller->getAllLaporanHarian();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -316,7 +314,7 @@ $laporanHarianList = $controller->getAllLaporanHarian();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link">
+                                    <a href="../laporanHarian/laporanHarian.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Laporan Harian</p>
                                     </a>
@@ -359,88 +357,69 @@ $laporanHarianList = $controller->getAllLaporanHarian();
             <!-- /.content-header -->
 
             <!-- Main content -->
-            <div>
-                <!-- Content Wrapper -->
-                <div class="container mt-5">
-                    <!-- Main content -->
-                    <section class="content">
-                        <div class="container-fluid">
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Daftar Laporan Harian</h3>
-                                            <div class="card-tools">
-                                                <a href="create.php" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-plus"></i> Tambah Laporan
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Laporan Harian</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus"></i> Tambah Laporan
+                        </a>
+                        <table class="table table-bordered table-hover mt-3">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Bus</th>
+                                    <th>Tanggal</th>
+                                    <th>Waktu</th>
+                                    <th>Kondisi Teknis</th>
+                                    <th>Kondisi Kebersihan</th>
+                                    <th>Bahan Bakar</th>
+                                    <th>Kondisi Jalan</th>
+                                    <th>Ketepatan Jadwal</th>
+                                    <th>Keselamatan</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($laporanHarianList)): ?>
+                                    <?php foreach ($laporanHarianList as $index => $laporan): ?>
+                                        <tr>
+                                            <td><?= $index + 1 ?></td>
+                                            <td><?= htmlspecialchars($laporan['bus_name']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['tanggal']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['waktu']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['kondisi_teknis']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['kondisi_kebersihan']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['bahan_bakar']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['kondisi_jalan']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['ketepatan_jadwal']) ?></td>
+                                            <td><?= htmlspecialchars($laporan['keselamatan']) ?></td>
+                                            <td>
+                                                <a href="edit.php?id=<?= $laporan['id_laporan_harian'] ?>"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                            </div>
-                                        </div>
-                                        <!-- /.card-header -->
-                                        <div class="card-body">
-                                            <table class="table table-bordered table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Bus</th>
-                                                        <th>Tanggal</th>
-                                                        <th>Waktu</th>
-                                                        <th>Kondisi Teknis</th>
-                                                        <th>Kondisi Kebersihan</th>
-                                                        <th>Bahan Bakar</th>
-                                                        <th>Kondisi Jalan</th>
-                                                        <th>Ketepatan Jadwal</th>
-                                                        <th>Keselamatan</th>
-                                                        <th>Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if (!empty($laporanHarianList)): ?>
-                                                        <?php foreach ($laporanHarianList as $index => $laporan): ?>
-                                                            <tr>
-                                                                <td><?= $index + 1 ?></td>
-                                                                <td><?= htmlspecialchars($laporan['bus_name']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['tanggal']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['waktu']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['kondisi_teknis']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['kondisi_kebersihan']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['bahan_bakar']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['kondisi_jalan']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['ketepatan_jadwal']) ?></td>
-                                                                <td><?= htmlspecialchars($laporan['keselamatan']) ?></td>
-                                                                <td>
-                                                                    <a href="edit.php?id=<?= $laporan['id_laporan_harian'] ?>"
-                                                                        class="btn btn-warning btn-sm">
-                                                                        <i class="fas fa-edit"></i> Edit
-                                                                    </a>
-                                                                    <a href="delete.php?id=<?= $laporan['id_laporan_harian'] ?>"
-                                                                        class="btn btn-danger btn-sm"
-                                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus laporan ini?');">
-                                                                        <i class="fas fa-trash"></i> Hapus
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="11" class="text-center">Tidak ada data laporan
-                                                                harian.</td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <!-- /.card-body -->
-                                    </div>
-                                    <!-- /.card -->
-                                </div>
-                            </div>
-                        </div><!-- /.container-fluid -->
-                    </section>
-                    <!-- /.content -->
+                                                <a href="delete.php?id=<?= $laporan['id_laporan_harian'] ?>"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus laporan ini?');">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="11" class="text-center">Tidak ada data laporan harian.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <!-- /.content-wrapper -->
             </div>
+
             <!-- /.content -->
         </div>
 

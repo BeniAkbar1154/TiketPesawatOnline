@@ -52,13 +52,11 @@ $schedules = $jadwalBusController->getAllSchedules();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -265,7 +263,7 @@ $schedules = $jadwalBusController->getAllSchedules();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link">
+                                    <a href="../jadwalBus/jadwalBus.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Jadwal Bus</p>
                                     </a>
@@ -358,94 +356,69 @@ $schedules = $jadwalBusController->getAllSchedules();
             <!-- /.content-header -->
 
             <!-- Main content -->
-            <div>
-
-                <!-- Content Wrapper -->
-                <div class="container mt-5">
-                    <!-- Main content -->
-                    <section class="content">
-                        <div class="container-fluid">
-                            <div class="row mt-3">
-                                <div class="col-12">
-                                    <div class="card">
-                                        <div class="card-header">
-                                            <h3 class="card-title">Daftar Jadwal Bus</h3>
-                                            <div class="card-tools">
-                                                <a href="create.php" class="btn btn-success btn-sm">
-                                                    <i class="fas fa-plus"></i> Tambah Jadwal
+            <div class="container mt-5">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Jadwal Bus</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mt-3">
+                            <i class="fas fa-plus"></i> Tambah Jadwal
+                        </a>
+                        <table class="table table-bordered table-hover mt-3">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Bus</th>
+                                    <th>Keberangkatan</th>
+                                    <th>Transit</th>
+                                    <th>Tujuan</th>
+                                    <th>Keberangkatan</th>
+                                    <th>Sampai</th>
+                                    <th>Harga</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($schedules)): ?>
+                                    <?php foreach ($schedules as $index => $schedule): ?>
+                                        <tr>
+                                            <td><?= $index + 1 ?></td>
+                                            <td><?= htmlspecialchars($schedule['bus_name']) ?></td>
+                                            <td><?= htmlspecialchars($schedule['keberangkatan']) ?></td>
+                                            <td><?= htmlspecialchars($schedule['transit'] ?? '-') ?></td>
+                                            <td><?= htmlspecialchars($schedule['tujuan']) ?></td>
+                                            <td><?= htmlspecialchars($schedule['datetime_keberangkatan']) ?></td>
+                                            <td><?= htmlspecialchars($schedule['datetime_sampai']) ?></td>
+                                            <td>Rp <?= number_format($schedule['harga'], 0, ',', '.') ?></td>
+                                            <td>
+                                                <a href="edit.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
                                                 </a>
-                                            </div>
-                                        </div>
-                                        <!-- /.card-header -->
-                                        <div class="card-body">
-                                            <table class="table table-bordered table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Bus</th>
-                                                        <th>Keberangkatan</th>
-                                                        <th>Transit</th>
-                                                        <th>Tujuan</th>
-                                                        <th>Keberangkatan</th>
-                                                        <th>Sampai</th>
-                                                        <th>Harga</th>
-                                                        <th>Aksi</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <?php if (!empty($schedules)): ?>
-                                                        <?php foreach ($schedules as $index => $schedule): ?>
-                                                            <tr>
-                                                                <td><?= $index + 1 ?></td>
-                                                                <td><?= htmlspecialchars($schedule['bus_name']) ?></td>
-                                                                <td><?= htmlspecialchars($schedule['keberangkatan']) ?></td>
-                                                                <td><?= htmlspecialchars($schedule['transit'] ?? '-') ?></td>
-                                                                <td><?= htmlspecialchars($schedule['tujuan']) ?></td>
-                                                                <td><?= htmlspecialchars($schedule['datetime_keberangkatan']) ?>
-                                                                </td>
-                                                                <td><?= htmlspecialchars($schedule['datetime_sampai']) ?></td>
-                                                                <td><?= htmlspecialchars(number_format($schedule['harga'], 0, ',', '.')) ?>
-                                                                </td>
-                                                                <td>
-                                                                    <a href="edit.php?id=<?= $schedule['id_jadwal_bus'] ?>"
-                                                                        class="btn btn-warning btn-sm">
-                                                                        <i class="fas fa-edit"></i> Edit
-                                                                    </a>
-                                                                    <a href="delete.php?id=<?= $schedule['id_jadwal_bus'] ?>"
-                                                                        class="btn btn-danger btn-sm"
-                                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
-                                                                        <i class="fas fa-trash"></i> Hapus
-                                                                    </a>
-                                                                    <!-- Tombol Nomor Kursi -->
-                                                                    <a href="../nomorKursi/nomorKursi.php?id_bus=<?= $schedule['id_bus'] ?>"
-                                                                        class="btn btn-info btn-sm">
-                                                                        <i class="fas fa-list"></i> Nomor Kursi
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="9" class="text-center">Tidak ada data jadwal bus.
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <!-- /.card-body -->
-                                    </div>
-                                    <!-- /.card -->
-                                </div>
-                            </div>
-                        </div><!-- /.container-fluid -->
-                    </section>
-
-                    <!-- /.content -->
+                                                <a href="delete.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </a>
+                                                <a href="../nomorKursi/nomorKursi.php?id_bus=<?= $schedule['id_bus'] ?>"
+                                                    class="btn btn-info btn-sm">
+                                                    <i class="fas fa-list"></i> Nomor Kursi
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="9" class="text-center">Tidak ada data jadwal bus.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-                <!-- /.content-wrapper -->
-
             </div>
+
 
             <!-- /.content -->
         </div>

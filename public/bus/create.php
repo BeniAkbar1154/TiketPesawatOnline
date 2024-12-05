@@ -60,13 +60,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -255,7 +253,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../bus/bus.php" class="nav-link">
+                                    <a href="../bus/bus.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
@@ -355,10 +353,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             <h1 class="m-0"></h1>
                         </div><!-- /.col -->
                         <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
+                            <!-- <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="#">Home</a></li>
                                 <li class="breadcrumb-item active">Dashboard v3</li>
-                            </ol>
+                            </ol> -->
                         </div><!-- /.col -->
                     </div><!-- /.row -->
                 </div><!-- /.container-fluid -->

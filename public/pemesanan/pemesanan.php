@@ -62,13 +62,10 @@ $pemesanan = $stmt->fetchAll();
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
-            </ul>
 
+            </ul>
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <!-- Navbar Search -->
@@ -292,7 +289,7 @@ $pemesanan = $stmt->fetchAll();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
+                                    <a href="../pemesanan/pemesanan.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>
@@ -373,7 +370,6 @@ $pemesanan = $stmt->fetchAll();
                     </div>
                     <div class="card-body">
                         <a href="create.php" class="btn btn-primary mb-3">Tambah Pemesanan</a>
-
                         <table class="table table-bordered table-hover">
                             <thead>
                                 <tr>
@@ -393,24 +389,24 @@ $pemesanan = $stmt->fetchAll();
                             <tbody>
                                 <?php foreach ($pemesanan as $item): ?>
                                     <tr>
-                                        <td><?= $item['id_pemesanan'] ?></td>
-                                        <td><?= $item['username'] ?></td>
-                                        <td><?= $item['bus'] ?></td>
-                                        <td><?= $item['rute_keberangkatan'] ?></td>
-                                        <td><?= $item['rute_tujuan'] ?></td>
-                                        <td><?= $item['tanggal_pemesanan'] ?></td>
-                                        <td><?= $item['nomor_kursi'] ?></td>
-                                        <td><?= $item['status'] ?></td>
+                                        <td><?= htmlspecialchars($item['id_pemesanan']) ?></td>
+                                        <td><?= htmlspecialchars($item['username']) ?></td>
+                                        <td><?= htmlspecialchars($item['bus']) ?></td>
+                                        <td><?= htmlspecialchars($item['rute_keberangkatan']) ?></td>
+                                        <td><?= htmlspecialchars($item['rute_tujuan']) ?></td>
+                                        <td><?= htmlspecialchars($item['tanggal_pemesanan']) ?></td>
+                                        <td><?= htmlspecialchars($item['nomor_kursi']) ?></td>
+                                        <td><?= htmlspecialchars($item['status']) ?></td>
                                         <td>Rp <?= number_format($item['tagihan'], 0, ',', '.') ?></td>
-                                        <td><?= $item['tenggat_waktu'] ?></td>
+                                        <td><?= htmlspecialchars($item['tenggat_waktu']) ?></td>
                                         <td>
-                                            <a href="edit.php?id=<?= $item['id_pemesanan'] ?>"
+                                            <a href="edit.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
                                                 class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= $item['id_pemesanan'] ?>"
+                                            <a href="delete.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
                                                 onclick="return confirm('Yakin ingin menghapus?')"
                                                 class="btn btn-danger btn-sm">Hapus</a>
                                             <?php if ($item['status'] === 'pending'): ?>
-                                                <a href="../Pembayaran/pembayaran.php?id=<?= $item['id_pemesanan'] ?>"
+                                                <a href="../Pembayaran/pembayaran.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
                                                     class="btn btn-success btn-sm">Bayar</a>
                                             <?php endif; ?>
                                         </td>
@@ -421,6 +417,7 @@ $pemesanan = $stmt->fetchAll();
                     </div>
                 </div>
             </div>
+
 
 
             <!-- /.content -->

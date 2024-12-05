@@ -52,13 +52,11 @@ $buses = $busController->getAllBuses();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -248,7 +246,7 @@ $buses = $busController->getAllBuses();
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../bus/bus.php" class="nav-link">
+                                    <a href="../bus/bus.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Bus</p>
                                     </a>
@@ -349,7 +347,7 @@ $buses = $busController->getAllBuses();
                         </div><!-- /.col -->
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
-                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item"><a href="../dashboard/dashboard.php">Home</a></li>
                                 <li class="breadcrumb-item active">Dashboard v3</li>
                             </ol>
                         </div><!-- /.col -->
@@ -360,36 +358,43 @@ $buses = $busController->getAllBuses();
 
             <!-- Main content -->
             <div class="container mt-5">
-                <h1>Daftar Bus</h1>
-                <a href="create.php" class="btn btn-primary mb-3">Tambah Bus</a>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Nama</th>
-                            <th>Tipe</th>
-                            <th>Deskripsi</th>
-                            <th>Kapasitas</th>
-                            <th>Gambar</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($buses as $bus): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($bus['nama']) ?></td>
-                                <td><?= htmlspecialchars($bus['tipe']) ?></td>
-                                <td><?= htmlspecialchars($bus['deskripsi']) ?></td>
-                                <td><?= htmlspecialchars($bus['kapasitas']) ?></td>
-                                <td><img src="../../<?= htmlspecialchars($bus['gambar']) ?>" width="100"></td>
-                                <td>
-                                    <a href="edit.php?id=<?= $bus['id_bus'] ?>" class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="delete.php?id=<?= $bus['id_bus'] ?>" class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Are you sure?')">Delete</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Bus</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mb-3">Tambah Bus</a>
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nama</th>
+                                    <th>Tipe</th>
+                                    <th>Deskripsi</th>
+                                    <th>Kapasitas</th>
+                                    <th>Gambar</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($buses as $bus): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($bus['nama']) ?></td>
+                                        <td><?= htmlspecialchars($bus['tipe']) ?></td>
+                                        <td><?= htmlspecialchars($bus['deskripsi']) ?></td>
+                                        <td><?= htmlspecialchars($bus['kapasitas']) ?></td>
+                                        <td><img src="../../<?= htmlspecialchars($bus['gambar']) ?>" width="100"></td>
+                                        <td>
+                                            <a href="edit.php?id=<?= $bus['id_bus'] ?>"
+                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <a href="delete.php?id=<?= $bus['id_bus'] ?>" class="btn btn-danger btn-sm"
+                                                onclick="return confirm('Are you sure?')">Delete</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
 

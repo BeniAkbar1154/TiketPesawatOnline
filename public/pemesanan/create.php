@@ -101,13 +101,10 @@ $jadwal_bus = $pdo->query("
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li>
-            </ul>
 
+            </ul>
             <!-- Right navbar links -->
             <ul class="navbar-nav ml-auto">
                 <!-- Navbar Search -->
@@ -331,7 +328,7 @@ $jadwal_bus = $pdo->query("
                             </a>
                             <ul class="nav nav-treeview">
                                 <li class="nav-item">
-                                    <a href="../pemesanan/pemesanan.php" class="nav-link">
+                                    <a href="../pemesanan/pemesanan.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemesanan</p>
                                     </a>

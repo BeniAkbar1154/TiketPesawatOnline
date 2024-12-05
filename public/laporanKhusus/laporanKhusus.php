@@ -52,13 +52,11 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -321,7 +319,7 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link">
+                                    <a href="../laporanKhusus/laporanKhusus.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Laporan Khusus</p>
                                     </a>
@@ -360,43 +358,58 @@ $laporanKhususList = $controller->getAllLaporanKhusus();
             <!-- Main content -->
 
             <div class="container mt-5">
-                <h1>Daftar Laporan Khusus</h1>
-                <a href="create.php" class="btn btn-primary mb-3">
-                    <i class="fas fa-plus"></i> Tambah Laporan Khusus
-                </a>
-                <table class="table table-bordered table-hover">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Bus</th>
-                            <th>User</th>
-                            <th>Tanggal</th>
-                            <th>Masalah</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($laporanKhususList as $index => $laporan): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($index + 1) ?></td>
-                                <td><?= htmlspecialchars($laporan['bus_name'] ?? 'Tidak Ada') ?></td>
-                                <td><?= htmlspecialchars($laporan['user_name'] ?? 'Tidak Ada') ?></td>
-                                <td><?= htmlspecialchars($laporan['tanggal'] ?? '') ?></td>
-                                <td><?= htmlspecialchars($laporan['masalah'] ?? 'Tidak Ada') ?></td>
-                                <td>
-                                    <a href="edit.php?id=<?= $laporan['id_laporan_khusus'] ?>"
-                                        class="btn btn-warning btn-sm">
-                                        Edit
-                                    </a>
-                                    <a href="delete.php?id=<?= $laporan['id_laporan_khusus'] ?>"
-                                        class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Yakin ingin menghapus?');">Hapus</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Daftar Laporan Khusus</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mb-3">
+                            <i class="fas fa-plus"></i> Tambah Laporan Khusus
+                        </a>
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Bus</th>
+                                    <th>User</th>
+                                    <th>Tanggal</th>
+                                    <th>Masalah</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($laporanKhususList)): ?>
+                                    <?php foreach ($laporanKhususList as $index => $laporan): ?>
+                                        <tr>
+                                            <td><?= htmlspecialchars($index + 1) ?></td>
+                                            <td><?= htmlspecialchars($laporan['bus_name'] ?? 'Tidak Ada') ?></td>
+                                            <td><?= htmlspecialchars($laporan['user_name'] ?? 'Tidak Ada') ?></td>
+                                            <td><?= htmlspecialchars($laporan['tanggal'] ?? '') ?></td>
+                                            <td><?= htmlspecialchars($laporan['masalah'] ?? 'Tidak Ada') ?></td>
+                                            <td>
+                                                <a href="edit.php?id=<?= $laporan['id_laporan_khusus'] ?>"
+                                                    class="btn btn-warning btn-sm">
+                                                    <i class="fas fa-edit"></i> Edit
+                                                </a>
+                                                <a href="delete.php?id=<?= $laporan['id_laporan_khusus'] ?>"
+                                                    class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Yakin ingin menghapus?');">
+                                                    <i class="fas fa-trash"></i> Hapus
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="6" class="text-center">Tidak ada data laporan khusus.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
+
 
 
             <!-- /.content -->

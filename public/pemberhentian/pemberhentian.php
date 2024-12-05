@@ -52,13 +52,11 @@ $pemberhentianList = $controller->getAllPemberhentian();
             <ul class="navbar-nav">
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-                    <!-- </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="index3.html" class="nav-link">Home</a>
                 </li>
                 <li class="nav-item d-none d-sm-inline-block">
-                    <a href="#" class="nav-link">Contact</a>
-                </li> -->
+                    <a href="../dashboard/dashboard.php" class="nav-link">Home</a>
+                </li>
+
             </ul>
 
             <!-- Right navbar links -->
@@ -223,7 +221,7 @@ $pemberhentianList = $controller->getAllPemberhentian();
                         data-accordion="false">
                         <!-- Menu User -->
                         <li class="nav-item">
-                            <a href="../user/user.php" class="nav-link active">
+                            <a href="../user/user.php" class="nav-link">
                                 <i class="nav-icon fas fa-users"></i> <!-- Ikon User -->
                                 <p>User</p>
                             </a>
@@ -258,7 +256,7 @@ $pemberhentianList = $controller->getAllPemberhentian();
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link">
+                                    <a href="../pemberhentian/pemberhentian.php" class="nav-link active">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Pemberhentian</p>
                                     </a>
@@ -360,33 +358,40 @@ $pemberhentianList = $controller->getAllPemberhentian();
 
             <div class="container mt-5">
                 <h1>Daftar Pemberhentian</h1>
-                <a href="create.php" class="btn btn-primary mb-3">Tambah Pemberhentian</a>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>ID Pemberhentian</th>
-                            <th>Nama Pemberhentian</th>
-                            <th>Lokasi Pemberhentian</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($pemberhentianList as $row): ?>
-                            <tr>
-                                <td><?= htmlspecialchars($row['id_pemberhentian'] ?? '') ?></td>
-                                <td><?= htmlspecialchars($row['nama_pemberhentian'] ?? '') ?></td>
-                                <td><?= htmlspecialchars($row['lokasi_pemberhentian'] ?? '') ?></td>
-                                <td>
-                                    <a href="edit.php?id=<?= $row['id_pemberhentian'] ?>"
-                                        class="btn btn-warning btn-sm">Edit</a>
-                                    <a href="delete.php?id=<?= $row['id_pemberhentian'] ?>"
-                                        onclick="return confirm('Yakin ingin menghapus?')"
-                                        class="btn btn-danger btn-sm">Hapus</a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Pemberhentian</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="create.php" class="btn btn-primary mb-3">Tambah Pemberhentian</a>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>ID Pemberhentian</th>
+                                    <th>Nama Pemberhentian</th>
+                                    <th>Lokasi Pemberhentian</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($pemberhentianList as $row): ?>
+                                    <tr>
+                                        <td><?= htmlspecialchars($row['id_pemberhentian'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($row['nama_pemberhentian'] ?? '') ?></td>
+                                        <td><?= htmlspecialchars($row['lokasi_pemberhentian'] ?? '') ?></td>
+                                        <td>
+                                            <a href="edit.php?id=<?= $row['id_pemberhentian'] ?>"
+                                                class="btn btn-warning btn-sm">Edit</a>
+                                            <a href="delete.php?id=<?= $row['id_pemberhentian'] ?>"
+                                                onclick="return confirm('Yakin ingin menghapus?')"
+                                                class="btn btn-danger btn-sm">Hapus</a>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
 
