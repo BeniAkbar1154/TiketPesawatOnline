@@ -1,6 +1,6 @@
 <?php
 require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/database/db_connection.php';
-require_once $_SERVER['DOCUMENT_ROOT'] . '/path/to/tcpdf/tcpdf.php';
+require_once $_SERVER['DOCUMENT_ROOT'] . '/TiketTransportasiOnline/vendor/tecnickcom/tcpdf/tcpdf.php';
 
 // Mengambil ID pemesanan dari URL parameter
 $id_pemesanan = $_GET['id'] ?? null;
