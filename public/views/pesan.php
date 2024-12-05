@@ -216,6 +216,7 @@ $pemesanan_list = $stmtPemesanan->fetchAll();
         <div class="container mt-5">
             <h1>Pesan Anda</h1>
 
+            <!-- Daftar Pesan -->
             <?php if ($pesan_list): ?>
                 <table class="table table-bordered">
                     <thead>
@@ -241,13 +242,15 @@ $pemesanan_list = $stmtPemesanan->fetchAll();
                 <p>Belum ada pesan yang dikirim.</p>
             <?php endif; ?>
 
-            <!-- Tambahkan Tabel Pemesanan Anda di bawah Pesan Anda -->
             <h2>Pemesanan Anda</h2>
+
+            <!-- Daftar Pemesanan -->
             <?php if ($pemesanan_list): ?>
                 <table class="table table-bordered">
                     <thead>
                         <tr>
                             <th>ID Pemesanan</th>
+                            <th>Nama Pengguna</th>
                             <th>Bus</th>
                             <th>Keberangkatan</th>
                             <th>Tujuan</th>
@@ -263,6 +266,7 @@ $pemesanan_list = $stmtPemesanan->fetchAll();
                         <?php foreach ($pemesanan_list as $item): ?>
                             <tr>
                                 <td><?= $item['id_pemesanan'] ?></td>
+                                <td><?= $item['username'] ?></td>
                                 <td><?= $item['bus'] ?></td>
                                 <td><?= $item['rute_keberangkatan'] ?></td>
                                 <td><?= $item['rute_tujuan'] ?></td>
@@ -272,10 +276,16 @@ $pemesanan_list = $stmtPemesanan->fetchAll();
                                 <td>Rp <?= number_format($item['tagihan'], 0, ',', '.') ?></td>
                                 <td><?= $item['tenggat_waktu'] ?></td>
                                 <td>
-                                    <!-- Tampilkan aksi hanya untuk pesan yang berstatus 'pending' -->
                                     <?php if ($item['status'] === 'pending'): ?>
-                                        <a href="../Pembayaran/pembayaran.php?id=<?= $item['id_pemesanan'] ?>"
+                                        <a href="../pembayaran/pembayaranUser.php?id=<?= $item['id_pemesanan'] ?>"
                                             class="btn btn-success btn-sm">Bayar</a>
+                                        <a href="../pembayaran/cancel.php?id=<?= $item['id_pemesanan'] ?>"
+                                            class="btn btn-danger btn-sm"
+                                            onclick="return confirm('Yakin ingin membatalkan pemesanan?')">Cancel</a>
+                                    <?php elseif ($item['status'] === 'confirmed'): ?>
+                                        <a href="generate_tiket.php?id=<?= $item['id_pemesanan'] ?>"
+                                            class="btn btn-primary btn-sm">Generate
+                                            Tiket</a>
                                     <?php endif; ?>
                                 </td>
                             </tr>

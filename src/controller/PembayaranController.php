@@ -22,7 +22,36 @@ class PembayaranController
 
     public function createPembayaran($data)
     {
-        return $this->model->createPembayaran($data);
+        // Lakukan insert pembayaran terlebih dahulu
+        $this->model->createPembayaran($data);
+
+        // Ambil ID pemesanan dari data yang baru saja dibayar
+        $id_pemesanan = $data['id_pemesanan'];
+
+        // Ambil tagihan dan total pembayaran untuk pemesanan ini
+        $tagihan = $this->getTagihanById($id_pemesanan);
+        $totalPembayaran = $this->getTotalPembayaran($id_pemesanan);
+
+        // Jika total pembayaran sama dengan atau lebih besar dari tagihan, ubah status menjadi 'confirmed' (lunas)
+        if ($totalPembayaran >= $tagihan) {
+            // Gunakan status 'confirmed' untuk menandakan bahwa pembayaran telah lunas
+            $status = 'confirmed';
+
+            // Update status pemesanan menjadi 'confirmed'
+            $sql = "UPDATE pemesanan SET status = :status WHERE id_pemesanan = :id_pemesanan";
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->execute(['status' => $status, 'id_pemesanan' => $id_pemesanan]);
+        }
+
+        return true;
+    }
+
+    public function cancelPembayaran($id_pemesanan)
+    {
+        // Update status pemesanan menjadi 'cancelled'
+        $sql = "UPDATE pemesanan SET status = 'cancelled' WHERE id_pemesanan = :id_pemesanan";
+        $stmt = $this->pdo->prepare($sql);
+        return $stmt->execute(['id_pemesanan' => $id_pemesanan]);
     }
 
     public function getPembayaranById($id)
