@@ -370,7 +370,9 @@ $pemberhentianList = $controller->getAllPemberhentian();
                                     <th>ID Pemberhentian</th>
                                     <th>Nama Pemberhentian</th>
                                     <th>Lokasi Pemberhentian</th>
-                                    <th>Aksi</th>
+                                    <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -379,13 +381,15 @@ $pemberhentianList = $controller->getAllPemberhentian();
                                         <td><?= htmlspecialchars($row['id_pemberhentian'] ?? '') ?></td>
                                         <td><?= htmlspecialchars($row['nama_pemberhentian'] ?? '') ?></td>
                                         <td><?= htmlspecialchars($row['lokasi_pemberhentian'] ?? '') ?></td>
-                                        <td>
-                                            <a href="edit.php?id=<?= $row['id_pemberhentian'] ?>"
-                                                class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= $row['id_pemberhentian'] ?>"
-                                                onclick="return confirm('Yakin ingin menghapus?')"
-                                                class="btn btn-danger btn-sm">Hapus</a>
-                                        </td>
+                                        <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                            <td>
+                                                <a href="edit.php?id=<?= $row['id_pemberhentian'] ?>"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete.php?id=<?= $row['id_pemberhentian'] ?>"
+                                                    onclick="return confirm('Yakin ingin menghapus?')"
+                                                    class="btn btn-danger btn-sm">Hapus</a>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -393,6 +397,7 @@ $pemberhentianList = $controller->getAllPemberhentian();
                     </div>
                 </div>
             </div>
+
 
 
             <!-- /.content -->

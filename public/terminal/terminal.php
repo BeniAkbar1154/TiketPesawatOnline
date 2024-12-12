@@ -368,7 +368,9 @@ $terminals = $controller->index();
                                     <th>ID Terminal</th>
                                     <th>Lokasi Terminal</th>
                                     <th>Nama Terminal</th>
-                                    <th>Aksi</th>
+                                    <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -377,13 +379,15 @@ $terminals = $controller->index();
                                         <td><?= htmlspecialchars($terminal['id_terminal']) ?></td>
                                         <td><?= htmlspecialchars($terminal['lokasi_terminal']) ?></td>
                                         <td><?= htmlspecialchars($terminal['nama_terminal']) ?></td>
-                                        <td>
-                                            <a href="edit.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
-                                                class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
-                                                onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
-                                                class="btn btn-danger btn-sm">Hapus</a>
-                                        </td>
+                                        <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                            <td>
+                                                <a href="edit.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete.php?id=<?= htmlspecialchars($terminal['id_terminal']) ?>"
+                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus?')"
+                                                    class="btn btn-danger btn-sm">Hapus</a>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -391,6 +395,7 @@ $terminals = $controller->index();
                     </div>
                 </div>
             </div>
+
 
 
             <!-- /.content -->

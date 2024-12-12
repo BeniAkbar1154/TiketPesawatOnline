@@ -376,7 +376,9 @@ $schedules = $jadwalBusController->getAllSchedules();
                                     <th>Keberangkatan</th>
                                     <th>Sampai</th>
                                     <th>Harga</th>
-                                    <th>Aksi</th>
+                                    <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -391,16 +393,20 @@ $schedules = $jadwalBusController->getAllSchedules();
                                             <td><?= htmlspecialchars($schedule['datetime_keberangkatan']) ?></td>
                                             <td><?= htmlspecialchars($schedule['datetime_sampai']) ?></td>
                                             <td>Rp <?= number_format($schedule['harga'], 0, ',', '.') ?></td>
+                                            <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                                <td>
+                                                    <a href="edit.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                        class="btn btn-warning btn-sm">
+                                                        <i class="fas fa-edit"></i> Edit
+                                                    </a>
+                                                    <a href="delete.php?id=<?= $schedule['id_jadwal_bus'] ?>"
+                                                        class="btn btn-danger btn-sm"
+                                                        onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
+                                                        <i class="fas fa-trash"></i> Hapus
+                                                    </a>
+                                                </td>
+                                            <?php endif; ?>
                                             <td>
-                                                <a href="edit.php?id=<?= $schedule['id_jadwal_bus'] ?>"
-                                                    class="btn btn-warning btn-sm">
-                                                    <i class="fas fa-edit"></i> Edit
-                                                </a>
-                                                <a href="delete.php?id=<?= $schedule['id_jadwal_bus'] ?>"
-                                                    class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Apakah Anda yakin ingin menghapus jadwal ini?');">
-                                                    <i class="fas fa-trash"></i> Hapus
-                                                </a>
                                                 <a href="../nomorKursi/nomorKursi.php?id_bus=<?= $schedule['id_bus'] ?>"
                                                     class="btn btn-info btn-sm">
                                                     <i class="fas fa-list"></i> Nomor Kursi
@@ -418,6 +424,7 @@ $schedules = $jadwalBusController->getAllSchedules();
                     </div>
                 </div>
             </div>
+
 
 
             <!-- /.content -->

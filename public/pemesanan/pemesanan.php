@@ -383,7 +383,9 @@ $pemesanan = $stmt->fetchAll();
                                     <th>Status</th>
                                     <th>Tagihan</th>
                                     <th>Tenggat Waktu</th>
-                                    <th>Aksi</th>
+                                    <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -399,17 +401,19 @@ $pemesanan = $stmt->fetchAll();
                                         <td><?= htmlspecialchars($item['status']) ?></td>
                                         <td>Rp <?= number_format($item['tagihan'], 0, ',', '.') ?></td>
                                         <td><?= htmlspecialchars($item['tenggat_waktu']) ?></td>
-                                        <td>
-                                            <a href="edit.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
-                                                class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
-                                                onclick="return confirm('Yakin ingin menghapus?')"
-                                                class="btn btn-danger btn-sm">Hapus</a>
-                                            <?php if ($item['status'] === 'pending'): ?>
-                                                <a href="../Pembayaran/pembayaran.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
-                                                    class="btn btn-success btn-sm">Bayar</a>
-                                            <?php endif; ?>
-                                        </td>
+                                        <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                            <td>
+                                                <a href="edit.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
+                                                    onclick="return confirm('Yakin ingin menghapus?')"
+                                                    class="btn btn-danger btn-sm">Hapus</a>
+                                                <?php if ($item['status'] === 'pending'): ?>
+                                                    <a href="../Pembayaran/pembayaran.php?id=<?= htmlspecialchars($item['id_pemesanan']) ?>"
+                                                        class="btn btn-success btn-sm">Bayar</a>
+                                                <?php endif; ?>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -417,6 +421,7 @@ $pemesanan = $stmt->fetchAll();
                     </div>
                 </div>
             </div>
+
 
 
 

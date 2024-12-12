@@ -15,7 +15,7 @@ $userLevel = $_SESSION['user']['level'];
 $userName = $_SESSION['user']['username']; // Ambil username dari session
 
 // Periksa apakah level user adalah 'customer'
-if ($userLevel === 'customer') {
+if ($userLevel !== 'admin' && $userLevel !== 'superAdmin') {
     echo "Akses ditolak. Anda tidak memiliki izin untuk mengakses halaman ini.";
     exit();
 }

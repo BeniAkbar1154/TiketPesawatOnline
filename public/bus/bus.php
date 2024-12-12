@@ -372,7 +372,9 @@ $buses = $busController->getAllBuses();
                                     <th>Deskripsi</th>
                                     <th>Kapasitas</th>
                                     <th>Gambar</th>
-                                    <th>Aksi</th>
+                                    <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                        <th>Aksi</th>
+                                    <?php endif; ?>
                                 </tr>
                             </thead>
                             <tbody>
@@ -383,15 +385,18 @@ $buses = $busController->getAllBuses();
                                         <td><?= htmlspecialchars($bus['deskripsi']) ?></td>
                                         <td><?= htmlspecialchars($bus['kapasitas']) ?></td>
                                         <td><img src="../../<?= htmlspecialchars($bus['gambar']) ?>" width="100"></td>
-                                        <td>
-                                            <a href="edit.php?id=<?= $bus['id_bus'] ?>"
-                                                class="btn btn-warning btn-sm">Edit</a>
-                                            <a href="delete.php?id=<?= $bus['id_bus'] ?>" class="btn btn-danger btn-sm"
-                                                onclick="return confirm('Are you sure?')">Delete</a>
-                                        </td>
+                                        <?php if ($userLevel === 'admin' || $userLevel === 'superAdmin'): ?>
+                                            <td>
+                                                <a href="edit.php?id=<?= $bus['id_bus'] ?>"
+                                                    class="btn btn-warning btn-sm">Edit</a>
+                                                <a href="delete.php?id=<?= $bus['id_bus'] ?>" class="btn btn-danger btn-sm"
+                                                    onclick="return confirm('Are you sure?')">Delete</a>
+                                            </td>
+                                        <?php endif; ?>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
