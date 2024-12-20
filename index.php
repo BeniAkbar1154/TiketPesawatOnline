@@ -569,20 +569,8 @@ if ($isLoggedIn && isset($_SESSION['id_user'])) {
                 <div class="col-lg-10 border rounded p-1">
                     <div class="border rounded text-center p-1">
                         <div class="bg-white rounded text-center p-5">
-                            <h4 class="mb-4">Hubungi <span class="text-primary text-uppercase">Kami</span></h4>
-                            <form id="pesanForm">
-                                <div class="position-relative mx-auto" style="max-width: 400px;">
-                                    <!-- Input untuk ID User -->
-                                    <input class="form-control w-100 py-3 ps-4 pe-5 mb-3" type="text" name="id_user"
-                                        id="id_user" placeholder="Masukkan ID Anda" required>
-                                </div>
-                                <div class="position-relative mx-auto" style="max-width: 400px;">
-                                    <!-- Input untuk Pesan -->
-                                    <textarea class="form-control w-100 py-3 ps-4 pe-5 mb-3" name="pesan" id="pesan"
-                                        placeholder="Masukkan pesan Anda" rows="4" required></textarea>
-                                </div>
-                                <button type="submit" class="btn btn-primary py-2 px-4 mt-2">Kirim Pesan</button>
-                            </form>
+                            <h4 class="mb-4">Tiket Bus <span class="text-primary text-uppercase">Online</span></h4>
+
                             <div id="responseMessage" class="mt-3"></div>
                         </div>
                     </div>
